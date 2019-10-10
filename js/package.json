@@ -21,6 +21,7 @@
     "apollo-link": "^1.2.11",
     "apollo-link-http": "^1.5.16",
     "buefy": "^0.8.2",
+    "eslint-plugin-vue": "^5.2.3",
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
     "leaflet": "^1.4.0",

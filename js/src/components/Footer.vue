@@ -1,56 +1,85 @@
 <template>
-    <footer class="footer" ref="footer">
-        <mobilizon-logo :invert="true" class="logo" />
-        <img src="../assets/footer.png" :alt="$t('World map')" />
-        <ul>
-            <li><a href="https://joinmobilizon.org">{{ $t('About') }}</a></li>
-            <li><a href="https://framagit.org/framasoft/mobilizon/blob/master/LICENSE">{{ $t('License') }}</a></li>
-        </ul>
-        <div class="content has-text-centered">
-            <span>{{ $t('© The Mobilizon Contributors {date} - Made with Elixir, Phoenix, VueJS & with some love and some weeks', { date: new Date().getFullYear()}) }}</span>
-        </div>
-    </footer>
+	<footer class="footer" ref="footer">
+		<mobilizon-logo :invert="true" class="logo"/>
+		<img src="../assets/footer.png" :alt="$t('World map')"/>
+		<ul>
+			<li><a href="https://joinmobilizon.org">{{ $t('About') }}</a></li>
+			<li><a href="https://framagit.org/framasoft/mobilizon/blob/master/LICENSE">{{ $t('License') }}</a></li>
+		</ul>
+		<div class="content has-text-centered">
+			<span>{{ $t('© The Mobilizon Contributors {date} - Made with Elixir, Phoenix, VueJS & with some love and some weeks', { date: new Date().getFullYear()}) }}</span>
+		</div>
+		<div id='back_to_top'>↑</div>
+	</footer>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import Logo from './Logo.vue';
+    import {Component, Vue} from 'vue-property-decorator';
+    import Logo from './Logo.vue';
 
-@Component({
-  components: {
-    'mobilizon-logo': Logo,
-  },
-})
-export default class Footer extends Vue {
-}
-</script>
-<style lang="scss" scoped>
-    @import "../variables.scss";
+    @Component({
+        components: {
+            'mobilizon-logo': Logo,
+        },
+        /**
+         * listen on click on the top button to go back to the top smoothly
+         */
+        mounted: function () {
+            const btnId = 'back_to_top';
+            const btn = document.getElementById(btnId);
 
-    footer.footer {
-        color: $secondary;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-        .logo {
-            fill: $secondary;
-            flex: 1;
-        }
-
-        div.content {
-            flex: 1;
-        }
-
-        ul li {
-            display: inline-flex;
-            margin: auto 5px;
-
-            a {
-                color: #eee;
-                font-size: 1.5rem;
-                text-decoration: underline;
-                text-decoration-color: $secondary;
+            if (btn) {
+                btn.addEventListener('click', () => window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth',
+                }));
+            } else {
+                console.error(`back to top button reference element by ID "${btnId}" not found`)
             }
         }
+    })
+    export default class Footer extends Vue {
     }
+</script>
+<style lang="scss" scoped>
+	@import "../variables.scss";
+
+	footer.footer {
+		color: $secondary;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		.logo {
+			fill: $secondary;
+			flex: 1;
+		}
+
+		div.content {
+			flex: 1;
+		}
+
+		ul li {
+			display: inline-flex;
+			margin: auto 5px;
+
+			a {
+				color: #eee;
+				font-size: 1.5rem;
+				text-decoration: underline;
+				text-decoration-color: $secondary;
+			}
+		}
+
+		#back_to_top {
+			position: fixed;
+			bottom: 1em;
+			right: 1em;
+			display: inline-block;
+			background: $primary;
+			color: $primary-invert;
+			padding: 2em;
+			border-radius: 2em;
+			border: solid 2px solid $primary;
+		}
+	}
 </style>

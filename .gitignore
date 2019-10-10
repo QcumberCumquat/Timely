@@ -37,3 +37,4 @@ uploads/*
 .idea
 *.mo
 *.po~
+/node_modules
