@@ -13,32 +13,32 @@
 	</footer>
 </template>
 <script lang="ts">
-    import {Component, Vue} from 'vue-property-decorator';
-    import Logo from './Logo.vue';
+  import {Component, Vue} from 'vue-property-decorator';
+  import Logo from './Logo.vue';
 
-    @Component({
-        components: {
-            'mobilizon-logo': Logo,
-        },
-        /**
-         * listen on click on the top button to go back to the top smoothly
-         */
-        mounted: function () {
-            const btnId = 'back_to_top';
-            const btn = document.getElementById(btnId);
+  @Component({
+    components: {
+      'mobilizon-logo': Logo,
+    },
+    /**
+     * listen on click on the top button to go back to the top smoothly
+     */
+    mounted() {
+      const btnId = 'back_to_top';
+      const btn = document.getElementById(btnId);
 
-            if (btn) {
-                btn.addEventListener('click', () => window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth',
-                }));
-            } else {
-                console.error(`back to top button reference element by ID "${btnId}" not found`)
-            }
-        }
-    })
-    export default class Footer extends Vue {
-    }
+      if (btn) {
+        btn.addEventListener('click', () => window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        }));
+      } else {
+        console.error(`back to top button reference element by ID "${btnId}" not found`);
+      }
+    },
+  })
+  export default class Footer extends Vue {
+  }
 </script>
 <style lang="scss" scoped>
 	@import "../variables.scss";
