@@ -117,6 +117,7 @@ import { IConfig } from '@/types/config.model';
     events: {
       query: FETCH_EVENTS,
       fetchPolicy: 'no-cache', // Debug me: https://github.com/apollographql/apollo-client/issues/3030
+      update: data => data.events.map(event => new EventModel(event)),
     },
     currentActor: {
       query: CURRENT_ACTOR_CLIENT,
@@ -250,8 +251,10 @@ export default class Home extends Vue {
   }
 
   get filteredFeaturedEvents() {
-    if (!this.currentUser.isLoggedIn || !this.currentActor.id) return this.events;
-    return this.events.filter(event => event.organizerActor && event.organizerActor.id !== this.currentActor.id);
+    if (!this.currentUser.isLoggedIn || !this.currentActor.id) return this.events.filter((event: IEvent) => event.beginsOn > new Date());
+    return this.events.filter(event => event.organizerActor &&
+            event.organizerActor.id !== this.currentActor.id &&
+            event.beginsOn > new Date());
   }
 
   geoLocalize() {
