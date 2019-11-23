@@ -21,6 +21,9 @@ defmodule Mobilizon.Config do
   @spec instance_registrations_open? :: boolean
   def instance_registrations_open?, do: to_boolean(instance_config()[:registrations_open])
 
+  @spec instance_demo_mode? :: boolean
+  def instance_demo_mode?, do: to_boolean(instance_config()[:demo])
+
   @spec instance_repository :: String.t()
   def instance_repository, do: instance_config()[:repository]
 
@@ -33,6 +36,21 @@ defmodule Mobilizon.Config do
   @spec instance_user_agent :: String.t()
   def instance_user_agent,
     do: "#{instance_name()} #{instance_hostname()} - Mobilizon #{Mix.Project.config()[:version]}"
+
+  @spec instance_geocoding_provider :: atom()
+  def instance_geocoding_provider,
+    do: get_in(Application.get_env(:mobilizon, Mobilizon.Service.Geospatial), [:service])
+
+  @spec instance_geocoding_autocomplete :: boolean
+  def instance_geocoding_autocomplete,
+    do: instance_geocoding_provider() !== Mobilizon.Service.Geospatial.Nominatim
+
+  @spec instance_maps_tiles_endpoint :: String.t()
+  def instance_maps_tiles_endpoint, do: Application.get_env(:mobilizon, :maps)[:tiles][:endpoint]
+
+  @spec instance_maps_tiles_attribution :: String.t()
+  def instance_maps_tiles_attribution,
+    do: Application.get_env(:mobilizon, :maps)[:tiles][:attribution]
 
   @spec get(module | atom) :: any
   def get(key), do: get(key, nil)

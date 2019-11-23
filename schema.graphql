@@ -1,5 +1,5 @@
 # source: http://localhost:4000/api
-# timestamp: Fri Oct 11 2019 11:53:52 GMT+0200 (Central European Summer Time)
+# timestamp: Thu Nov 21 2019 15:58:08 GMT+0100 (Central European Standard Time)
 
 schema {
   query: RootQueryType
@@ -119,9 +119,6 @@ type Address {
   country: String
   description: String
 
-  """The floor this event is at"""
-  floor: String
-
   """The geocoordinates for the point where this address is"""
   geom: Point
   id: ID
@@ -134,6 +131,7 @@ type Address {
 
   """The address's street name (with number)"""
   street: String
+  type: String
   url: String
 }
 
@@ -141,9 +139,6 @@ input AddressInput {
   country: String
   description: String
 
-  """The floor this event is at"""
-  floor: String
-
   """The geocoordinates for the point where this address is"""
   geom: Point
   id: ID
@@ -156,6 +151,7 @@ input AddressInput {
 
   """The address's street name (with number)"""
   street: String
+  type: String
   url: String
 }
 
@@ -193,7 +189,12 @@ enum CommentVisibility {
 
 """A config object"""
 type Config {
+  countryCode: String
+  demoMode: Boolean
   description: String
+  geocoding: Geocoding
+  location: Lonlat
+  maps: Maps
   name: String
   registrationsOpen: Boolean
 }
@@ -400,11 +401,17 @@ type EventOptions {
   """The number of remaining seats for this event"""
   remainingAttendeeCapacity: Int
 
+  """Show event end time"""
+  showEndTime: Boolean
+
   """Whether or not to show the participation price"""
   showParticipationPrice: Boolean
 
   """Whether or not to show the number of remaining seats for this event"""
   showRemainingAttendeeCapacity: Boolean
+
+  """Show event start time"""
+  showStartTime: Boolean
 }
 
 input EventOptionsInput {
@@ -429,11 +436,17 @@ input EventOptionsInput {
   """The number of remaining seats for this event"""
   remainingAttendeeCapacity: Int
 
+  """Show event end time"""
+  showEndTime: Boolean
+
   """Whether or not to show the participation price"""
   showParticipationPrice: Boolean
 
   """Whether or not to show the number of remaining seats for this event"""
   showRemainingAttendeeCapacity: Boolean
+
+  """Show event start time"""
+  showStartTime: Boolean
 }
 
 type EventParticipationCondition {
@@ -519,6 +532,11 @@ type Follower {
 
   """What or who the profile follows"""
   targetActor: Actor
+}
+
+type Geocoding {
+  autocomplete: Boolean
+  provider: String
 }
 
 """
@@ -623,6 +641,16 @@ type Login {
   user: User!
 }
 
+type Lonlat {
+  accuracyRadius: Int
+  latitude: Float
+  longitude: Float
+}
+
+type Maps {
+  tiles: Tiles
+}
+
 """
 Represents a member of a group
 
@@ -678,17 +706,26 @@ enum ParticipantRoleEnum {
 }
 
 type ParticipantStats {
+  """The number of administrators"""
+  administrator: Int
+
+  """The number of creators"""
+  creator: Int
+
   """The number of approved participants"""
-  approved: Int
+  going: Int
+
+  """The number of moderators"""
+  moderator: Int
+
+  """The number of not approved participants"""
+  notApproved: Int
 
   """The number of simple participants (excluding creators)"""
-  participants: Int
+  participant: Int
 
   """The number of rejected participants"""
   rejected: Int
-
-  """The number of unapproved participants"""
-  unapproved: Int
 }
 
 """
@@ -796,7 +833,7 @@ type Picture {
 """An attached picture or a link to a picture"""
 input PictureInput {
   picture: PictureInputObject
-  pictureId: String
+  pictureId: ID
 }
 
 """An attached picture"""
@@ -896,7 +933,7 @@ type RootMutationType {
   changePassword(newPassword: String!, oldPassword: String!): User
 
   """Create a comment"""
-  createComment(actorUsername: String!, text: String!): Comment
+  createComment(actorId: ID!, text: String!): Comment
 
   """Create an event"""
   createEvent(
@@ -1056,6 +1093,7 @@ type RootMutationType {
     joinOptions: EventJoinOptions = FREE
     onlineAddress: String
     options: EventOptionsInput
+    organizerActorId: ID
     phoneAddress: String
     physicalAddress: AddressInput
 
@@ -1122,10 +1160,10 @@ type RootQueryType {
   """Get all events"""
   events(limit: Int = 10, page: Int = 1): [Event]
 
-  """Get a person by it's (federated) username"""
+  """Get a person by its (federated) username"""
   fetchPerson(preferredUsername: String!): Person
 
-  """Get a group by it's preferred username"""
+  """Get a group by its preferred username"""
   group(preferredUsername: String!): Group
 
   """Get all groups"""
@@ -1140,7 +1178,7 @@ type RootQueryType {
   """Get the current user"""
   loggedUser: User
 
-  """Get a person by it's ID"""
+  """Get a person by its ID"""
   person(id: ID!): Person
 
   """Get a picture"""
@@ -1153,10 +1191,10 @@ type RootQueryType {
   reports(limit: Int = 10, page: Int = 1, status: ReportStatus = OPEN): [Report]
 
   """Reverse geocode coordinates"""
-  reverseGeocode(latitude: Float!, longitude: Float!): [Address]
+  reverseGeocode(latitude: Float!, locale: String = "en", longitude: Float!, zoom: Int = 15): [Address]
 
   """Search for an address"""
-  searchAddress(limit: Int = 10, page: Int = 1, query: String!): [Address]
+  searchAddress(limit: Int = 10, locale: String = "en", page: Int = 1, query: String!): [Address]
 
   """Search events"""
   searchEvents(limit: Int = 10, page: Int = 1, search: String!): Events
@@ -1201,6 +1239,11 @@ type Tag {
 
   """The tag's title"""
   title: String
+}
+
+type Tiles {
+  attribution: String
+  endpoint: String
 }
 
 """

@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import { ApolloLink, Observable } from 'apollo-link';
-import { InMemoryCache, IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
+import { defaultDataIdFromObject, InMemoryCache, IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
 import { onError } from 'apollo-link-error';
 import { createLink } from 'apollo-absinthe-upload-link';
 import { GRAPHQL_API_ENDPOINT, GRAPHQL_API_FULL_PATH } from './api/_entrypoint';
@@ -11,6 +11,8 @@ import { isServerError } from '@/types/apollo';
 import { REFRESH_TOKEN } from '@/graphql/auth';
 import { AUTH_ACCESS_TOKEN, AUTH_REFRESH_TOKEN } from '@/constants';
 import { logout, saveTokenData } from '@/utils/auth';
+import { SnackbarProgrammatic as Snackbar } from 'buefy';
+import { defaultError, errors, IError, refreshSuggestion } from '@/utils/errors';
 
 // Install the vue plugin
 Vue.use(VueApollo);
@@ -87,13 +89,42 @@ const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) 
   }
 
   if (graphQLErrors) {
-    graphQLErrors.forEach(({ message, locations, path }) =>
-      console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`),
-    );
+    const messages: Set<string> = new Set();
+
+    graphQLErrors.forEach(({ message, locations, path }) => {
+      const computedMessage = computeErrorMessage(message);
+      if (computedMessage) {
+        console.log('computed message', computedMessage);
+        messages.add(computedMessage);
+      }
+      console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`);
+    });
+
+    for (const message of messages) {
+      Snackbar.open({ message, type: 'is-danger', position: 'is-bottom' });
+    }
   }
 
-  if (networkError) console.log(`[Network error]: ${networkError}`);
+  if (networkError) {
+    console.log(`[Network error]: ${networkError}`);
+    const computedMessage = computeErrorMessage(networkError);
+    if (computedMessage) {
+      Snackbar.open({ message: computedMessage, type: 'is-danger', position: 'is-bottom' });
+    }
+  }
 });
+
+const computeErrorMessage = (message) => {
+  const error: IError = errors.reduce((acc, error) => {
+    if (RegExp(error.match).test(message)) {
+      return error;
+    }
+    return acc;
+  },                                  defaultError);
+
+  if (error.value === null) return null;
+  return error.suggestRefresh === false ? error.value : `${error.value}<br>${refreshSuggestion}`;
+};
 
 const link = authMiddleware
   .concat(errorLink)
@@ -101,6 +132,13 @@ const link = authMiddleware
 
 const cache = new InMemoryCache({
   fragmentMatcher,
+  dataIdFromObject: object => {
+    if (object.__typename === 'Address') {
+      // @ts-ignore
+      return object.origin_id;
+    }
+    return defaultDataIdFromObject(object);
+  },
 });
 
 const apolloClient = new ApolloClient({

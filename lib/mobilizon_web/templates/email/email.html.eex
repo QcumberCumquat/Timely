@@ -72,6 +72,7 @@
         </td>
     </tr>
     <%= render @view_module, @view_template, assigns %>
+    <% if Mobilizon.Config.instance_demo_mode?() do %>
     <!-- BETA WARNING -->
         <tr>
             <td bgcolor="#f4f4f4" align="center" style="padding: 30px 10px 0px 10px;">
@@ -103,6 +104,7 @@
                 <![endif]-->
             </td>
         </tr>
+    <% end %>
     <!-- SUPPORT CALLOUT -->
         <tr>
             <td bgcolor="#f4f4f4" align="center" style="padding: 30px 10px 0px 10px;">
@@ -118,7 +120,7 @@
                         <h2 style="font-size: 20px; font-weight: 400; color: #111111; margin: 0;">
                             <%= gettext "Need some help? Something not working properly?" %>
                         </h2>
-                        <p style="margin: 0;"><a href="https://framacolibri.org/c/mobilizon" target="_blank" style="color: #424056;">
+                        <p style="margin: 0;"><a href="https://framacolibri.org/c/mobilizon/test-mobilizon" target="_blank" style="color: #424056;">
                             <%= gettext "Ask the community on Framacolibri" %>
                         </a></p>
                       </td>

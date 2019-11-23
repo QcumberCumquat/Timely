@@ -6,6 +6,7 @@ defmodule Mobilizon.Service.Export.ICalendar do
   alias Mobilizon.{Actors, Events, Users}
   alias Mobilizon.Actors.Actor
   alias Mobilizon.Events.{Event, FeedToken}
+  alias Mobilizon.Addresses.Address
   alias Mobilizon.Users.User
 
   @doc """
@@ -29,9 +30,12 @@ defmodule Mobilizon.Service.Export.ICalendar do
       dtstart: event.begins_on,
       dtstamp: event.publish_at || DateTime.utc_now(),
       dtend: event.ends_on,
-      description: event.description,
+      description: HtmlSanitizeEx.strip_tags(event.description),
       uid: event.uuid,
-      categories: event.tags |> Enum.map(& &1.slug)
+      url: event.url,
+      geo: Address.coords(event.physical_address),
+      location: Address.representation(event.physical_address),
+      categories: event.tags |> Enum.map(& &1.title)
     }
   end
 

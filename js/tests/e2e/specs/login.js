@@ -15,6 +15,7 @@ describe('Login', () => {
     cy.url().should('include', '/password-reset/send');
     cy.go('back');
 
+    cy.wait(1000);
     cy.get('form').contains('.control a.button', 'Register').click();
     cy.url().should('include', '/register/user');
 
@@ -36,7 +37,7 @@ describe('Login', () => {
     cy.get('input[type=password]').type('badPassword').should('have.value', 'badPassword');
     cy.contains('button.button.is-primary.is-large', 'Login').click();
 
-    cy.contains('.message.is-danger', 'User with email not found');
+    cy.contains('.message.is-danger', 'No user account with this email was found. Maybe you made a typo?');
   });
 
   it('Tries to login with valid credentials', () => {
@@ -44,9 +45,9 @@ describe('Login', () => {
     cy.get('input[type=email]').type('user@email.com');
     cy.get('input[type=password]').type('some password');
     cy.get('form').submit();
-    cy.contains('.navbar-link', 'test_user');
+    cy.get('.navbar-link span.icon i').should('have.class', 'mdi-account-circle');
     cy.contains('article.message.is-info', 'Welcome back I\'m a test user');
-    cy.contains('.navbar-item.has-dropdown', 'test_user').click();
+    cy.get('.navbar-item.has-dropdown').click();
     cy.get('.navbar-item').last().contains('Log out').click();
   });
 
@@ -55,7 +56,7 @@ describe('Login', () => {
     cy.get('input[type=email]').type('unconfirmed@email.com');
     cy.get('input[type=password]').type('some password');
     cy.get('form').submit();
-    cy.contains('.message.is-danger', 'User with email not found');
+    cy.contains('.message.is-danger', 'The user account you\'re trying to login as has not been confirmed yet. Check your email inbox and eventually your spam folder.You may also ask to resend confirmation email.');
   });
 
   it('Tries to login with valid credentials, confirmed account but no profile', () => {
@@ -77,7 +78,7 @@ describe('Login', () => {
     cy.get('form').submit();
     cy.wait(1000);
 
-    cy.contains('.navbar-link', 'test_user_2');
-    cy.contains('article.message.is-info', 'Welcome back DuplicateNot');
+    cy.get('.navbar-link span.icon i').should('have.class', 'mdi-account-circle');
+    cy.contains('article.message.is-info', 'Welcome to Mobilizon, DuplicateNot!');
   });
 });

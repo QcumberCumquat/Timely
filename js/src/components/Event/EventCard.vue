@@ -28,13 +28,11 @@ A simple card for an event
 
 <template>
   <router-link class="card" :to="{ name: 'Event', params: { uuid: event.uuid } }">
-    <div class="card-image" v-if="!event.image">
-      <figure class="image is-16by9">
+    <div class="card-image">
+      <figure class="image is-16by9" :style="`background-image: url('${event.picture ? event.picture.url : '/img/mobilizon_default_card.png'}')`">
         <div class="tag-container" v-if="event.tags">
           <b-tag v-for="tag in event.tags.slice(0, 3)" :key="tag.slug" type="is-secondary">{{ tag.title }}</b-tag>
         </div>
-        <img v-if="event.picture" :src="event.picture.url" />
-        <img v-else src="https://picsum.photos/g/400/225/?random" />
       </figure>
     </div>
     <div class="content">
@@ -46,7 +44,6 @@ A simple card for an event
       </div>
       <span class="organizer-place-wrapper">
         <span v-if="actorDisplayName && actorDisplayName !== '@'">{{ $t('By {name}', { name: actorDisplayName }) }}</span>
-        <span v-if="actorDisplayName && actorDisplayName !== '@'">-</span>
         <span v-if="event.physicalAddress && (event.physicalAddress.locality || event.physicalAddress.description)">
           {{ event.physicalAddress.locality || event.physicalAddress.description }}
         </span>
@@ -76,17 +73,10 @@ A simple card for an event
 </template>
 
 <script lang="ts">
-import { IEvent, ParticipantRole } from '@/types/event.model';
+import { IEvent, IEventCardOptions, ParticipantRole } from '@/types/event.model';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import DateCalendarIcon from '@/components/Event/DateCalendarIcon.vue';
-import { IActor, IPerson, Person } from '@/types/actor';
-
-export interface IEventCardOptions {
-  hideDate: boolean;
-  loggedPerson: IPerson | boolean;
-  hideDetails: boolean;
-  organizerActor: IActor | null;
-}
+import { Person } from '@/types/actor';
 
 @Component({
   components: {
@@ -175,6 +165,11 @@ export default class EventCard extends Vue {
 
     div.card-image {
       background: $secondary;
+
+      figure.image {
+        background-size: cover;
+        background-position: center;
+      }
     }
 
     div.content {
@@ -195,9 +190,9 @@ export default class EventCard extends Vue {
           -webkit-box-orient: vertical;  
           overflow: hidden;
           font-weight: 400;
-          font-size: 1.6em;
+          font-size: 1.4em;
           margin-top: auto;
-          min-height: 3.5rem;
+          min-height: 3.4rem;
         }
       }
       span.organizer-place-wrapper {
@@ -206,6 +201,11 @@ export default class EventCard extends Vue {
 
         span {
           padding-right: 0.25rem;
+        }
+
+        span:not(:last-child):after {
+          content: '-';
+          padding-left: 0.25rem;
         }
 
         span:last-child {

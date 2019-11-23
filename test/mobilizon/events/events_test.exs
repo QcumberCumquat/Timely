@@ -7,6 +7,7 @@ defmodule Mobilizon.EventsTest do
   alias Mobilizon.Events
   alias Mobilizon.Events.{Comment, Event, Participant, Session, Tag, TagRelation, Track}
   alias Mobilizon.Storage.Page
+  alias Mobilizon.Service.Workers.BuildSearchWorker
 
   @event_valid_attrs %{
     begins_on: "2010-04-17 14:00:00Z",
@@ -22,6 +23,7 @@ defmodule Mobilizon.EventsTest do
     setup do
       actor = insert(:actor)
       event = insert(:event, organizer_actor: actor, visibility: :public)
+      BuildSearchWorker.insert_search_event(event)
       {:ok, actor: actor, event: event}
     end
 
@@ -55,22 +57,31 @@ defmodule Mobilizon.EventsTest do
       assert Events.get_event_with_preload!(event.id).participants == []
     end
 
-    test "build_events_by_name/1 returns events for a given name", %{
+    test "build_events_for_search/1 returns events for a given name", %{
       event: %Event{title: title} = event
     } do
-      assert title == hd(Events.build_events_by_name(event.title).elements).title
+      assert title == hd(Events.build_events_for_search(event.title).elements).title
 
       %Event{} = event2 = insert(:event, title: "Special event")
+      BuildSearchWorker.insert_search_event(event2)
 
       assert event2.title ==
-               Events.build_events_by_name("Special").elements |> hd() |> Map.get(:title)
+               Events.build_events_for_search("Special").elements |> hd() |> Map.get(:title)
 
       assert event2.title ==
-               Events.build_events_by_name("  Special  ").elements
+               Events.build_events_for_search("  Spécïal  ").elements
                |> hd()
                |> Map.get(:title)
 
-      assert %Page{elements: [], total: 0} == Events.build_events_by_name("")
+      tag1 = insert(:tag, title: "coucou")
+      tag2 = insert(:tag, title: "hola")
+      %Event{} = event3 = insert(:event, title: "Nothing like it", tags: [tag1, tag2])
+      BuildSearchWorker.insert_search_event(event3)
+
+      assert event3.title ==
+               Events.build_events_for_search("hola").elements |> hd() |> Map.get(:title)
+
+      assert %Page{elements: [], total: 0} == Events.build_events_for_search("")
     end
 
     test "find_close_events/3 returns events in the area" do
@@ -104,7 +115,7 @@ defmodule Mobilizon.EventsTest do
     end
 
     test "create_event/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Events.create_event(@invalid_attrs)
+      assert {:error, :insert, %Ecto.Changeset{}, _} = Events.create_event(@invalid_attrs)
     end
 
     test "update_event/2 with valid data updates the event", %{event: event} do
@@ -117,7 +128,7 @@ defmodule Mobilizon.EventsTest do
     end
 
     test "update_event/2 with invalid data returns error changeset", %{event: event} do
-      assert {:error, %Ecto.Changeset{}} = Events.update_event(event, @invalid_attrs)
+      assert {:error, :update, %Ecto.Changeset{}, _} = Events.update_event(event, @invalid_attrs)
       assert event.title == Events.get_event!(event.id).title
     end
 
@@ -334,7 +345,8 @@ defmodule Mobilizon.EventsTest do
     end
 
     test "create_participant/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Events.create_participant(@invalid_attrs)
+      assert {:error, :participant, %Ecto.Changeset{}, _} =
+               Events.create_participant(@invalid_attrs)
     end
 
     test "update_participant/2 with valid data updates the participant", %{

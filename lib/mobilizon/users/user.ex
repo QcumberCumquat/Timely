@@ -79,7 +79,7 @@ defmodule Mobilizon.Users.User do
       |> validate_required(@required_attrs)
       |> unique_constraint(:email, message: "This email is already used.")
       |> validate_email()
-      |> validate_length(:password, min: 6, max: 100, message: "The chosen password is too short.")
+      |> validate_length(:password, min: 6, max: 200, message: "The chosen password is too short.")
 
     if Map.has_key?(attrs, :default_actor) do
       put_assoc(changeset, :default_actor, attrs.default_actor)
@@ -130,14 +130,14 @@ defmodule Mobilizon.Users.User do
     |> cast(attrs, required_attrs)
     |> validate_length(:password,
       min: 6,
-      max: 100,
+      max: 200,
       message: "registration.error.password_too_short"
     )
     |> hash_password()
   end
 
   @doc """
-  Checks whether an user is confirmed. 
+  Checks whether an user is confirmed.
   """
   @spec is_confirmed(t) :: boolean
   def is_confirmed(%__MODULE__{confirmed_at: nil}), do: false
@@ -154,22 +154,26 @@ defmodule Mobilizon.Users.User do
   end
 
   @spec save_confirmation_token(Ecto.Changeset.t()) :: Ecto.Changeset.t()
-  defp save_confirmation_token(changeset) do
-    case changeset do
-      %Ecto.Changeset{valid?: true, changes: %{email: _email}} ->
-        now = DateTime.utc_now()
-
+  defp save_confirmation_token(
+         %Ecto.Changeset{valid?: true, changes: %{email: _email}} = changeset
+       ) do
+    case fetch_change(changeset, :confirmed_at) do
+      :error ->
         changeset
         |> put_change(:confirmation_token, Crypto.random_string(@confirmation_token_length))
-        |> put_change(:confirmation_sent_at, DateTime.truncate(now, :second))
+        |> put_change(:confirmation_sent_at, DateTime.utc_now() |> DateTime.truncate(:second))
 
       _ ->
         changeset
     end
   end
 
+  defp save_confirmation_token(%Ecto.Changeset{} = changeset), do: changeset
+
   @spec validate_email(Ecto.Changeset.t()) :: Ecto.Changeset.t()
-  defp validate_email(changeset) do
+  defp validate_email(%Ecto.Changeset{} = changeset) do
+    changeset = validate_length(changeset, :email, min: 3, max: 250)
+
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{email: email}} ->
         case EmailChecker.valid?(email) do
@@ -186,7 +190,7 @@ defmodule Mobilizon.Users.User do
   end
 
   @spec hash_password(Ecto.Changeset.t()) :: Ecto.Changeset.t()
-  defp hash_password(changeset) do
+  defp hash_password(%Ecto.Changeset{} = changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
         put_change(changeset, :password_hash, Argon2.hash_pwd_salt(password))

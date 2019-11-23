@@ -3,14 +3,8 @@
     <b-loading :active.sync="$apollo.loading"></b-loading>
     <transition appear name="fade" mode="out-in">
       <div v-if="event">
-        <div class="header-picture" :style="`background-image: url('${event.picture ? event.picture.url : 'https://picsum.photos/600/200/'}')`">
-          <!--<figure class="image is-3by1" v-if="event.picture">
-            <img :src="event.picture.url">
-          </figure>
-          <figure class="image is-3by1" v-else>
-            <img src="https://picsum.photos/600/200/">
-          </figure>-->
-        </div>
+        <div class="header-picture" v-if="event.picture" :style="`background-image: url('${event.picture.url}')`" />
+        <div class="header-picture-default" v-else />
           <section>
             <div class="title-and-participate-button">
               <div class="title-wrapper">
@@ -20,11 +14,19 @@
                 <div class="title-and-informations">
                   <h1 class="title">{{ event.title }}</h1>
                   <span>
-                    <small v-if="event.participantStats.approved > 0 && !actorIsParticipant">
-                      {{ $tc('One person is going', event.participantStats.approved, {approved: event.participantStats.approved}) }}
+                    <router-link v-if="actorIsOrganizer && event.draft === false" :to="{ name: RouteName.PARTICIPATIONS, params: {eventId: event.uuid}}">
+                      <small v-if="event.participantStats.going > 0 && !actorIsParticipant">
+                        {{ $tc('One person is going', event.participantStats.going, {approved: event.participantStats.going}) }}
+                      </small>
+                      <small v-else-if="event.participantStats.going > 0 && actorIsParticipant">
+                        {{ $tc('You and one other person are going to this event', event.participantStats.participant, { approved: event.participantStats.participant }) }}
+                      </small>
+                    </router-link>
+                    <small v-if="event.participantStats.going > 0 && !actorIsParticipant && !actorIsOrganizer">
+                      {{ $tc('One person is going', event.participantStats.going, {approved: event.participantStats.going}) }}
                     </small>
-                    <small v-else-if="event.participantStats.approved > 0 && actorIsParticipant">
-                      {{ $tc('You and one other person are going to this event', event.participantStats.participants, { approved: event.participantStats.participants }) }}
+                    <small v-else-if="event.participantStats.going > 0 && actorIsParticipant && !actorIsOrganizer">
+                      {{ $tc('You and one other person are going to this event', event.participantStats.participant, { approved: event.participantStats.participant }) }}
                     </small>
                     <small v-if="event.options.maximumAttendeeCapacity">
                         {{ $tc('All the places have already been taken', numberOfPlacesStillAvailable, { places: numberOfPlacesStillAvailable}) }}
@@ -53,7 +55,7 @@
             </div>
             <div class="metadata columns">
               <div class="column is-three-quarters-desktop">
-                <p class="tags" v-if="event.tags.length > 0">
+                <p class="tags">
                   <b-tag type="is-warning" size="is-medium" v-if="event.draft">{{ $t('Draft') }}</b-tag>
                   <span class="event-status" v-if="event.status !== EventStatus.CONFIRMED">
                     <b-tag type="is-warning" v-if="event.status === EventStatus.TENTATIVE">{{ $t('Event to be confirmed') }}</b-tag>
@@ -63,13 +65,19 @@
                     <b-tag type="is-info" v-if="event.visibility === EventVisibility.PUBLIC">{{ $t('Public event') }}</b-tag>
                     <b-tag type="is-info" v-if="event.visibility === EventVisibility.UNLISTED">{{ $t('Private event') }}</b-tag>
                   </span>
-                  <b-tag type="is-success" v-if="event.tags" v-for="tag in event.tags" :key="tag.title">{{ tag.title }}</b-tag>
-                  <span v-if="event.tags > 0">⋅</span>
+                  <router-link
+                    v-if="event.tags && event.tags.length > 0"
+                    v-for="tag in event.tags"
+                    :key="tag.title"
+                    :to="{ name: RouteName.TAG, params: { tag: tag.title } }"
+                  >
+                    <b-tag type="is-success" >{{ tag.title }}</b-tag>
+                  </router-link>
                 </p>
                 <div class="date-and-add-to-calendar">
                   <div class="date-and-privacy" v-if="event.beginsOn">
                     <b-icon icon="calendar-clock" />
-                    <event-full-date :beginsOn="event.beginsOn" :endsOn="event.endsOn" />
+                    <event-full-date :beginsOn="event.beginsOn" :show-start-time="event.options.showStartTime" :show-end-time="event.options.showEndTime" :endsOn="event.endsOn" />
                   </div>
                   <a class="add-to-calendar" @click="downloadIcsEvent()" v-if="!event.draft">
                     <b-icon icon="calendar-plus" />
@@ -102,27 +110,40 @@
                   </p>
                 </div>
                 <div class="address-wrapper">
-                  <b-icon icon="map" />
-                  <span v-if="!event.physicalAddress">{{ $t('No address defined') }}</span>
-                  <div class="address" v-if="event.physicalAddress">
-                    <address>
-                      <span class="addressDescription" :title="event.physicalAddress.description">{{ event.physicalAddress.description }}</span>
-                      <span>{{ event.physicalAddress.floor }} {{ event.physicalAddress.street }}</span>
-                      <span>{{ event.physicalAddress.postalCode }} {{ event.physicalAddress.locality }}</span>
-                    </address>
-                    <span class="map-show-button" @click="showMap = !showMap" v-if="event.physicalAddress && event.physicalAddress.geom">
+                  <span v-if="!physicalAddress">
+                    <b-icon icon="map" />
+                    {{ $t('No address defined') }}
+                  </span>
+                  <div class="address" v-if="physicalAddress">
+                    <span>
+                      <b-icon :icon="physicalAddress.poiInfos.poiIcon.icon" />
+                      <address>
+                        <span class="addressDescription" :title="physicalAddress.poiInfos.name">{{ physicalAddress.poiInfos.name }}</span>
+                        <span>{{ physicalAddress.poiInfos.alternativeName }}</span>
+                      </address>
+                    </span>
+                    <span class="map-show-button" @click="showMap = !showMap" v-if="physicalAddress && physicalAddress.geom">
                       {{ $t('Show map') }}
                     </span>
                   </div>
-                  <b-modal v-if="event.physicalAddress && event.physicalAddress.geom" :active.sync="showMap" scroll="keep">
+                  <b-modal v-if="physicalAddress && physicalAddress.geom" :active.sync="showMap" scroll="keep">
                     <div class="map">
                       <map-leaflet
-                              :coords="event.physicalAddress.geom"
-                              :popup="event.physicalAddress.description"
+                              :coords="physicalAddress.geom"
+                              :marker="{ text: physicalAddress.fullName, icon: physicalAddress.poiInfos.poiIcon.icon }"
                       />
                     </div>
                   </b-modal>
                 </div>
+                <span class="online-address" v-if="event.onlineAddress && urlToHostname(event.onlineAddress)">
+                  <b-icon icon="link"></b-icon>
+                  <a
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          :href="event.onlineAddress"
+                          :title="$t('View page on {hostname} (in a new window)', {hostname: urlToHostname(event.onlineAddress) })"
+                  >{{ urlToHostname(event.onlineAddress) }}</a>
+                </span>
                 <div class="organizer">
                   <span>
                     <span v-if="event.organizerActor">
@@ -148,30 +169,37 @@
                 {{ $t("The event organizer didn't add any description.") }}
               </p>
               <div class="columns" v-else>
-                <div class="column is-half description-content" v-html="event.description">
+                <div class="column is-half description-content" ref="eventDescriptionElement" v-html="event.description">
                 </div>
               </div>
             </div>
           </div>
         <section class="share" v-if="!event.draft">
           <div class="container">
-            <div class="columns">
-              <div class="column is-half has-text-centered">
+            <div class="columns is-centered is-multiline">
+              <div class="column is-half-widescreen has-text-centered">
                 <h3 class="title">{{ $t('Share this event') }}</h3>
                 <small class="maximumNumberOfPlacesWarning" v-if="!eventCapacityOK">
                   {{ $t('All the places have already been taken') }}
                 </small>
                 <div>
-                  <b-icon icon="mastodon" size="is-large" type="is-primary" />
-                  <a :href="facebookShareUrl" target="_blank" rel="nofollow noopener"><b-icon icon="facebook" size="is-large" type="is-primary" /></a>
+<!--                  <b-icon icon="mastodon" size="is-large" type="is-primary" />-->
+
                   <a :href="twitterShareUrl" target="_blank" rel="nofollow noopener"><b-icon icon="twitter" size="is-large" type="is-primary" /></a>
+                  <a :href="facebookShareUrl" target="_blank" rel="nofollow noopener"><b-icon icon="facebook" size="is-large" type="is-primary" /></a>
+                  <a :href="linkedInShareUrl" target="_blank" rel="nofollow noopener"><b-icon icon="linkedin" size="is-large" type="is-primary" /></a>
+                  <a :href="diasporaShareUrl" class="diaspora" target="_blank" rel="nofollow noopener">
+                    <span data-v-5e15e80a="" class="icon has-text-primary is-large">
+                      <img svg-inline src="../../assets/diaspora-icon.svg" alt="diaspora-logo" />
+                    </span>
+                  </a>
                   <a :href="emailShareUrl" target="_blank" rel="nofollow noopener"><b-icon icon="email" size="is-large" type="is-primary" /></a>
                   <!--     TODO: mailto: links are not used anymore, we should provide a popup to redact a message instead    -->
-                  <a :href="linkedInShareUrl" target="_blank" rel="nofollow noopener"><b-icon icon="linkedin" size="is-large" type="is-primary" /></a>
                 </div>
               </div>
               <hr />
-              <div class="column is-half has-text-right add-to-calendar">
+              <div class="column is-half-widescreen has-text-right add-to-calendar">
+                <img src="../../assets/undraw_events.svg" class="is-hidden-mobile is-hidden-tablet-only" />
                 <h3 @click="downloadIcsEvent()">
                   {{ $t('Add to my calendar') }}
                 </h3>
@@ -235,6 +263,7 @@ import IdentityPicker from '@/views/Account/IdentityPicker.vue';
 import ParticipationButton from '@/components/Event/ParticipationButton.vue';
 import { GraphQLError } from 'graphql';
 import { RouteName } from '@/router';
+import { Address } from '@/types/address.model';
 
 @Component({
   components: {
@@ -289,6 +318,10 @@ import { RouteName } from '@/router';
       title: this.eventTitle,
       // all titles will be injected into this template
       titleTemplate: '%s | Mobilizon',
+      meta: [
+        // @ts-ignore
+        { name: 'description', content: this.eventDescription },
+      ],
     };
   },
 })
@@ -311,8 +344,48 @@ export default class Event extends EventMixin {
     return this.event.title;
   }
 
+  get eventDescription() {
+    if (!this.event) return undefined;
+    return this.event.description;
+  }
+
   mounted() {
     this.identity = this.currentActor;
+
+    this.$watch('eventDescription', function (eventDescription) {
+      if (!eventDescription) return;
+      const eventDescriptionElement = this.$refs['eventDescriptionElement'] as HTMLElement;
+
+      eventDescriptionElement.addEventListener('click', ($event) => {
+        // TODO: Find the right type for target
+        let { target } : { target: any } = $event;
+        while (target && target.tagName !== 'A') target = target.parentNode;
+        // handle only links that occur inside the component and do not reference external resources
+        if (target && target.matches('.hashtag') && target.href) {
+          // some sanity checks taken from vue-router:
+          // https://github.com/vuejs/vue-router/blob/dev/src/components/link.js#L106
+          const { altKey, ctrlKey, metaKey, shiftKey, button, defaultPrevented } = $event;
+          // don't handle with control keys
+          if (metaKey || altKey || ctrlKey || shiftKey) return;
+          // don't handle when preventDefault called
+          if (defaultPrevented) return;
+          // don't handle right clicks
+          if (button !== undefined && button !== 0) return;
+          // don't handle if `target="_blank"`
+          if (target && target.getAttribute) {
+            const linkTarget = target.getAttribute('target');
+            if (/\b_blank\b/i.test(linkTarget)) return;
+          }
+          // don't handle same page links/anchors
+          const url = new URL(target.href);
+          const to = url.pathname;
+          if (window.location.pathname !== to && $event.preventDefault) {
+            $event.preventDefault();
+            this.$router.push(to);
+          }
+        }
+      });
+    });
   }
 
   /**
@@ -350,7 +423,7 @@ export default class Event extends EventMixin {
   async joinEvent(identity: IPerson) {
     this.isJoinModalActive = false;
     try {
-      await this.$apollo.mutate<{ joinEvent: IParticipant }>({
+      const { data } = await this.$apollo.mutate<{ joinEvent: IParticipant }>({
         mutation: JOIN_EVENT,
         variables: {
           eventId: this.event.id,
@@ -385,14 +458,23 @@ export default class Event extends EventMixin {
           }
 
           if (data.joinEvent.role === ParticipantRole.NOT_APPROVED) {
-            event.participantStats.unapproved = event.participantStats.unapproved + 1;
+            event.participantStats.notApproved = event.participantStats.notApproved + 1;
           } else {
-            event.participantStats.approved = event.participantStats.approved + 1;
+            event.participantStats.going = event.participantStats.going + 1;
+            event.participantStats.participant = event.participantStats.participant + 1;
           }
 
           store.writeQuery({ query: FETCH_EVENT, variables: { uuid: this.uuid }, data: { event } });
         },
       });
+      if (data) {
+        this.$buefy.notification.open({
+          message: (data.joinEvent.role === ParticipantRole.NOT_APPROVED ? this.$t('Your participation has been requested') : this.$t('Your participation has been confirmed')) as string,
+          type: 'is-success',
+          position: 'is-bottom-right',
+          duration: 5000,
+        });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -412,7 +494,7 @@ export default class Event extends EventMixin {
 
   async leaveEvent() {
     try {
-      await this.$apollo.mutate<{ leaveEvent: IParticipant }>({
+      const { data } = await this.$apollo.mutate<{ leaveEvent: IParticipant }>({
         mutation: LEAVE_EVENT,
         variables: {
           eventId: this.event.id,
@@ -447,13 +529,22 @@ export default class Event extends EventMixin {
             return;
           }
           if (participation.role === ParticipantRole.NOT_APPROVED) {
-            event.participantStats.unapproved = event.participantStats.unapproved - 1;
+            event.participantStats.notApproved = event.participantStats.notApproved - 1;
           } else {
-            event.participantStats.approved = event.participantStats.approved - 1;
+            event.participantStats.going = event.participantStats.going - 1;
+            event.participantStats.participant = event.participantStats.participant - 1;
           }
           store.writeQuery({ query: FETCH_EVENT, variables: { uuid: this.uuid }, data: { event } });
         },
       });
+      if (data) {
+        this.$buefy.notification.open({
+          message: this.$t('You have cancelled your participation') as string,
+          type: 'is-success',
+          position: 'is-bottom-right',
+          duration: 5000,
+        });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -471,7 +562,7 @@ export default class Event extends EventMixin {
   }
 
   async handleErrors(errors: GraphQLError) {
-    if (errors[0].message.includes('not found')) {
+    if (errors[0].message.includes('not found') || errors[0].message.includes('has invalid value $uuid')) {
       await this.$router.push({ name: RouteName.PAGE_NOT_FOUND });
     }
   }
@@ -506,21 +597,40 @@ export default class Event extends EventMixin {
     return `mailto:?to=&body=${this.event.url}${encodeURIComponent('\n\n')}${this.textDescription}&subject=${this.event.title}`;
   }
 
+  get diasporaShareUrl(): string {
+    return `https://share.diasporafoundation.org/?title=${encodeURIComponent(this.event.title)}&url=${encodeURIComponent(this.event.url)}`;
+  }
+
   get textDescription(): string {
     const meta = document.querySelector("meta[property='og:description']");
     if (!meta) return '';
-    return meta.getAttribute('content') || '';
+    const desc = meta.getAttribute('content') || '';
+    return desc.substring(0, 1000);
   }
 
   get eventCapacityOK(): boolean {
+    if (this.event.draft) return true;
     if (!this.event.options.maximumAttendeeCapacity) return true;
-    return this.event.options.maximumAttendeeCapacity > this.event.participantStats.participants;
+    return this.event.options.maximumAttendeeCapacity > this.event.participantStats.participant;
   }
 
   get numberOfPlacesStillAvailable(): number {
-    return this.event.options.maximumAttendeeCapacity - this.event.participantStats.participants;
+    if (this.event.draft) return this.event.options.maximumAttendeeCapacity;
+    return this.event.options.maximumAttendeeCapacity - this.event.participantStats.participant;
   }
 
+  urlToHostname(url: string): string|null {
+    try {
+      return (new URL(url)).hostname;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  get physicalAddress(): Address|null {
+    if (!this.event.physicalAddress) return null;
+    return new Address(this.event.physicalAddress);
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -533,12 +643,15 @@ export default class Event extends EventMixin {
     opacity: 0;
   }
 
-  .header-picture {
+  .header-picture, .header-picture-default {
     height: 400px;
     background-size: cover;
-    // background-position: center center;
-    background-attachment: fixed;
+    background-position: center;
     background-repeat: no-repeat;
+  }
+
+  .header-picture-default {
+    background-image: url('/img/mobilizon_default_card.png');
   }
 
   div.sidebar {
@@ -571,25 +684,33 @@ export default class Event extends EventMixin {
           cursor: pointer;
         }
 
-        address {
-          font-style: normal;
-          flex-wrap: wrap;
+        span:first-child {
           display: flex;
-          justify-content: flex-start;
 
-          span.addressDescription {
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            flex: 1 0 auto;
-            min-width: 100%;
-            max-width: 4rem;
-            overflow: hidden;
+          span.icon {
+            align-self: center;
           }
 
-          :not(.addressDescription) {
-            color: rgba(46, 62, 72, .6);
-            flex: 1;
-            min-width: 100%;
+          address {
+            font-style: normal;
+            flex-wrap: wrap;
+            display: flex;
+            justify-content: flex-start;
+
+            span.addressDescription {
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              flex: 1 0 auto;
+              min-width: 100%;
+              max-width: 4rem;
+              overflow: hidden;
+            }
+
+            :not(.addressDescription) {
+              color: rgba(46, 62, 72, .6);
+              flex: 1;
+              min-width: 100%;
+            }
           }
         }
       }
@@ -599,6 +720,10 @@ export default class Event extends EventMixin {
         width: 100%;
         padding: 25px 5px 0;
       }
+    }
+
+    span.online-address {
+      display: flex;
     }
 
     div.organizer {
@@ -727,10 +852,13 @@ export default class Event extends EventMixin {
   .description {
     padding-top: 10px;
     min-height: 40rem;
-    background-repeat: no-repeat;
-    background-size: 800px;
-    background-position: 95% 101%;
-    background-image: url('../../assets/texting.svg');
+
+    @media screen and (min-width: 1216px) {
+      background-repeat: no-repeat;
+      background-size: 600px;
+      background-position: 95% 101%;
+      background-image: url('../../assets/texting.svg');
+    }
     border-top: solid 1px #111;
     border-bottom: solid 1px #111;
 
@@ -751,6 +879,10 @@ export default class Event extends EventMixin {
         list-style-type: disc;
       }
 
+      /deep/ li {
+        margin: 10px auto 10px 2rem;
+      }
+
       /deep/ blockquote {
         border-left: .2em solid #333;
         display: block;
@@ -765,6 +897,10 @@ export default class Event extends EventMixin {
           padding: 0.3rem;
           background: $secondary;
           color: #111;
+
+          &:empty {
+            display: none;
+          }
         }
       }
     }
@@ -772,6 +908,11 @@ export default class Event extends EventMixin {
 
   .share {
     border-bottom: solid 1px #111;
+
+    .diaspora span svg {
+      height: 2rem;
+      width: 2rem;
+    }
 
     .columns {
 
@@ -785,7 +926,6 @@ export default class Event extends EventMixin {
         font-size: 3rem;
         text-decoration: underline;
         text-decoration-color: $secondary;
-        cursor: pointer;
         max-width: 20rem;
       }
 
@@ -805,16 +945,20 @@ export default class Event extends EventMixin {
 
         h3 {
           margin-right: 0;
-          margin-left: auto;
         }
       }
 
       .add-to-calendar {
-        background-repeat: no-repeat;
-        background-size: 400px;
-        background-position: 10% 50%;
-        background-image: url('../../assets/undraw_events.svg');
-        position: relative;
+        display: flex;
+
+        h3 {
+          margin-left: 0;
+          cursor: pointer;
+        }
+
+        img {
+          max-width: 400px;
+        }
 
         &::before {
           content:"";

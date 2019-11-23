@@ -18,12 +18,13 @@ config :mobilizon, :instance,
   version: "1.0.0-dev",
   hostname: System.get_env("MOBILIZON_INSTANCE_HOST") || "localhost",
   registrations_open: System.get_env("MOBILIZON_INSTANCE_REGISTRATIONS_OPEN") || false,
+  demo: System.get_env("MOBILIZON_INSTANCE_DEMO_MODE") || false,
   repository: Mix.Project.config()[:source_url],
   allow_relay: true,
   # Federation is to be activated with Mobilizon 1.0.0-beta.2
   federating: false,
   remote_limit: 100_000,
-  upload_limit: 16_000_000,
+  upload_limit: 10_000_000,
   avatar_upload_limit: 2_000_000,
   banner_upload_limit: 4_000_000,
   email_from: System.get_env("MOBILIZON_INSTANCE_EMAIL") || "noreply@localhost",
@@ -44,7 +45,10 @@ config :mobilizon, MobilizonWeb.Endpoint,
 # Upload configuration
 config :mobilizon, MobilizonWeb.Upload,
   uploader: MobilizonWeb.Uploaders.Local,
-  filters: [MobilizonWeb.Upload.Filter.Dedupe],
+  filters: [
+    MobilizonWeb.Upload.Filter.Dedupe,
+    MobilizonWeb.Upload.Filter.Optimize
+  ],
   link_name: true,
   proxy_remote: false,
   proxy_opts: [
@@ -103,9 +107,7 @@ config :auto_linker,
     # TODO: Set to :no_scheme when it works properly
     validate_tld: true,
     class: false,
-    strip_prefix: false,
-    new_window: false,
-    rel: false
+    strip_prefix: false
   ]
 
 config :phoenix, :format_encoders, json: Jason, "activity-json": Jason
@@ -135,6 +137,25 @@ config :mobilizon, Mobilizon.Service.Geospatial.GoogleMaps,
 
 config :mobilizon, Mobilizon.Service.Geospatial.MapQuest,
   api_key: System.get_env("GEOSPATIAL_MAP_QUEST_API_KEY") || nil
+
+config :mobilizon, Mobilizon.Service.Geospatial.Mimirsbrunn,
+  endpoint: System.get_env("GEOSPATIAL_MIMIRSBRUNN_ENDPOINT") || nil
+
+config :mobilizon, Mobilizon.Service.Geospatial.Pelias,
+  endpoint: System.get_env("GEOSPATIAL_PELIAS_ENDPOINT") || nil
+
+config :mobilizon, :maps,
+  tiles: [
+    endpoint:
+      System.get_env("MAPS_TILES_ENDPOINT") ||
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: System.get_env("MAPS_TILES_ATTRIBUTION")
+  ]
+
+config :mobilizon, Oban,
+  repo: Mobilizon.Storage.Repo,
+  prune: {:maxlen, 10_000},
+  queues: [default: 10, search: 20]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

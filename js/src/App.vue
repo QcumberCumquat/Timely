@@ -1,14 +1,14 @@
 <template>
   <div id="mobilizon">
     <NavBar />
-    <div class="container">
-      <b-message type="is-danger" :title="$t('Warning').toLocaleUpperCase()" closable>
+    <div class="container" v-if="config && config.demoMode">
+      <b-message type="is-danger" :title="$t('Warning').toLocaleUpperCase()" closable aria-close-label="Close">
         <p>{{ $t('This is a demonstration site to test the beta version of Mobilizon.') }}</p>
         <p v-html="$t('<b>Please do not use it in any real way</b>: everything you create here (accounts, events, identities, etc.) will be automatically deleted every 48 hours.')" />
         <p>
           <span v-html="$t('Mobilizon is under development, we will add new features to this site during regular updates, until the release of <b>version 1 of the software in the first half of 2020</b>.')" />
           <i18n path="In the meantime, please consider that the software is not (yet) finished. More information {onBlog}.">
-            <a slot="onBlog" href='https://framablog.org/?p=18299'>{{ $t('on our blog') }}</a>
+            <a slot="onBlog" :href="$i18n.locale === 'fr' ? 'https://framablog.org/?p=18268' : 'https://framablog.org/?p=18299'">{{ $t('on our blog') }}</a>
           </i18n>
         </p>
       </b-message>
@@ -35,11 +35,14 @@ import { CURRENT_USER_CLIENT, UPDATE_CURRENT_USER_CLIENT } from '@/graphql/user'
 import Footer from '@/components/Footer.vue';
 import Logo from '@/components/Logo.vue';
 import { initializeCurrentActor } from '@/utils/auth';
+import { CONFIG } from '@/graphql/config';
+import { IConfig } from '@/types/config.model';
 @Component({
   apollo: {
     currentUser: {
       query: CURRENT_USER_CLIENT,
     },
+    config: CONFIG,
   },
   components: {
     Logo,
@@ -48,6 +51,8 @@ import { initializeCurrentActor } from '@/utils/auth';
   },
 })
 export default class App extends Vue {
+  config!: IConfig;
+
   async created() {
     if (await this.initializeCurrentUser()) {
       await initializeCurrentActor(this.$apollo.provider.defaultClient);
@@ -99,5 +104,21 @@ $mdi-font-path: "~@mdi/font/fonts";
   body {
     // background: #f7f8fa;
     background: #ebebeb;
+    font-family: BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+
+    main {
+      margin: 1rem auto 0;
+    }
+  }
+
+  #mobilizon > .container > .message {
+    margin: 1rem auto auto;
+    .message-header {
+      button.delete {
+        background: #4a4a4a;
+      }
+
+      color: #111;
+    }
   }
 </style>

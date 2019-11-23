@@ -21,8 +21,10 @@
 
           <tag-input v-model="event.tags" :data="tags" path="title" />
 
-          <date-time-picker v-model="event.beginsOn" :label="$t('Starts on…')" :step="15"/>
-          <date-time-picker :min-date="minDateForEndsOn" v-model="event.endsOn" :label="$t('Ends on…')" :step="15" />
+          <date-time-picker v-model="event.beginsOn" :label="$t('Starts on…')" />
+          <date-time-picker :min-date="minDateForEndsOn" v-model="event.endsOn" :label="$t('Ends on…')" />
+<!--          <b-switch v-model="endsOnNull">{{ $t('No end date') }}</b-switch>-->
+          <b-button type="is-text" @click="dateSettingsIsOpen = true">{{ $t('Date parameters')}}</b-button>
 
           <address-auto-complete v-model="event.physicalAddress" />
 
@@ -36,7 +38,7 @@
           </div>
 
           <b-field :label="$t('Website / URL')">
-            <b-input v-model="event.onlineAddress" placeholder="URL" />
+            <b-input icon="link" type="url" v-model="event.onlineAddress" placeholder="URL" />
           </b-field>
 
           <!--<b-field :label="$t('Category')">
@@ -166,6 +168,31 @@
         </form>
       </div>
     </div>
+    <b-modal :active.sync="dateSettingsIsOpen" has-modal-card trap-focus>
+      <form action="">
+        <div class="modal-card" style="width: auto">
+          <header class="modal-card-head">
+            <p class="modal-card-title">{{ $t('Date and time settings') }}</p>
+          </header>
+          <section class="modal-card-body">
+            <b-field :label="$t('Event page settings')">
+              <b-switch v-model="event.options.showStartTime">
+                {{ $t('Show the time when the event begins') }}
+              </b-switch>
+            </b-field>
+            <b-field>
+              <b-switch v-model="event.options.showEndTime">
+                {{ $t('Show the time when the event ends') }}
+              </b-switch>
+            </b-field>
+
+          </section>
+          <footer class="modal-card-foot">
+            <button class="button" type="button" @click="dateSettingsIsOpen = false">{{ $t('OK') }}</button>
+          </footer>
+        </div>
+      </form>
+    </b-modal>
     <span ref="bottomObserver"></span>
     <nav role="navigation" aria-label="main navigation" class="navbar" :class="{'is-fixed-bottom': showFixedNavbar }">
       <div class="container">
@@ -250,7 +277,7 @@ import {
     EventVisibility,
     IEvent, ParticipantRole,
   } from '@/types/event.model';
-import { CURRENT_ACTOR_CLIENT, IDENTITIES, LOGGED_USER_DRAFTS, LOGGED_USER_PARTICIPATIONS } from '@/graphql/actor';
+import { CURRENT_ACTOR_CLIENT, LOGGED_USER_DRAFTS, LOGGED_USER_PARTICIPATIONS } from '@/graphql/actor';
 import { IPerson, Person } from '@/types/actor';
 import PictureUpload from '@/components/PictureUpload.vue';
 import EditorComponent from '@/components/Editor.vue';
@@ -259,9 +286,10 @@ import TagInput from '@/components/Event/TagInput.vue';
 import { TAGS } from '@/graphql/tags';
 import { ITag } from '@/types/tag.model';
 import AddressAutoComplete from '@/components/Event/AddressAutoComplete.vue';
-import { buildFileFromIPicture, buildFileVariable } from '@/utils/image';
+import { buildFileFromIPicture, buildFileVariable, readFileAsync } from '@/utils/image';
 import IdentityPickerWrapper from '@/views/Account/IdentityPickerWrapper.vue';
 import { RouteName } from '@/router';
+import 'intersection-observer';
 
 @Component({
   components: { IdentityPickerWrapper, AddressAutoComplete, TagInput, DateTimePicker, PictureUpload, Editor: EditorComponent },
@@ -302,6 +330,8 @@ export default class EditEvent extends Vue {
   CommentModeration = CommentModeration;
   showFixedNavbar: boolean = true;
   observer!: IntersectionObserver;
+  dateSettingsIsOpen: boolean = false;
+  endsOnNull: boolean = false;
 
   // categories: string[] = Object.keys(Category);
 
@@ -377,14 +407,24 @@ export default class EditEvent extends Vue {
   }
 
   async createEvent() {
+    const variables = await this.buildVariables();
+
     try {
       const { data } = await this.$apollo.mutate({
         mutation: CREATE_EVENT,
-        variables: this.buildVariables(),
+        variables,
         update: (store, { data: { createEvent } }) => this.postCreateOrUpdate(store, createEvent),
         refetchQueries: ({ data: { createEvent } }) => this.postRefetchQueries(createEvent),
       });
 
+      this.$buefy.notification.open({
+        message: (this.event.draft ?
+                this.$i18n.t('The event has been created as a draft') :
+                this.$i18n.t('The event has been published')) as string,
+        type: 'is-success',
+        position: 'is-bottom-right',
+        duration: 5000,
+      });
       await this.$router.push({
         name: 'Event',
         params: { uuid: data.createEvent.uuid },
@@ -395,14 +435,22 @@ export default class EditEvent extends Vue {
   }
 
   async updateEvent() {
+    const variables = await this.buildVariables();
+
     try {
       await this.$apollo.mutate({
         mutation: EDIT_EVENT,
-        variables: this.buildVariables(),
+        variables,
         update: (store, { data: { updateEvent } }) => this.postCreateOrUpdate(store, updateEvent),
         refetchQueries: ({ data: { updateEvent } }) => this.postRefetchQueries(updateEvent),
       });
 
+      this.$buefy.notification.open({
+        message: this.updateEventMessage,
+        type: 'is-success',
+        position: 'is-bottom-right',
+        duration: 5000,
+      });
       await this.$router.push({
         name: 'Event',
         params: { uuid: this.eventId as string },
@@ -410,6 +458,11 @@ export default class EditEvent extends Vue {
     } catch (err) {
       console.error(err);
     }
+  }
+
+  get updateEventMessage(): string {
+    if (this.unmodifiedEvent.draft && !this.event.draft) return this.$i18n.t('The event has been updated and published') as string;
+    return (this.event.draft ? this.$i18n.t('The draft event has been updated') : this.$i18n.t('The event has been updated')) as string;
   }
 
   /**
@@ -470,7 +523,7 @@ export default class EditEvent extends Vue {
   /**
    * Build variables for Event GraphQL creation query
    */
-  private buildVariables() {
+  private async buildVariables() {
     let res = this.event.toEditJSON();
     if (this.event.organizerActor) {
       res = Object.assign(res, { organizerActorId: this.event.organizerActor.id });
@@ -482,9 +535,22 @@ export default class EditEvent extends Vue {
       delete this.event.physicalAddress['__typename'];
     }
 
-    const pictureObj = buildFileVariable(this.pictureFile, 'picture');
+    if (this.endsOnNull) {
+      res.endsOn = null;
+    }
 
-    return Object.assign({}, res, pictureObj);
+    const pictureObj = buildFileVariable(this.pictureFile, 'picture');
+    res = Object.assign({}, res, pictureObj);
+
+    if (this.event.picture) {
+      const oldPictureFile = await buildFileFromIPicture(this.event.picture) as File;
+      const oldPictureFileContent = await readFileAsync(oldPictureFile);
+      const newPictureFileContent = await readFileAsync(this.pictureFile as File);
+      if (oldPictureFileContent === newPictureFileContent) {
+        res.picture = { pictureId: this.event.picture.id };
+      }
+    }
+    return res;
   }
 
   private async getEvent() {
@@ -495,6 +561,9 @@ export default class EditEvent extends Vue {
       },
     });
 
+    if (result.data.event.endsOn === null) {
+      this.endsOnNull = true;
+    }
     return new EventModel(result.data.event);
   }
 
@@ -556,17 +625,17 @@ export default class EditEvent extends Vue {
 
   get beginsOn() { return this.event.beginsOn; }
 
-  @Watch('beginsOn')
+  @Watch('beginsOn', { deep: true })
   onBeginsOnChanged(beginsOn) {
     if (!this.event.endsOn) return;
     const dateBeginsOn = new Date(beginsOn);
     const dateEndsOn = new Date(this.event.endsOn);
     if (dateEndsOn < dateBeginsOn) {
       this.event.endsOn = dateBeginsOn;
-      this.event.endsOn.setUTCHours(dateEndsOn.getUTCHours());
+      this.event.endsOn.setHours(dateEndsOn.getHours());
     }
     if (dateEndsOn === dateBeginsOn) {
-      this.event.endsOn.setUTCHours(dateEndsOn.getUTCHours() + 1);
+      this.event.endsOn.setHours(dateEndsOn.getHours() + 1);
     }
   }
 

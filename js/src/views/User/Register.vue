@@ -13,8 +13,9 @@
           <div class="content">
             <h2 class="title">{{ $t('Features') }}</h2>
             <ul>
-              <li>{{ $t('Create your communities and your events') }}</li>
-              <li>{{ $t('Other stuff…') }}</li>
+              <li>{{ $t('Create and manage several identities from the same account') }}</li>
+              <li>{{ $t('Create, edit or delete events') }}</li>
+              <li>{{ $t('Register for an event by choosing one of your identities') }}</li>
             </ul>
           </div>
           <router-link :to="{ name: RouteName.ABOUT }">
@@ -24,15 +25,15 @@
           <div class="content">
             <h2 class="title">{{ $t('About this instance') }}</h2>
             <p>
-              {{ $t("Your local administrator resumed it's policy:") }}
+              {{ $t("Your local administrator resumed its policy:") }}
             </p>
             <ul>
-              <li>{{ $t('Please be nice to each other') }}</li>
-              <li>{{ $t('meditate a bit') }}</li>
+              <li>{{ $t('Enjoy discovering Mobilizon!') }}</li>
+              <li>{{ $t("All data will be deleted every 48 hours, so please don't use this for anything real.") }}</li>
             </ul>
-            <p>
-              {{ $t('Please read the full rules') }}
-            </p>
+<!--            <p>-->
+<!--              {{ $t('Please read the full rules') }}-->
+<!--            </p>-->
           </div>
         </div>
         <div class="column">
@@ -152,7 +153,6 @@ export default class Register extends Vue {
         acc[error.details] = error.message;
         return acc;
       },                                       {});
-      console.log(this.errors);
     }
   }
 }

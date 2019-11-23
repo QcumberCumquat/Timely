@@ -7,15 +7,18 @@ defmodule Mobilizon.Events do
 
   import Ecto.Query
   import EctoEnum
+  alias Ecto.{Multi, Changeset}
 
   import Mobilizon.Storage.Ecto
 
   alias Mobilizon.Actors.Actor
   alias Mobilizon.Addresses.Address
+  alias Mobilizon.Service.Workers.BuildSearchWorker
 
   alias Mobilizon.Events.{
     Comment,
     Event,
+    EventParticipantStats,
     FeedToken,
     Participant,
     Session,
@@ -81,6 +84,8 @@ defmodule Mobilizon.Events do
 
   @event_preloads [
     :organizer_actor,
+    :attributed_to,
+    :mentions,
     :sessions,
     :tracks,
     :tags,
@@ -89,7 +94,7 @@ defmodule Mobilizon.Events do
     :picture
   ]
 
-  @comment_preloads [:actor, :attributed_to, :in_reply_to_comment]
+  @comment_preloads [:actor, :attributed_to, :in_reply_to_comment, :tags, :mentions]
 
   @doc """
   Gets a single event.
@@ -234,85 +239,106 @@ defmodule Mobilizon.Events do
     |> Repo.one()
   end
 
+  def get_or_create_event(%{"url" => url} = attrs) do
+    case Repo.get_by(Event, url: url) do
+      %Event{} = event -> {:ok, Repo.preload(event, @event_preloads)}
+      nil -> create_event(attrs)
+    end
+  end
+
   @doc """
   Creates an event.
   """
-  @spec create_event(map) :: {:ok, Event.t()} | {:error, Ecto.Changeset.t()}
+  @spec create_event(map) :: {:ok, Event.t()} | {:error, Changeset.t()}
   def create_event(attrs \\ %{}) do
-    with {:ok, %Event{draft: false} = event} <- do_create_event(attrs),
-         {:ok, %Participant{} = _participant} <-
-           create_participant(%{
-             actor_id: event.organizer_actor_id,
-             role: :creator,
-             event_id: event.id
-           }) do
+    with {:ok, %{insert: %Event{} = event}} <- do_create_event(attrs),
+         %Event{} = event <- Repo.preload(event, @event_preloads) do
+      unless event.draft,
+        do: BuildSearchWorker.enqueue(:insert_search_event, %{"event_id" => event.id})
+
       {:ok, event}
     else
-      # We don't create a creator participant if the event is a draft
-      {:ok, %Event{draft: true} = event} -> {:ok, event}
       err -> err
     end
   end
 
-  @spec do_create_event(map) :: {:ok, Event.t()} | {:error, Ecto.Changeset.t()}
+  # We start by inserting the event and then insert a first participant if the event is not a draft
+  @spec do_create_event(map) :: {:ok, Event.t()} | {:error, Changeset.t()}
   defp do_create_event(attrs) do
-    with {:ok, %Event{} = event} <-
-           %Event{}
-           |> Event.changeset(attrs)
-           |> Repo.insert(),
-         %Event{} = event <-
-           Repo.preload(event, [:tags, :organizer_actor, :physical_address, :picture]),
-         {:has_tags, true, _} <- {:has_tags, Map.has_key?(attrs, "tags"), event} do
-      event
-      |> Ecto.Changeset.change()
-      |> Ecto.Changeset.put_assoc(:tags, attrs["tags"])
-      |> Repo.update()
-    else
-      {:has_tags, false, event} ->
-        {:ok, event}
-
-      error ->
-        error
-    end
+    Multi.new()
+    |> Multi.insert(:insert, Event.changeset(%Event{}, attrs))
+    |> Multi.run(:write, fn _repo, %{insert: %Event{draft: draft} = event} ->
+      with {:is_draft, false} <- {:is_draft, draft},
+           {:ok, %Participant{} = participant} <-
+             create_participant(
+               %{
+                 event_id: event.id,
+                 role: :creator,
+                 actor_id: event.organizer_actor_id
+               },
+               false
+             ) do
+        {:ok, participant}
+      else
+        {:is_draft, true} -> {:ok, nil}
+        err -> err
+      end
+    end)
+    |> Repo.transaction()
   end
 
   @doc """
   Updates an event.
+
+  We start by updating the event and then insert a first participant if the event is not a draft anymore
   """
-  @spec update_event(Event.t(), map) :: {:ok, Event.t()} | {:error, Ecto.Changeset.t()}
-  def update_event(
-        %Event{draft: old_draft_status, id: event_id, organizer_actor_id: organizer_actor_id} =
-          old_event,
-        attrs
-      ) do
-    with %Ecto.Changeset{changes: changes} = changeset <-
-           old_event |> Repo.preload(:tags) |> Event.update_changeset(attrs) do
-      with {:ok, %Event{draft: new_draft_status} = new_event} <- Repo.update(changeset) do
-        # If the event is no longer a draft
-        if old_draft_status == true && new_draft_status == false do
-          {:ok, %Participant{} = _participant} =
-            create_participant(%{
-              event_id: event_id,
-              role: :creator,
-              actor_id: organizer_actor_id
-            })
-        end
+  @spec update_event(Event.t(), map) :: {:ok, Event.t()} | {:error, Changeset.t()}
+  def update_event(%Event{draft: old_draft} = old_event, attrs) do
+    with %Changeset{changes: changes} = changeset <-
+           Event.update_changeset(Repo.preload(old_event, :tags), attrs),
+         {:ok, %{update: %Event{} = new_event}} <-
+           Multi.new()
+           |> Multi.update(
+             :update,
+             changeset
+           )
+           |> Multi.run(:write, fn _repo, %{update: %Event{draft: draft} = event} ->
+             with {:was_draft, true} <- {:was_draft, old_draft == true && draft == false},
+                  {:ok, %Participant{} = participant} <-
+                    create_participant(
+                      %{
+                        event_id: event.id,
+                        role: :creator,
+                        actor_id: event.organizer_actor_id
+                      },
+                      false
+                    ) do
+               {:ok, participant}
+             else
+               {:was_draft, false} -> {:ok, nil}
+               err -> err
+             end
+           end)
+           |> Repo.transaction() do
+      Cachex.del(:ics, "event_#{new_event.uuid}")
 
-        Mobilizon.Service.Events.Tool.calculate_event_diff_and_send_notifications(
-          old_event,
-          new_event,
-          changes
-        )
+      Mobilizon.Service.Events.Tool.calculate_event_diff_and_send_notifications(
+        old_event,
+        new_event,
+        changes
+      )
 
-        {:ok, new_event}
-      end
+      unless new_event.draft,
+        do: BuildSearchWorker.enqueue(:update_search_event, %{"event_id" => new_event.id})
+
+      {:ok, Repo.preload(new_event, @event_preloads)}
     end
   end
 
   @doc """
   Deletes an event.
   """
-  @spec delete_event(Event.t()) :: {:ok, Event.t()} | {:error, Ecto.Changeset.t()}
+  @spec delete_event(Event.t()) :: {:ok, Event.t()} | {:error, Changeset.t()}
   def delete_event(%Event{} = event), do: Repo.delete(event)
 
   @doc """
@@ -416,11 +442,14 @@ defmodule Mobilizon.Events do
   @doc """
   Builds a page struct for events by their name.
   """
-  @spec build_events_by_name(String.t(), integer | nil, integer | nil) :: Page.t()
-  def build_events_by_name(name, page \\ nil, limit \\ nil) do
+  @spec build_events_for_search(String.t(), integer | nil, integer | nil) :: Page.t()
+  def build_events_for_search(name, page \\ nil, limit \\ nil)
+  def build_events_for_search("", _page, _limit), do: %Page{total: 0, elements: []}
+
+  def build_events_for_search(name, page, limit) do
     name
-    |> String.trim()
-    |> events_by_name_query()
+    |> normalize_search_string()
+    |> events_for_search_query()
     |> Page.build_page(page, limit)
   end
 
@@ -448,10 +477,34 @@ defmodule Mobilizon.Events do
   end
 
   @doc """
+  Gets a tag by its title.
+  """
+  @spec get_tag_by_title(String.t()) :: Tag.t() | nil
+  def get_tag_by_title(slug) do
+    slug
+    |> tag_by_title_query()
+    |> Repo.one()
+  end
+
+  @doc """
   Gets an existing tag or creates the new one.
   """
-  @spec get_or_create_tag(map) :: {:ok, Tag.t()} | {:error, Ecto.Changeset.t()}
+  @spec get_or_create_tag(map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
   def get_or_create_tag(%{"name" => "#" <> title}) do
+    case Repo.get_by(Tag, title: title) do
+      %Tag{} = tag ->
+        {:ok, tag}
+
+      nil ->
+        create_tag(%{"title" => title})
+    end
+  end
+
+  @doc """
+  Gets an existing tag or creates the new one.
+  """
+  @spec get_or_create_tag(String.t()) :: {:ok, Tag.t()} | {:error, Changeset.t()}
+  def get_or_create_tag(title) do
     case Repo.get_by(Tag, title: title) do
       %Tag{} = tag ->
         {:ok, tag}
@@ -464,7 +517,7 @@ defmodule Mobilizon.Events do
   @doc """
   Creates a tag.
   """
-  @spec create_tag(map) :: {:ok, Tag.t()} | {:error, Ecto.Changeset.t()}
+  @spec create_tag(map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
   def create_tag(attrs \\ %{}) do
     %Tag{}
     |> Tag.changeset(attrs)
@@ -474,7 +527,7 @@ defmodule Mobilizon.Events do
   @doc """
   Updates a tag.
   """
-  @spec update_tag(Tag.t(), map) :: {:ok, Tag.t()} | {:error, Ecto.Changeset.t()}
+  @spec update_tag(Tag.t(), map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
   def update_tag(%Tag{} = tag, attrs) do
     tag
     |> Tag.changeset(attrs)
@@ -484,7 +537,7 @@ defmodule Mobilizon.Events do
   @doc """
   Deletes a tag.
   """
-  @spec delete_tag(Tag.t()) :: {:ok, Tag.t()} | {:error, Ecto.Changeset.t()}
+  @spec delete_tag(Tag.t()) :: {:ok, Tag.t()} | {:error, Changeset.t()}
   def delete_tag(%Tag{} = tag), do: Repo.delete(tag)
 
   @doc """
@@ -524,7 +577,7 @@ defmodule Mobilizon.Events do
   @doc """
   Creates a relation between two tags.
   """
-  @spec create_tag_relation(map) :: {:ok, TagRelation.t()} | {:error, Ecto.Changeset.t()}
+  @spec create_tag_relation(map) :: {:ok, TagRelation.t()} | {:error, Changeset.t()}
   def create_tag_relation(attrs \\ {}) do
     %TagRelation{}
     |> TagRelation.changeset(attrs)
@@ -538,7 +591,7 @@ defmodule Mobilizon.Events do
   Removes a tag relation.
   """
   @spec delete_tag_relation(TagRelation.t()) ::
-          {:ok, TagRelation.t()} | {:error, Ecto.Changeset.t()}
+          {:ok, TagRelation.t()} | {:error, Changeset.t()}
   def delete_tag_relation(%TagRelation{} = tag_relation) do
     Repo.delete(tag_relation)
   end
@@ -763,24 +816,13 @@ defmodule Mobilizon.Events do
   end
 
   @doc """
-  Counts participant participants.
+  Counts participant participants (participants with no extra role)
   """
   @spec count_participant_participants(integer | String.t()) :: integer
   def count_participant_participants(event_id) do
     event_id
     |> count_participants_query()
     |> filter_participant_role()
-    |> Repo.aggregate(:count, :id)
-  end
-
-  @doc """
-  Counts unapproved participants.
-  """
-  @spec count_unapproved_participants(integer | String.t()) :: integer
-  def count_unapproved_participants(event_id) do
-    event_id
-    |> count_participants_query()
-    |> filter_unapproved_role()
     |> Repo.aggregate(:count, :id)
   end
 
@@ -805,12 +847,40 @@ defmodule Mobilizon.Events do
   @doc """
   Creates a participant.
   """
-  @spec create_participant(map) :: {:ok, Participant.t()} | {:error, Ecto.Changeset.t()}
-  def create_participant(attrs \\ %{}) do
-    with {:ok, %Participant{} = participant} <-
-           %Participant{}
-           |> Participant.changeset(attrs)
-           |> Repo.insert() do
+  @spec create_participant(map) :: {:ok, Participant.t()} | {:error, Changeset.t()}
+  def create_participant(attrs \\ %{}, update_event_participation_stats \\ true) do
+    with {:ok, %{participant: %Participant{} = participant}} <-
+           Multi.new()
+           |> Multi.insert(:participant, Participant.changeset(%Participant{}, attrs))
+           |> Multi.run(:update_event_participation_stats, fn _repo,
+                                                              %{
+                                                                participant:
+                                                                  %Participant{
+                                                                    role: role,
+                                                                    event_id: event_id
+                                                                  } = _participant
+                                                              } ->
+             with {:update_event_participation_stats, true} <-
+                    {:update_event_participation_stats, update_event_participation_stats},
+                  {:ok, %Event{} = event} <- get_event(event_id),
+                  %EventParticipantStats{} = participant_stats <-
+                    Map.get(event, :participant_stats),
+                  %EventParticipantStats{} = participant_stats <-
+                    Map.update(participant_stats, role, 0, &(&1 + 1)),
+                  {:ok, %Event{} = event} <-
+                    event
+                    |> Event.update_changeset(%{
+                      participant_stats: Map.from_struct(participant_stats)
+                    })
+                    |> Repo.update() do
+               {:ok, event}
+             else
+               {:update_event_participation_stats, false} -> {:ok, nil}
+               {:error, :event_not_found} -> {:error, :event_not_found}
+               err -> {:error, err}
+             end
+           end)
+           |> Repo.transaction() do
       {:ok, Repo.preload(participant, [:event, :actor])}
     end
   end
@@ -819,7 +889,7 @@ defmodule Mobilizon.Events do
   Updates a participant.
   """
   @spec update_participant(Participant.t(), map) ::
-          {:ok, Participant.t()} | {:error, Ecto.Changeset.t()}
+          {:ok, Participant.t()} | {:error, Changeset.t()}
   def update_participant(%Participant{} = participant, attrs) do
     participant
     |> Participant.changeset(attrs)
@@ -830,7 +900,7 @@ defmodule Mobilizon.Events do
   Deletes a participant.
   """
   @spec delete_participant(Participant.t()) ::
-          {:ok, Participant.t()} | {:error, Ecto.Changeset.t()}
+          {:ok, Participant.t()} | {:error, Changeset.t()}
   def delete_participant(%Participant{} = participant), do: Repo.delete(participant)
 
   @doc """
@@ -843,7 +913,7 @@ defmodule Mobilizon.Events do
   @doc """
   Creates a session.
   """
-  @spec create_session(map) :: {:ok, Session.t()} | {:error, Ecto.Changeset.t()}
+  @spec create_session(map) :: {:ok, Session.t()} | {:error, Changeset.t()}
   def create_session(attrs \\ %{}) do
     %Session{}
     |> Session.changeset(attrs)
@@ -853,7 +923,7 @@ defmodule Mobilizon.Events do
   @doc """
   Updates a session.
   """
-  @spec update_session(Session.t(), map) :: {:ok, Session.t()} | {:error, Ecto.Changeset.t()}
+  @spec update_session(Session.t(), map) :: {:ok, Session.t()} | {:error, Changeset.t()}
   def update_session(%Session{} = session, attrs) do
     session
     |> Session.changeset(attrs)
@@ -863,7 +933,7 @@ defmodule Mobilizon.Events do
   @doc """
   Deletes a session.
   """
-  @spec delete_session(Session.t()) :: {:ok, Session.t()} | {:error, Ecto.Changeset.t()}
+  @spec delete_session(Session.t()) :: {:ok, Session.t()} | {:error, Changeset.t()}
   def delete_session(%Session{} = session), do: Repo.delete(session)
 
   @doc """
@@ -892,7 +962,7 @@ defmodule Mobilizon.Events do
   @doc """
   Creates a track.
   """
-  @spec create_track(map) :: {:ok, Track.t()} | {:error, Ecto.Changeset.t()}
+  @spec create_track(map) :: {:ok, Track.t()} | {:error, Changeset.t()}
   def create_track(attrs \\ %{}) do
     %Track{}
     |> Track.changeset(attrs)
@@ -902,7 +972,7 @@ defmodule Mobilizon.Events do
   @doc """
   Updates a track.
   """
-  @spec update_track(Track.t(), map) :: {:ok, Track.t()} | {:error, Ecto.Changeset.t()}
+  @spec update_track(Track.t(), map) :: {:ok, Track.t()} | {:error, Changeset.t()}
   def update_track(%Track{} = track, attrs) do
     track
     |> Track.changeset(attrs)
@@ -912,7 +982,7 @@ defmodule Mobilizon.Events do
   @doc """
   Deletes a track.
   """
-  @spec delete_track(Track.t()) :: {:ok, Track.t()} | {:error, Ecto.Changeset.t()}
+  @spec delete_track(Track.t()) :: {:ok, Track.t()} | {:error, Changeset.t()}
   def delete_track(%Track{} = track), do: Repo.delete(track)
 
   @doc """
@@ -930,6 +1000,13 @@ defmodule Mobilizon.Events do
     |> sessions_for_track_query()
     |> Repo.all()
   end
+
+  @doc """
+  Gets a single comment.
+  """
+  @spec get_comment(integer | String.t()) :: Comment.t()
+  def get_comment(nil), do: nil
+  def get_comment(id), do: Repo.get(Comment, id)
 
   @doc """
   Gets a single comment.
@@ -994,10 +1071,17 @@ defmodule Mobilizon.Events do
     |> Repo.preload(@comment_preloads)
   end
 
+  def get_or_create_comment(%{"url" => url} = attrs) do
+    case Repo.get_by(Comment, url: url) do
+      %Comment{} = comment -> {:ok, Repo.preload(comment, @comment_preloads)}
+      nil -> create_comment(attrs)
+    end
+  end
+
   @doc """
   Creates a comment.
   """
-  @spec create_comment(map) :: {:ok, Comment.t()} | {:error, Ecto.Changeset.t()}
+  @spec create_comment(map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
   def create_comment(attrs \\ %{}) do
     with {:ok, %Comment{} = comment} <-
            %Comment{}
@@ -1011,7 +1095,7 @@ defmodule Mobilizon.Events do
   @doc """
   Updates a comment.
   """
-  @spec update_comment(Comment.t(), map) :: {:ok, Comment.t()} | {:error, Ecto.Changeset.t()}
+  @spec update_comment(Comment.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
   def update_comment(%Comment{} = comment, attrs) do
     comment
     |> Comment.changeset(attrs)
@@ -1021,7 +1105,7 @@ defmodule Mobilizon.Events do
   @doc """
   Deletes a comment.
   """
-  @spec delete_comment(Comment.t()) :: {:ok, Comment.t()} | {:error, Ecto.Changeset.t()}
+  @spec delete_comment(Comment.t()) :: {:ok, Comment.t()} | {:error, Changeset.t()}
   def delete_comment(%Comment{} = comment), do: Repo.delete(comment)
 
   @doc """
@@ -1097,7 +1181,7 @@ defmodule Mobilizon.Events do
   @doc """
   Creates a feed token.
   """
-  @spec create_feed_token(map) :: {:ok, FeedToken.t()} | {:error, Ecto.Changeset.t()}
+  @spec create_feed_token(map) :: {:ok, FeedToken.t()} | {:error, Changeset.t()}
   def create_feed_token(attrs \\ %{}) do
     attrs = Map.put(attrs, "token", Ecto.UUID.generate())
 
@@ -1110,7 +1194,7 @@ defmodule Mobilizon.Events do
   Updates a feed token.
   """
   @spec update_feed_token(FeedToken.t(), map) ::
-          {:ok, FeedToken.t()} | {:error, Ecto.Changeset.t()}
+          {:ok, FeedToken.t()} | {:error, Changeset.t()}
   def update_feed_token(%FeedToken{} = feed_token, attrs) do
     feed_token
     |> FeedToken.changeset(attrs)
@@ -1120,7 +1204,7 @@ defmodule Mobilizon.Events do
   @doc """
   Deletes a feed token.
   """
-  @spec delete_feed_token(FeedToken.t()) :: {:ok, FeedToken.t()} | {:error, Ecto.Changeset.t()}
+  @spec delete_feed_token(FeedToken.t()) :: {:ok, FeedToken.t()} | {:error, Changeset.t()}
   def delete_feed_token(%FeedToken{} = feed_token), do: Repo.delete(feed_token)
 
   @doc """
@@ -1201,16 +1285,49 @@ defmodule Mobilizon.Events do
     )
   end
 
-  @spec events_by_name_query(String.t()) :: Ecto.Query.t()
-  defp events_by_name_query(name) do
-    from(
-      e in Event,
-      where:
-        e.visibility == ^:public and
-          fragment("f_unaccent(?) %> f_unaccent(?)", e.title, ^name),
-      order_by: fragment("word_similarity(?, ?) desc", e.title, ^name),
-      preload: [:organizer_actor]
+  defmacro matching_event_ids_and_ranks(search_string) do
+    quote do
+      fragment(
+        """
+        SELECT event_search.id AS id,
+        ts_rank(
+          event_search.document, plainto_tsquery(unaccent(?))
+        ) AS rank
+        FROM event_search
+        WHERE event_search.document @@ plainto_tsquery(unaccent(?))
+        OR event_search.title ILIKE ?
+        """,
+        ^unquote(search_string),
+        ^unquote(search_string),
+        ^"%#{unquote(search_string)}%"
+      )
+    end
+  end
+
+  @spec events_for_search_query(String.t()) :: Ecto.Query.t()
+  defp events_for_search_query(search_string) do
+    Event
+    |> where([e], e.visibility in ^@public_visibility)
+    |> do_event_for_search_query(search_string)
+  end
+
+  @spec do_event_for_search_query(Ecto.Query.t(), String.t()) :: Ecto.Query.t()
+  defp do_event_for_search_query(query, search_string) do
+    from(event in query,
+      join: id_and_rank in matching_event_ids_and_ranks(search_string),
+      on: id_and_rank.id == event.id,
+      order_by: [desc: id_and_rank.rank]
     )
+  end
+
+  @spec normalize_search_string(String.t()) :: String.t()
+  defp normalize_search_string(search_string) do
+    search_string
+    |> String.downcase()
+    |> String.replace(~r/\n/, " ")
+    |> String.replace(~r/\t/, " ")
+    |> String.replace(~r/\s{2,}/, " ")
+    |> String.trim()
   end
 
   @spec events_by_tags_query([integer], integer) :: Ecto.Query.t()
@@ -1245,6 +1362,11 @@ defmodule Mobilizon.Events do
   @spec tag_by_slug_query(String.t()) :: Ecto.Query.t()
   defp tag_by_slug_query(slug) do
     from(t in Tag, where: t.slug == ^slug)
+  end
+
+  @spec tag_by_title_query(String.t()) :: Ecto.Query.t()
+  defp tag_by_title_query(title) do
+    from(t in Tag, where: t.title == ^title, limit: 1)
   end
 
   @spec tags_for_event_query(integer) :: Ecto.Query.t()
@@ -1321,7 +1443,7 @@ defmodule Mobilizon.Events do
   end
 
   @spec count_participants_query(integer) :: Ecto.Query.t()
-  defp count_participants_query(event_id) do
+  def count_participants_query(event_id) do
     from(p in Participant, where: p.event_id == ^event_id)
   end
 
@@ -1352,17 +1474,10 @@ defmodule Mobilizon.Events do
   end
 
   defp public_comments_for_actor_query(actor_id) do
-    from(
-      c in Comment,
-      where: c.actor_id == ^actor_id and c.visibility in ^@public_visibility,
-      order_by: [desc: :id],
-      preload: [
-        :actor,
-        :in_reply_to_comment,
-        :origin_comment,
-        :event
-      ]
-    )
+    Comment
+    |> where([c], c.actor_id == ^actor_id and c.visibility in ^@public_visibility)
+    |> order_by([c], desc: :id)
+    |> preload_for_comment()
   end
 
   @spec list_participants_for_event_query(String.t()) :: Ecto.Query.t()
@@ -1465,29 +1580,28 @@ defmodule Mobilizon.Events do
 
   @spec filter_approved_role(Ecto.Query.t()) :: Ecto.Query.t()
   defp filter_approved_role(query) do
-    from(p in query, where: p.role not in ^[:not_approved, :rejected])
+    filter_role(query, [:not_approved, :rejected])
   end
 
   @spec filter_participant_role(Ecto.Query.t()) :: Ecto.Query.t()
   defp filter_participant_role(query) do
-    from(p in query, where: p.role == ^:participant)
-  end
-
-  @spec filter_unapproved_role(Ecto.Query.t()) :: Ecto.Query.t()
-  defp filter_unapproved_role(query) do
-    from(p in query, where: p.role == ^:not_approved)
+    filter_role(query, :participant)
   end
 
   @spec filter_rejected_role(Ecto.Query.t()) :: Ecto.Query.t()
   defp filter_rejected_role(query) do
-    from(p in query, where: p.role == ^:rejected)
+    filter_role(query, :rejected)
   end
 
   @spec filter_role(Ecto.Query.t(), list(atom())) :: Ecto.Query.t()
-  defp filter_role(query, []), do: query
+  def filter_role(query, []), do: query
 
-  defp filter_role(query, roles) do
+  def filter_role(query, roles) when is_list(roles) do
     where(query, [p], p.role in ^roles)
+  end
+
+  def filter_role(query, role) when is_atom(role) do
+    from(p in query, where: p.role == ^role)
   end
 
   defp participation_filter_begins_on(query, nil, nil),

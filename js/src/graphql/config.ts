@@ -5,7 +5,24 @@ query {
   config {
     name,
     description,
-    registrationsOpen
+    registrationsOpen,
+    demoMode,
+    countryCode,
+    location {
+      latitude,
+      longitude,
+      accuracyRadius
+    },
+    maps {
+      tiles {
+        endpoint,
+        attribution
+      }
+    },
+    geocoding {
+      provider,
+      autocomplete
+    }
   }
 }
 `;

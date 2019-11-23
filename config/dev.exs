@@ -52,7 +52,7 @@ config :mobilizon, MobilizonWeb.Endpoint,
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n", level: :debug
 
-config :mobilizon, Mobilizon.Service.Geospatial, service: Mobilizon.Service.Geospatial.Nominatim
+config :mobilizon, Mobilizon.Service.Geospatial, service: Mobilizon.Service.Geospatial.Mimirsbrunn
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
@@ -71,4 +71,5 @@ config :mobilizon, Mobilizon.Storage.Repo,
   database: System.get_env("MOBILIZON_DATABASE_DBNAME") || "mobilizon_dev",
   hostname: System.get_env("MOBILIZON_DATABASE_HOST") || "localhost",
   port: System.get_env("MOBILIZON_DATABASE_PORT") || "5432",
-  pool_size: 10
+  pool_size: 10,
+  show_sensitive_data_on_connection_error: true

@@ -18,14 +18,15 @@ const participantQuery = `
 
 const physicalAddressQuery = `
   description,
-  floor,
   street,
   locality,
   postalCode,
   region,
   country,
   geom,
-  id
+  type,
+  id,
+  originId
 `;
 
 const tagsQuery = `
@@ -38,6 +39,8 @@ const optionsQuery = `
   maximumAttendeeCapacity,
   remainingAttendeeCapacity,
   showRemainingAttendeeCapacity,
+  showStartTime,
+  showEndTime,
   offers {
     price,
     priceCurrency,
@@ -100,9 +103,9 @@ export const FETCH_EVENT = gql`
       #     name,
       # },
       participantStats {
-        approved,
-        unapproved,
-        participants
+        going,
+        notApproved,
+        participant
       },
       tags {
         ${tagsQuery}
@@ -257,9 +260,9 @@ export const CREATE_EVENT = gql`
         id,
       },
       participantStats {
-        approved,
-        unapproved,
-        participants
+        going,
+        notApproved,
+        participant
       },
       tags {
         ${tagsQuery}
@@ -286,6 +289,7 @@ export const EDIT_EVENT = gql`
     $picture: PictureInput,
     $onlineAddress: String,
     $phoneAddress: String,
+    $organizerActorId: ID,
     $category: String,
     $physicalAddress: AddressInput,
     $options: EventOptionsInput,
@@ -304,6 +308,7 @@ export const EDIT_EVENT = gql`
       picture: $picture,
       onlineAddress: $onlineAddress,
       phoneAddress: $phoneAddress,
+      organizerActorId: $organizerActorId,
       category: $category,
       physicalAddress: $physicalAddress
       options: $options,
@@ -342,9 +347,9 @@ export const EDIT_EVENT = gql`
         id,
       },
       participantStats {
-        approved,
-        unapproved,
-        participants
+        going,
+        notApproved,
+        participant
       },
       tags {
         ${tagsQuery}
@@ -408,10 +413,10 @@ export const PARTICIPANTS = gql`
         ${participantQuery}
       },
       participantStats {
-        approved,
-        unapproved,
+        going,
+        notApproved,
         rejected,
-        participants
+        participant
       }
     }
   }

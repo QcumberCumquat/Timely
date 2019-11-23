@@ -74,12 +74,12 @@ defmodule Mobilizon.Mixfile do
       {:jason, "~> 1.1"},
       {:ex_crypto, "~> 0.10.0"},
       {:http_sign, "~> 0.1.1"},
-      {:ecto_enum, "~> 1.0"},
+      {:ecto_enum, "~> 1.4"},
       {:ex_ical, "~> 0.2"},
       {:bamboo, "~> 1.0"},
       {:bamboo_smtp, "~> 2.0"},
       {:geolix, "~> 1.0"},
-      {:geolix_adapter_mmdb2, "~> 0.1.0"},
+      {:geolix_adapter_mmdb2, "~> 0.2.0"},
       {:absinthe, "~> 1.4.16"},
       {:absinthe_phoenix, "~> 1.4.0"},
       {:absinthe_plug, "~> 1.4.6"},
@@ -98,12 +98,15 @@ defmodule Mobilizon.Mixfile do
        ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"},
       {:html_sanitize_ex, "~> 1.3.0"},
       {:ex_cldr_dates_times, "~> 2.0"},
+      {:ex_optimizer, "~> 0.1"},
+      {:progress_bar, "~> 2.0"},
+      {:oban, "~> 0.11.1"},
       # Dev and test dependencies
       {:phoenix_live_reload, "~> 1.2", only: [:dev, :e2e]},
       {:ex_machina, "~> 2.3", only: [:dev, :test]},
       {:excoveralls, "~> 0.10", only: :test},
       {:ex_doc, "~> 0.21.1", only: [:dev, :test], runtime: false},
-      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
+      {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
       {:ex_unit_notifier, "~> 0.1", only: :test},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
       {:exvcr, "~> 0.10", only: :test},
@@ -153,12 +156,7 @@ defmodule Mobilizon.Mixfile do
   defp docs() do
     [
       source_ref: "v#{@version}",
-      extra_section: "GUIDES",
-      main: "introduction",
-      api_reference: false,
       groups_for_modules: groups_for_modules(),
-      extras: extras(),
-      groups_for_extras: groups_for_extras(),
       nest_modules_by_prefix: [
         Mobilizon,
         MobilizonWeb,
@@ -167,20 +165,6 @@ defmodule Mobilizon.Mixfile do
         MobilizonWeb.Schema,
         Mobilizon.Service
       ]
-    ]
-  end
-
-  defp extras() do
-    [
-      "support/guides/development/development.md",
-      "support/guides/development/tests.md",
-      "support/guides/development/styleguide.md",
-      "support/guides/install/install.md",
-      "support/guides/install/dependencies.md",
-      "support/guides/install/docker.md",
-      "support/guides/introduction.md",
-      "support/guides/contributing.md",
-      "support/guides/code_of_conduct.md"
     ]
   end
 
@@ -320,26 +304,6 @@ defmodule Mobilizon.Mixfile do
         MobilizonWeb.Email.Mailer,
         MobilizonWeb.Email.User,
         MobilizonWeb.EmailView
-      ]
-    ]
-  end
-
-  defp groups_for_extras() do
-    [
-      Introduction: [
-        "support/guides/introduction.md",
-        "support/guides/contributing.md",
-        "support/guides/code_of_conduct.md"
-      ],
-      Development: [
-        "support/guides/development/development.md",
-        "support/guides/development/tests.md",
-        "support/guides/development/styleguide.md"
-      ],
-      Production: [
-        "support/guides/install/install.md",
-        "support/guides/install/docker.md",
-        "support/guides/install/dependencies.md"
       ]
     ]
   end

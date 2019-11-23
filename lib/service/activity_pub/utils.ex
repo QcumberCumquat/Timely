@@ -238,8 +238,8 @@ defmodule Mobilizon.Service.ActivityPub.Utils do
   @doc """
   Save picture data from %Plug.Upload{} and return AS Link data.
   """
-  def make_picture_data(%Plug.Upload{} = picture) do
-    case MobilizonWeb.Upload.store(picture) do
+  def make_picture_data(%Plug.Upload{} = picture, opts) do
+    case MobilizonWeb.Upload.store(picture, opts) do
       {:ok, picture} ->
         picture
 
@@ -261,6 +261,7 @@ defmodule Mobilizon.Service.ActivityPub.Utils do
   def make_picture_data(picture) when is_map(picture) do
     with {:ok, %{"url" => [%{"href" => url, "mediaType" => content_type}], "size" => size}} <-
            MobilizonWeb.Upload.store(picture.file),
+         {:picture_exists, nil} <- {:picture_exists, Mobilizon.Media.get_picture_by_url(url)},
          {:ok, %Picture{file: _file} = picture} <-
            Mobilizon.Media.create_picture(%{
              "file" => %{
@@ -272,6 +273,12 @@ defmodule Mobilizon.Service.ActivityPub.Utils do
              "actor_id" => picture.actor_id
            }) do
       Converter.Picture.model_to_as(picture)
+    else
+      {:picture_exists, %Picture{file: _file} = picture} ->
+        Converter.Picture.model_to_as(picture)
+
+      err ->
+        err
     end
   end
 
@@ -339,7 +346,7 @@ defmodule Mobilizon.Service.ActivityPub.Utils do
       options = Events.EventOptions |> struct(metadata.options) |> Map.from_struct()
 
       Enum.reduce(options, res, fn {key, value}, acc ->
-        (value && Map.put(acc, camelize(key), value)) ||
+        (!is_nil(value) && Map.put(acc, camelize(key), value)) ||
           acc
       end)
     end
@@ -629,18 +636,39 @@ defmodule Mobilizon.Service.ActivityPub.Utils do
   Make create activity data
   """
   @spec make_create_data(map(), map()) :: map()
-  def make_create_data(params, additional \\ %{}) do
+  def make_create_data(object, additional \\ %{}) do
     Logger.debug("Making create data")
-    Logger.debug(inspect(params))
-    published = params.published || make_date()
+    Logger.debug(inspect(object))
+    Logger.debug(inspect(additional))
 
     %{
       "type" => "Create",
-      "to" => params.to |> Enum.uniq(),
-      "actor" => params.actor.url,
-      "object" => params.object,
-      "published" => published,
-      "id" => params.object["id"] <> "/activity"
+      "to" => object["to"],
+      "cc" => object["cc"],
+      "actor" => object["actor"],
+      "object" => object,
+      "published" => make_date(),
+      "id" => object["id"] <> "/activity"
+    }
+    |> Map.merge(additional)
+  end
+
+  @doc """
+  Make update activity data
+  """
+  @spec make_update_data(map(), map()) :: map()
+  def make_update_data(object, additional \\ %{}) do
+    Logger.debug("Making update data")
+    Logger.debug(inspect(object))
+    Logger.debug(inspect(additional))
+
+    %{
+      "type" => "Update",
+      "to" => object["to"],
+      "cc" => object["cc"],
+      "actor" => object["actor"],
+      "object" => object,
+      "id" => object["id"] <> "/activity"
     }
     |> Map.merge(additional)
   end
@@ -679,6 +707,22 @@ defmodule Mobilizon.Service.ActivityPub.Utils do
       "actor" => actor.url,
       "object" => event.url
     }
+  end
+
+  @doc """
+  Make accept join activity data
+  """
+  @spec make_accept_join_data(map(), map()) :: map()
+  def make_accept_join_data(object, additional \\ %{}) do
+    %{
+      "type" => "Accept",
+      "to" => object["to"],
+      "cc" => object["cc"],
+      "actor" => object["actor"],
+      "object" => object,
+      "id" => object["id"] <> "/activity"
+    }
+    |> Map.merge(additional)
   end
 
   @doc """

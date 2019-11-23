@@ -29,6 +29,8 @@ defmodule Mobilizon.Service.Geospatial.Addok do
            HTTPoison.get(url, headers),
          {:ok, %{"features" => features}} <- Poison.decode(body) do
       process_data(features)
+    else
+      _ -> []
     end
   end
 
@@ -47,6 +49,8 @@ defmodule Mobilizon.Service.Geospatial.Addok do
            HTTPoison.get(url, headers),
          {:ok, %{"features" => features}} <- Poison.decode(body) do
       process_data(features)
+    else
+      _ -> []
     end
   end
 
@@ -74,7 +78,6 @@ defmodule Mobilizon.Service.Geospatial.Addok do
         locality: Map.get(properties, "city"),
         region: Map.get(properties, "state"),
         description: Map.get(properties, "name") || street_address(properties),
-        floor: Map.get(properties, "floor"),
         geom: geometry |> Map.get("coordinates") |> Provider.coordinates(),
         postal_code: Map.get(properties, "postcode"),
         street: properties |> street_address()

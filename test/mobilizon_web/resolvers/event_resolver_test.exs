@@ -1,8 +1,10 @@
 defmodule MobilizonWeb.Resolvers.EventResolverTest do
   use MobilizonWeb.ConnCase
   use Bamboo.Test
+  use Oban.Testing, repo: Mobilizon.Storage.Repo
   alias Mobilizon.Events
   alias MobilizonWeb.{AbsintheHelpers, Email}
+  alias Mobilizon.Service.Workers.BuildSearchWorker
   import Mobilizon.Factory
 
   @event %{
@@ -93,6 +95,40 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
                "Organizer actor id is not owned by the user"
     end
 
+    test "create_event/3 should check that end time is after start time", %{
+      conn: conn,
+      actor: actor,
+      user: user
+    } do
+      begins_on = DateTime.utc_now() |> DateTime.truncate(:second)
+      ends_on = Timex.shift(begins_on, hours: -2)
+
+      mutation = """
+          mutation {
+              createEvent(
+                  title: "come to my event",
+                  description: "it will be fine",
+                  begins_on: "#{DateTime.to_iso8601(begins_on)}",
+                  ends_on: "#{DateTime.to_iso8601(ends_on)}",
+                  organizer_actor_id: "#{actor.id}",
+                  category: "birthday"
+              ) {
+                id,
+                title,
+                uuid
+              }
+            }
+      """
+
+      res =
+        conn
+        |> auth_conn(user)
+        |> post("/api", AbsintheHelpers.mutation_skeleton(mutation))
+
+      assert hd(json_response(res, 200)["errors"])["message"] ==
+               "ends_on cannot be set before begins_on"
+    end
+
     test "create_event/3 creates an event", %{conn: conn, actor: actor, user: user} do
       mutation = """
           mutation {
@@ -105,6 +141,7 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
                   organizer_actor_id: "#{actor.id}",
                   category: "birthday"
               ) {
+                id,
                 title,
                 uuid
               }
@@ -117,6 +154,54 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
         |> post("/api", AbsintheHelpers.mutation_skeleton(mutation))
 
       assert json_response(res, 200)["data"]["createEvent"]["title"] == "come to my event"
+      {id, ""} = json_response(res, 200)["data"]["createEvent"]["id"] |> Integer.parse()
+      assert_enqueued(worker: BuildSearchWorker, args: %{event_id: id, op: :insert_search_event})
+    end
+
+    test "create_event/3 creates an event and escapes title and description", %{
+      conn: conn,
+      actor: actor,
+      user: user
+    } do
+      mutation = """
+          mutation createEvent($title: String!, $description: String, $begins_on: DateTime, $organizer_actor_id: ID!) {
+              createEvent(
+                  title: $title,
+                  description: $description,
+                  begins_on: $begins_on,
+                  organizer_actor_id: $organizer_actor_id
+              ) {
+                id,
+                title,
+                description,
+                uuid
+              }
+            }
+      """
+
+      res =
+        conn
+        |> auth_conn(user)
+        |> AbsintheHelpers.graphql_query(
+          query: mutation,
+          variables: %{
+            title:
+              "My Event title <img src=\"http://placekitten.com/g/200/300\" onclick=\"alert('aaa')\" >",
+            description:
+              "<b>My description</b> <img src=\"http://placekitten.com/g/200/300\" onclick=\"alert('aaa')\" >",
+            begins_on: DateTime.utc_now() |> DateTime.truncate(:second) |> DateTime.to_iso8601(),
+            organizer_actor_id: "#{actor.id}"
+          }
+        )
+
+      assert res["errors"] == nil
+      assert res["data"]["createEvent"]["title"] == "My Event title"
+
+      assert res["data"]["createEvent"]["description"] ==
+               "<b>My description</b> <img src=\"http://placekitten.com/g/200/300\" />"
+
+      {id, ""} = res["data"]["createEvent"]["id"] |> Integer.parse()
+      assert_enqueued(worker: BuildSearchWorker, args: %{event_id: id, op: :insert_search_event})
     end
 
     test "create_event/3 creates an event as a draft", %{conn: conn, actor: actor, user: user} do
@@ -150,6 +235,12 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
 
       event_uuid = json_response(res, 200)["data"]["createEvent"]["uuid"]
       event_id = json_response(res, 200)["data"]["createEvent"]["id"]
+      {event_id_int, ""} = Integer.parse(event_id)
+
+      refute_enqueued(
+        worker: BuildSearchWorker,
+        args: %{event_id: event_id_int, op: :insert_search_event}
+      )
 
       query = """
       {
@@ -229,9 +320,11 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
                   category: "super_category",
                   options: {
                     maximumAttendeeCapacity: 30,
-                    showRemainingAttendeeCapacity: true
+                    showRemainingAttendeeCapacity: true,
+                    showEndTime: false
                   }
               ) {
+                id,
                 title,
                 description,
                 begins_on,
@@ -246,7 +339,8 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
                 category,
                 options {
                   maximumAttendeeCapacity,
-                  showRemainingAttendeeCapacity
+                  showRemainingAttendeeCapacity,
+                  showEndTime
                 }
               }
             }
@@ -273,6 +367,13 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
       assert event["category"] == "super_category"
       assert event["options"]["maximumAttendeeCapacity"] == 30
       assert event["options"]["showRemainingAttendeeCapacity"] == true
+      assert event["options"]["showEndTime"] == false
+      {event_id_int, ""} = Integer.parse(event["id"])
+
+      assert_enqueued(
+        worker: BuildSearchWorker,
+        args: %{event_id: event_id_int, op: :insert_search_event}
+      )
     end
 
     test "create_event/3 creates an event with tags", %{conn: conn, actor: actor, user: user} do
@@ -318,7 +419,7 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
       actor: actor,
       user: user
     } do
-      address = insert(:address)
+      address = %{street: "I am a street, please believe me", locality: "Where ever"}
 
       mutation = """
           mutation {
@@ -338,6 +439,7 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
                 title,
                 uuid,
                 physicalAddress {
+                  id,
                   url,
                   geom,
                   street
@@ -358,8 +460,8 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
       assert json_response(res, 200)["data"]["createEvent"]["physicalAddress"]["street"] ==
                address.street
 
-      refute json_response(res, 200)["data"]["createEvent"]["physicalAddress"]["url"] ==
-               address.url
+      address_url = json_response(res, 200)["data"]["createEvent"]["physicalAddress"]["url"]
+      address_id = json_response(res, 200)["data"]["createEvent"]["physicalAddress"]["id"]
 
       mutation = """
           mutation {
@@ -372,12 +474,13 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
                   organizer_actor_id: "#{actor.id}",
                   category: "birthday",
                   physical_address: {
-                    url: "#{address.url}"
+                    id: "#{address_id}"
                   }
               ) {
                 title,
                 uuid,
                 physicalAddress {
+                  id,
                   url,
                   geom,
                   street
@@ -398,8 +501,11 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
       assert json_response(res, 200)["data"]["createEvent"]["physicalAddress"]["street"] ==
                address.street
 
+      assert json_response(res, 200)["data"]["createEvent"]["physicalAddress"]["id"] ==
+               address_id
+
       assert json_response(res, 200)["data"]["createEvent"]["physicalAddress"]["url"] ==
-               address.url
+               address_url
     end
 
     test "create_event/3 creates an event with an attached picture", %{
@@ -456,7 +562,7 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
                "picture for my event"
     end
 
-    test "create_event/3 creates an event with an picture URL", %{
+    test "create_event/3 creates an event with an picture ID", %{
       conn: conn,
       actor: actor,
       user: user
@@ -589,6 +695,39 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
       assert hd(json_response(res, 200)["errors"])["message"] == "User doesn't own actor"
     end
 
+    test "update_event/3 should check end time is after the beginning time", %{
+      conn: conn,
+      actor: actor,
+      user: user
+    } do
+      event = insert(:event, organizer_actor: actor)
+
+      mutation = """
+          mutation {
+              updateEvent(
+                  title: "my event updated",
+                  ends_on: "#{Timex.shift(event.begins_on, hours: -2)}",
+                  event_id: #{event.id}
+              ) {
+                title,
+                uuid,
+                tags {
+                  title,
+                  slug
+                }
+              }
+            }
+      """
+
+      res =
+        conn
+        |> auth_conn(user)
+        |> post("/api", AbsintheHelpers.mutation_skeleton(mutation))
+
+      assert hd(json_response(res, 200)["errors"])["message"] ==
+               "ends_on cannot be set before begins_on"
+    end
+
     test "update_event/3 updates an event", %{conn: conn, actor: actor, user: user} do
       event = insert(:event, organizer_actor: actor)
       _creator = insert(:participant, event: event, actor: actor, role: :creator)
@@ -625,6 +764,7 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
                     locality: "#{address.locality}"
                   }
               ) {
+                id,
                 uuid,
                 url,
                 title,
@@ -683,6 +823,13 @@ defmodule MobilizonWeb.Resolvers.EventResolverTest do
                %{"slug" => "tag1-updated", "title" => "tag1_updated"},
                %{"slug" => "tag2-updated", "title" => "tag2_updated"}
              ]
+
+      {event_id_int, ""} = Integer.parse(event_res["id"])
+
+      assert_enqueued(
+        worker: BuildSearchWorker,
+        args: %{event_id: event_id_int, op: :update_search_event}
+      )
 
       {:ok, new_event} = Mobilizon.Events.get_event(event.id)
 

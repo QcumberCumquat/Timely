@@ -63,7 +63,7 @@ defmodule MobilizonWeb.Schema.EventType do
 
     field(:draft, :boolean, description: "Whether or not the event is a draft")
 
-    field(:participant_stats, :participant_stats, resolve: &Event.stats_participants_for_event/3)
+    field(:participant_stats, :participant_stats)
 
     field(:participants, list_of(:participant), description: "The event's participants") do
       arg(:page, :integer, default_value: 1)
@@ -112,13 +112,21 @@ defmodule MobilizonWeb.Schema.EventType do
   end
 
   object :participant_stats do
-    field(:approved, :integer, description: "The number of approved participants")
-    field(:unapproved, :integer, description: "The number of unapproved participants")
+    field(:going, :integer,
+      description: "The number of approved participants",
+      resolve: &Event.stats_participants_going/3
+    )
+
+    field(:not_approved, :integer, description: "The number of not approved participants")
     field(:rejected, :integer, description: "The number of rejected participants")
 
-    field(:participants, :integer,
+    field(:participant, :integer,
       description: "The number of simple participants (excluding creators)"
     )
+
+    field(:moderator, :integer, description: "The number of moderators")
+    field(:administrator, :integer, description: "The number of administrators")
+    field(:creator, :integer, description: "The number of creators")
   end
 
   object :event_offer do
@@ -181,6 +189,9 @@ defmodule MobilizonWeb.Schema.EventType do
     field(:show_participation_price, :boolean,
       description: "Whether or not to show the participation price"
     )
+
+    field(:show_start_time, :boolean, description: "Show event start time")
+    field(:show_end_time, :boolean, description: "Show event end time")
   end
 
   input_object :event_options_input do
@@ -214,6 +225,9 @@ defmodule MobilizonWeb.Schema.EventType do
     field(:show_participation_price, :boolean,
       description: "Whether or not to show the participation price"
     )
+
+    field(:show_start_time, :boolean, description: "Show event start time")
+    field(:show_end_time, :boolean, description: "Show event end time")
   end
 
   object :event_queries do
@@ -285,6 +299,7 @@ defmodule MobilizonWeb.Schema.EventType do
 
       arg(:online_address, :string)
       arg(:phone_address, :string)
+      arg(:organizer_actor_id, :id)
       arg(:category, :string)
       arg(:physical_address, :address_input)
       arg(:options, :event_options_input)

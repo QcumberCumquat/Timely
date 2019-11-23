@@ -1,5 +1,5 @@
-import { Actor, IActor } from './actor';
-import { IAddress } from '@/types/address.model';
+import { Actor, IActor, IPerson } from './actor';
+import { Address, IAddress } from '@/types/address.model';
 import { ITag } from '@/types/tag.model';
 import { IPicture } from '@/types/picture.model';
 
@@ -45,6 +45,13 @@ export enum Category {
   MEETING = 'meeting',
 }
 
+export interface IEventCardOptions {
+  hideDate: boolean;
+  loggedPerson: IPerson | boolean;
+  hideDetails: boolean;
+  organizerActor: IActor | null;
+}
+
 export interface IParticipant {
   id?: string;
   role: ParticipantRole;
@@ -86,6 +93,16 @@ export enum CommentModeration {
     CLOSED = 'CLOSED',
 }
 
+export interface IEventParticipantStats {
+  notApproved: number;
+  rejected: number;
+  participant: number;
+  creator: number;
+  moderator: number;
+  administrator: number;
+  going: number;
+}
+
 export interface IEvent {
   id?: string;
   uuid: string;
@@ -108,12 +125,7 @@ export interface IEvent {
 
   organizerActor?: IActor;
   attributedTo: IActor;
-  participantStats: {
-    approved: number;
-    unapproved: number;
-    rejected: number;
-    participants: number;
-  };
+  participantStats: IEventParticipantStats;
   participants: IParticipant[];
 
   relatedEvents: IEvent[];
@@ -138,6 +150,8 @@ export interface IEventOptions {
   program: string;
   commentModeration: CommentModeration;
   showParticipationPrice: boolean;
+  showStartTime: boolean;
+  showEndTime: boolean;
 }
 
 export class EventOptions implements IEventOptions {
@@ -150,6 +164,8 @@ export class EventOptions implements IEventOptions {
   program = '';
   commentModeration = CommentModeration.ALLOW_ALL;
   showParticipationPrice = false;
+  showStartTime = true;
+  showEndTime = true;
 }
 
 export class EventModel implements IEvent {
@@ -179,7 +195,7 @@ export class EventModel implements IEvent {
 
   publishAt = new Date();
 
-  participantStats = { approved: 0, unapproved: 0, rejected: 0, participants: 0 };
+  participantStats = { notApproved: 0, rejected: 0, participant: 0, moderator: 0, administrator: 0, creator: 0, going: 0 };
   participants: IParticipant[] = [];
 
   relatedEvents: IEvent[] = [];
@@ -223,7 +239,7 @@ export class EventModel implements IEvent {
 
     this.onlineAddress = hash.onlineAddress;
     this.phoneAddress = hash.phoneAddress;
-    this.physicalAddress = hash.physicalAddress;
+    this.physicalAddress = new Address(hash.physicalAddress);
     this.participantStats = hash.participantStats;
 
     this.tags = hash.tags;

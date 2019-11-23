@@ -155,7 +155,7 @@ defmodule MobilizonWeb.Resolvers.Person do
       if Map.has_key?(args, key) && !is_nil(args[key][:picture]) do
         pic = args[key][:picture]
 
-        with {:ok, %{"name" => name, "url" => [%{"href" => url, "mediaType" => content_type}]}} <-
+        with {:ok, %{name: name, url: url, content_type: content_type, size: _size}} <-
                MobilizonWeb.Upload.store(pic.file, type: key, description: pic.alt) do
           Map.put(args, key, %{"name" => name, "url" => url, "mediaType" => content_type})
         end
@@ -177,7 +177,7 @@ defmodule MobilizonWeb.Resolvers.Person do
       {:ok, new_person}
     else
       {:error, :user_not_found} ->
-        {:error, "User with email not found"}
+        {:error, "No user with this email was found"}
 
       {:no_actor, _} ->
         {:error, "You already have a profile for this user"}

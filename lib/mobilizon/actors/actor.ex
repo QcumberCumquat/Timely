@@ -13,6 +13,7 @@ defmodule Mobilizon.Actors.Actor do
   alias Mobilizon.Media.File
   alias Mobilizon.Reports.{Note, Report}
   alias Mobilizon.Users.User
+  alias Mobilizon.Mention
 
   alias MobilizonWeb.Endpoint
   alias MobilizonWeb.Router.Helpers, as: Routes
@@ -46,6 +47,7 @@ defmodule Mobilizon.Actors.Actor do
           created_reports: [Report.t()],
           subject_reports: [Report.t()],
           report_notes: [Note.t()],
+          mentions: [Mention.t()],
           memberships: [t]
         }
 
@@ -139,6 +141,7 @@ defmodule Mobilizon.Actors.Actor do
     has_many(:created_reports, Report, foreign_key: :reporter_id)
     has_many(:subject_reports, Report, foreign_key: :reported_id)
     has_many(:report_notes, Note, foreign_key: :moderator_id)
+    has_many(:mentions, Mention)
     many_to_many(:memberships, __MODULE__, join_through: Member)
 
     timestamps()
@@ -200,14 +203,9 @@ defmodule Mobilizon.Actors.Actor do
     actor
     |> cast(attrs, @attrs)
     |> build_urls()
-    |> cast_embed(:avatar)
-    |> cast_embed(:banner)
+    |> common_changeset()
     |> unique_username_validator()
     |> validate_required(@required_attrs)
-    |> unique_constraint(:preferred_username,
-      name: :actors_preferred_username_domain_type_index
-    )
-    |> unique_constraint(:url, name: :actors_url_index)
   end
 
   @doc false
@@ -215,13 +213,8 @@ defmodule Mobilizon.Actors.Actor do
   def update_changeset(%__MODULE__{} = actor, attrs) do
     actor
     |> cast(attrs, @update_attrs)
-    |> cast_embed(:avatar)
-    |> cast_embed(:banner)
+    |> common_changeset()
     |> validate_required(@update_required_attrs)
-    |> unique_constraint(:preferred_username,
-      name: :actors_preferred_username_domain_type_index
-    )
-    |> unique_constraint(:url, name: :actors_url_index)
   end
 
   @doc """
@@ -232,13 +225,8 @@ defmodule Mobilizon.Actors.Actor do
     actor
     |> cast(attrs, @registration_attrs)
     |> build_urls()
-    |> cast_embed(:avatar)
-    |> cast_embed(:banner)
+    |> common_changeset()
     |> unique_username_validator()
-    |> unique_constraint(:preferred_username,
-      name: :actors_preferred_username_domain_type_index
-    )
-    |> unique_constraint(:url, name: :actors_url_index)
     |> validate_required(@registration_required_attrs)
   end
 
@@ -251,19 +239,24 @@ defmodule Mobilizon.Actors.Actor do
       %__MODULE__{}
       |> cast(attrs, @remote_actor_creation_attrs)
       |> validate_required(@remote_actor_creation_required_attrs)
-      |> cast_embed(:avatar)
-      |> cast_embed(:banner)
+      |> common_changeset()
       |> unique_username_validator()
-      |> unique_constraint(:preferred_username,
-        name: :actors_preferred_username_domain_type_index
-      )
-      |> unique_constraint(:url, name: :actors_url_index)
       |> validate_length(:summary, max: 5000)
       |> validate_length(:preferred_username, max: 100)
 
     Logger.debug("Remote actor creation: #{inspect(changeset)}")
 
     changeset
+  end
+
+  @spec common_changeset(Ecto.Changeset.t()) :: Ecto.Changeset.t()
+  defp common_changeset(%Ecto.Changeset{} = changeset) do
+    changeset
+    |> cast_embed(:avatar)
+    |> cast_embed(:banner)
+    |> unique_constraint(:url, name: :actors_url_index)
+    |> unique_constraint(:preferred_username, name: :actors_preferred_username_domain_type_index)
+    |> validate_format(:preferred_username, ~r/[a-z0-9_]+/)
   end
 
   @doc """

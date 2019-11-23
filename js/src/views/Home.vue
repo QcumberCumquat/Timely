@@ -26,8 +26,11 @@
       </section>
     <div class="container" v-if="config">
       <section v-if="currentActor.id">
-        <b-message type="is-info">
-          {{ $t('Welcome back {username}', { username: currentActor.displayName() }) }}
+        <b-message type="is-info" v-if="welcomeBack">
+          {{ $t('Welcome back {username}!', { username: currentActor.displayName() }) }}
+        </b-message>
+        <b-message type="is-info" v-if="newRegisteredUser">
+          {{ $t('Welcome to Mobilizon, {username}!', { username: currentActor.displayName() }) }}
         </b-message>
       </section>
       <section v-if="currentActor.id && goingToEvents.size > 0" class="container">
@@ -55,7 +58,7 @@
             <EventListCard
                     v-for="participation in row[1]"
                     v-if="isInLessThanSevenDays(row[0])"
-                    :key="participation[1].event.uuid"
+                    :key="participation[1].id"
                     :participation="participation[1]"
             />
           </div>
@@ -181,6 +184,23 @@ export default class Home extends Vue {
   get instanceName() {
     if (!this.config) return undefined;
     return this.config.name;
+  }
+
+  get welcomeBack() {
+    return window.localStorage.getItem('welcome-back') === 'yes';
+  }
+
+  get newRegisteredUser() {
+    return window.localStorage.getItem('new-registered-user') === 'yes';
+  }
+
+  mounted() {
+    if (window.localStorage.getItem('welcome-back')) {
+      window.localStorage.removeItem('welcome-back');
+    }
+    if (window.localStorage.getItem('new-registered-user')) {
+      window.localStorage.removeItem('new-registered-user');
+    }
   }
 
   isToday(date: Date) {
