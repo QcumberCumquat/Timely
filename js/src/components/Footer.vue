@@ -9,36 +9,40 @@
 		<div class="content has-text-centered">
 			<span>{{ $t('© The Mobilizon Contributors {date} - Made with Elixir, Phoenix, VueJS & with some love and some weeks', { date: new Date().getFullYear()}) }}</span>
 		</div>
-		<div id='back_to_top'>↑</div>
+		<div id='back_to_top'>
+			<span class="icon">
+			↑
+			</span>
+		</div>
 	</footer>
 </template>
 <script lang="ts">
-  import {Component, Vue} from 'vue-property-decorator';
-  import Logo from './Logo.vue';
+    import {Component, Vue} from 'vue-property-decorator';
+    import Logo from './Logo.vue';
 
-  @Component({
-    components: {
-      'mobilizon-logo': Logo,
-    },
-    /**
-     * listen on click on the top button to go back to the top smoothly
-     */
-    mounted() {
-      const btnId = 'back_to_top';
-      const btn = document.getElementById(btnId);
+    @Component({
+        components: {
+            'mobilizon-logo': Logo,
+        },
+        /**
+         * listen on click on the top button to go back to the top smoothly
+         */
+        mounted() {
+            const btnId = 'back_to_top';
+            const btn = document.getElementById(btnId);
 
-      if (btn) {
-        btn.addEventListener('click', () => window.scrollTo({
-          top: 0,
-          behavior: 'smooth',
-        }));
-      } else {
-        console.error(`back to top button reference element by ID "${btnId}" not found`);
-      }
-    },
-  })
-  export default class Footer extends Vue {
-  }
+            if (btn) {
+                btn.addEventListener('click', () => window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth',
+                }));
+            } else {
+                console.error(`back to top button reference element by ID "${btnId}" not found`);
+            }
+        },
+    })
+    export default class Footer extends Vue {
+    }
 </script>
 <style lang="scss" scoped>
 	@import "../variables.scss";
@@ -73,13 +77,29 @@
 		#back_to_top {
 			position: fixed;
 			bottom: 1em;
+			height: 0;
+			width: 0;
 			right: 1em;
 			display: inline-block;
-			background: $primary;
+			background: $secondary;
 			color: $primary-invert;
-			padding: 2em;
+			padding: 1.5rem;
 			border-radius: 2em;
-			border: solid 2px solid $primary;
+			border: 2px solid transparent;
+			cursor: pointer;
+
+			&:hover {
+				background: $secondary-invert;
+				color: $secondary;
+				border: 2px solid $secondary;
+			}
+
+			.icon {
+				margin-top: -2.1rem;
+				display: block;
+				font-size: 2.5em;
+				margin-left: -0.6rem;
+			}
 		}
 	}
 </style>
