@@ -8,11 +8,10 @@
   },
   "object": {
     "type": "Follow",
-    "object": "http://mastodon.example.org/users/admin",
+    "object": "http://mastodon.example.org/users/afdmin",
     "id": "http://localtesting.pleroma.lol/users/lain#follows/4",
     "actor": "http://localtesting.pleroma.lol/users/lain"
   },
-  "nickname": "lain",
   "id": "http://mastodon.example.org/users/admin#rejects/follows/4",
   "actor": "http://mastodon.example.org/users/admin",
   "@context": [
