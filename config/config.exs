@@ -34,6 +34,10 @@ config :mobilizon, :groups, enabled: true
 
 config :mobilizon, :events, creation: true
 
+config :mobilizon, :demo_mode,
+  email: "demo@mobilizon.org",
+  password: "mobilizon"
+
 # Configures the endpoint
 config :mobilizon, Mobilizon.Web.Endpoint,
   http: [

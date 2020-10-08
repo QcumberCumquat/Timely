@@ -68,7 +68,7 @@
       <b-notification
         type="is-danger"
         has-icon
-        aria-close-label="Close notification"
+        :aria-close-label="$t('Close notification')"
         role="alert"
         :key="error"
         v-for="error in errors"

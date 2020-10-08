@@ -2,41 +2,14 @@
   <div id="mobilizon">
     <NavBar />
     <div class="container" v-if="config && config.demoMode">
-      <b-message
-        type="is-danger"
-        :title="$t('Warning').toLocaleUpperCase()"
-        closable
-        aria-close-label="Close"
-      >
+      <b-message type="is-info" :title="$t('Demo mode')" closable aria-close-label="Close">
         <p
           v-html="
-            `${$t('This is a demonstration site to test the beta version of Mobilizon.')} ${$t(
+            `${$t('This is a demonstration website to test Mobilizon.')} ${$t(
               '<b>Please do not use it in any real way.</b>'
-            )}`
+            )} ${$t('Data is deleted every 7 days.')}`
           "
         />
-        <p>
-          <span
-            v-html="
-              $t(
-                'Mobilizon is under development, we will add new features to this site during regular updates, until the release of <b>version 1 of the software in the fall of 2020</b>.'
-              )
-            "
-          />
-          <i18n
-            path="In the meantime, please consider that the software is not (yet) finished. More information {onBlog}."
-          >
-            <a
-              slot="onBlog"
-              :href="
-                $i18n.locale === 'fr'
-                  ? 'https://framablog.org/?p=18268'
-                  : 'https://framablog.org/?p=18299'
-              "
-              >{{ $t("on our blog") }}</a
-            >
-          </i18n>
-        </p>
       </b-message>
     </div>
     <main>

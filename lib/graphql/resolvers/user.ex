@@ -203,7 +203,8 @@ defmodule Mobilizon.GraphQL.Resolvers.User do
   Send an email to reset the password from an user
   """
   def send_reset_password(_parent, args, _resolution) do
-    with email <- Map.get(args, :email),
+    with {:demo, false} <- {:demo, Config.instance_demo_mode?()},
+         email <- Map.get(args, :email),
          {:ok, %User{locale: locale} = user} <- Users.get_user_by_email(email, true),
          {:can_reset_password, true} <-
            {:can_reset_password, Authenticator.can_reset_password?(user)},
@@ -211,6 +212,9 @@ defmodule Mobilizon.GraphQL.Resolvers.User do
            Email.User.send_password_reset_email(user, Map.get(args, :locale, locale)) do
       {:ok, email}
     else
+      {:demo, true} ->
+        {:error, dgettext("errors", "You can't reset your password in demo mode")}
+
       {:can_reset_password, false} ->
         {:error, dgettext("errors", "This user can't reset their password")}
 
@@ -315,7 +319,8 @@ defmodule Mobilizon.GraphQL.Resolvers.User do
         %{old_password: old_password, new_password: new_password},
         %{context: %{current_user: %User{} = user}}
       ) do
-    with {:can_change_password, true} <-
+    with {:demo, false} <- {:demo, Config.instance_demo_mode?()},
+         {:can_change_password, true} <-
            {:can_change_password, Authenticator.can_change_password?(user)},
          {:current_password, {:ok, %User{}}} <-
            {:current_password, Authenticator.login(user.email, old_password)},
@@ -326,6 +331,9 @@ defmodule Mobilizon.GraphQL.Resolvers.User do
            |> Repo.update() do
       {:ok, user}
     else
+      {:demo, true} ->
+        {:error, dgettext("errors", "You can't change your password in demo mode")}
+
       {:current_password, _} ->
         {:error, dgettext("errors", "The current password is invalid")}
 
@@ -348,7 +356,8 @@ defmodule Mobilizon.GraphQL.Resolvers.User do
   def change_email(_parent, %{email: new_email, password: password}, %{
         context: %{current_user: %User{email: old_email} = user}
       }) do
-    with {:can_change_password, true} <-
+    with {:demo, false} <- {:demo, Config.instance_demo_mode?()},
+         {:can_change_password, true} <-
            {:can_change_password, Authenticator.can_change_email?(user)},
          {:current_password, {:ok, %User{}}} <-
            {:current_password, Authenticator.login(user.email, password)},
@@ -372,6 +381,9 @@ defmodule Mobilizon.GraphQL.Resolvers.User do
 
       {:ok, user}
     else
+      {:demo, true} ->
+        {:error, dgettext("errors", "You can't change your email in demo mode")}
+
       {:current_password, _} ->
         {:error, dgettext("errors", "The password provided is invalid")}
 
@@ -424,13 +436,17 @@ defmodule Mobilizon.GraphQL.Resolvers.User do
   def delete_account(_parent, args, %{
         context: %{current_user: %User{email: email} = user}
       }) do
-    with {:user_has_password, true} <- {:user_has_password, Authenticator.has_password?(user)},
+    with {:demo, false} <- {:demo, Config.instance_demo_mode?()},
+         {:user_has_password, true} <- {:user_has_password, Authenticator.has_password?(user)},
          {:confirmation_password, password} when not is_nil(password) <-
            {:confirmation_password, Map.get(args, :password)},
          {:current_password, {:ok, _}} <-
            {:current_password, Authenticator.authenticate(email, password)} do
       do_delete_account(user)
     else
+      {:demo, true} ->
+        {:error, dgettext("errors", "You can't delete the demo account")}
+
       # If the user hasn't got any password (3rd-party auth)
       {:user_has_password, false} ->
         do_delete_account(user)

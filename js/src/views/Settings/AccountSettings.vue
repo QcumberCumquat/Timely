@@ -1,5 +1,5 @@
 <template>
-  <div v-if="loggedUser">
+  <div v-if="loggedUser && config">
     <nav class="breadcrumb" aria-label="breadcrumbs">
       <ul>
         <li>
@@ -13,6 +13,9 @@
       </ul>
     </nav>
     <section>
+      <b-message v-if="config.demoMode" type="is-info">
+        {{ $t("You can't change these settings in demo mode.") }}
+      </b-message>
       <div class="setting-title">
         <h2>{{ $t("Email") }}</h2>
       </div>
@@ -34,7 +37,7 @@
       <b-notification
         type="is-danger"
         has-icon
-        aria-close-label="Close notification"
+        :aria-close-label="$t('Close notification')"
         role="alert"
         :key="error"
         v-for="error in changeEmailErrors"
@@ -42,12 +45,19 @@
       >
       <form @submit.prevent="resetEmailAction" ref="emailForm" class="form" v-if="canChangeEmail">
         <b-field :label="$t('New email')">
-          <b-input aria-required="true" required type="email" v-model="newEmail" />
+          <b-input
+            :disabled="config.demoMode"
+            aria-required="true"
+            required
+            type="email"
+            v-model="newEmail"
+          />
         </b-field>
         <p class="help">{{ $t("You'll receive a confirmation email.") }}</p>
         <b-field :label="$t('Password')">
           <b-input
             aria-required="true"
+            :disabled="config.demoMode"
             required
             type="password"
             password-reveal
@@ -75,7 +85,7 @@
       <b-notification
         type="is-danger"
         has-icon
-        aria-close-label="Close notification"
+        :aria-close-label="$t('Close notification')"
         role="alert"
         :key="error"
         v-for="error in changePasswordErrors"
@@ -91,6 +101,7 @@
           <b-input
             aria-required="true"
             required
+            :disabled="config.demoMode"
             type="password"
             password-reveal
             minlength="6"
@@ -101,6 +112,7 @@
           <b-input
             aria-required="true"
             required
+            :disabled="config.demoMode"
             type="password"
             password-reveal
             minlength="6"
@@ -118,7 +130,7 @@
         <h2>{{ $t("Delete account") }}</h2>
       </div>
       <p class="content">{{ $t("Deleting my account will delete all of my identities.") }}</p>
-      <b-button @click="openDeleteAccountModal" type="is-danger">
+      <b-button :disabled="config.demoMode" @click="openDeleteAccountModal" type="is-danger">
         {{ $t("Delete my account") }}
       </b-button>
 
@@ -156,6 +168,15 @@
                         :placeholder="$t('Password')"
                       />
                     </b-field>
+                    <b-notification
+                      type="is-danger"
+                      has-icon
+                      :aria-close-label="$t('Close notification')"
+                      role="alert"
+                      :key="error"
+                      v-for="error in deleteAccountErrors"
+                      >{{ error }}</b-notification
+                    >
                     <b-button native-type="submit" type="is-danger" size="is-large">
                       {{ $t("Delete everything") }}
                     </b-button>
@@ -176,6 +197,8 @@
 </template>
 
 <script lang="ts">
+import { CONFIG } from "@/graphql/config";
+import { IConfig } from "@/types/config.model";
 import { Component, Vue, Ref } from "vue-property-decorator";
 import { Route } from "vue-router";
 import { CHANGE_EMAIL, CHANGE_PASSWORD, DELETE_ACCOUNT, LOGGED_USER } from "../../graphql/user";
@@ -186,12 +209,15 @@ import { logout, SELECTED_PROVIDERS } from "../../utils/auth";
 @Component({
   apollo: {
     loggedUser: LOGGED_USER,
+    config: CONFIG,
   },
 })
 export default class AccountSettings extends Vue {
   @Ref("passwordForm") readonly passwordForm!: HTMLElement;
 
   loggedUser!: IUser;
+
+  config!: IConfig;
 
   passwordForEmailChange = "";
 
@@ -210,6 +236,8 @@ export default class AccountSettings extends Vue {
   passwordForAccountDeletion = "";
 
   RouteName = RouteName;
+
+  deleteAccountErrors: string[] = [];
 
   async resetEmailAction(): Promise<void> {
     this.changeEmailErrors = [];
@@ -259,6 +287,7 @@ export default class AccountSettings extends Vue {
   }
 
   async deleteAccount(): Promise<Route | void> {
+    this.deleteAccountErrors = [];
     try {
       await this.$apollo.mutate({
         mutation: DELETE_ACCOUNT,
@@ -308,6 +337,9 @@ export default class AccountSettings extends Vue {
     if (err.graphQLErrors !== undefined) {
       err.graphQLErrors.forEach(({ message }: { message: string }) => {
         switch (type) {
+          case "delete":
+            this.deleteAccountErrors.push(message);
+            break;
           case "password":
             this.changePasswordErrors.push(message);
             break;

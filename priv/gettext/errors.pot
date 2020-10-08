@@ -114,7 +114,7 @@ msgid "Current profile is not an administrator of the selected group"
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:514
+#: lib/graphql/resolvers/user.ex:530
 msgid "Error while saving user settings"
 msgstr ""
 
@@ -146,7 +146,7 @@ msgstr ""
 
 #, elixir-format
 #: lib/graphql/resolvers/actor.ex:58 lib/graphql/resolvers/actor.ex:88
-#: lib/graphql/resolvers/user.ex:417
+#: lib/graphql/resolvers/user.ex:429
 msgid "No profile found for the moderator user"
 msgstr ""
 
@@ -157,7 +157,7 @@ msgstr ""
 
 #, elixir-format
 #: lib/graphql/resolvers/person.ex:232 lib/graphql/resolvers/user.ex:76
-#: lib/graphql/resolvers/user.ex:219
+#: lib/graphql/resolvers/user.ex:223
 msgid "No user with this email was found"
 msgstr ""
 
@@ -178,38 +178,38 @@ msgid "Registrations are not open"
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:330
+#: lib/graphql/resolvers/user.ex:338
 msgid "The current password is invalid"
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:382
+#: lib/graphql/resolvers/user.ex:394
 msgid "The new email doesn't seem to be valid"
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:379
+#: lib/graphql/resolvers/user.ex:391
 msgid "The new email must be different"
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:333
+#: lib/graphql/resolvers/user.ex:341
 msgid "The new password must be different"
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:376 lib/graphql/resolvers/user.ex:439
-#: lib/graphql/resolvers/user.ex:442
+#: lib/graphql/resolvers/user.ex:388 lib/graphql/resolvers/user.ex:455
+#: lib/graphql/resolvers/user.ex:458
 msgid "The password provided is invalid"
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:337
+#: lib/graphql/resolvers/user.ex:345
 msgid "The password you have chosen is too short. Please make sure your password contains at least 6 characters."
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:215
+#: lib/graphql/resolvers/user.ex:219
 msgid "This user can't reset their password"
 msgstr ""
 
@@ -224,12 +224,12 @@ msgid "Unable to validate user"
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:420
+#: lib/graphql/resolvers/user.ex:432
 msgid "User already disabled"
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:489
+#: lib/graphql/resolvers/user.ex:505
 msgid "User requested is not logged-in"
 msgstr ""
 
@@ -254,12 +254,12 @@ msgid "You may not list groups unless moderator."
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:387
+#: lib/graphql/resolvers/user.ex:399
 msgid "You need to be logged-in to change your email"
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:345
+#: lib/graphql/resolvers/user.ex:353
 msgid "You need to be logged-in to change your password"
 msgstr ""
 
@@ -269,7 +269,7 @@ msgid "You need to be logged-in to delete a group"
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:447
+#: lib/graphql/resolvers/user.ex:463
 msgid "You need to be logged-in to delete your account"
 msgstr ""
 
@@ -299,7 +299,7 @@ msgid "You need to have an existing token to get a refresh token"
 msgstr ""
 
 #, elixir-format
-#: lib/graphql/resolvers/user.ex:198 lib/graphql/resolvers/user.ex:222
+#: lib/graphql/resolvers/user.ex:198 lib/graphql/resolvers/user.ex:226
 msgid "You requested again a confirmation email too soon"
 msgstr ""
 
@@ -836,4 +836,24 @@ msgstr ""
 #, elixir-format
 #: lib/graphql/resolvers/member.ex:129
 msgid "You can't reject this invitation with this profile."
+msgstr ""
+
+#, elixir-format
+#: lib/graphql/resolvers/user.ex:385
+msgid "You can't change your email in demo mode"
+msgstr ""
+
+#, elixir-format
+#: lib/graphql/resolvers/user.ex:335
+msgid "You can't change your password in demo mode"
+msgstr ""
+
+#, elixir-format
+#: lib/graphql/resolvers/user.ex:448
+msgid "You can't delete the demo account"
+msgstr ""
+
+#, elixir-format
+#: lib/graphql/resolvers/user.ex:216
+msgid "You can't reset your password in demo mode"
 msgstr ""

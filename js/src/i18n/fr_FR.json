@@ -841,5 +841,8 @@
   "Go to the event page": "Aller à la page de l'événement",
   "Request for participation confirmation sent": "Demande de confirmation de participation envoyée",
   "Check your inbox (and your junk mail folder).": "Vérifiez votre boîte de réception (et votre dossier des indésirables)",
-  "You may now close this window.": "Vous pouvez maintenant fermer cette fenêtre."
+  "You may now close this window.": "Vous pouvez maintenant fermer cette fenêtre.",
+  "Demo mode": "Mode de démonstration",
+  "This is a demonstration website to test Mobilizon.": "Ceci est un site de démonstration pour tester Mobilizon.",
+  "Close notification": "Fermer la notification"
 }

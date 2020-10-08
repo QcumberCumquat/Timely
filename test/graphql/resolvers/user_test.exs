@@ -757,6 +757,26 @@ defmodule Mobilizon.GraphQL.Resolvers.UserTest do
       assert hd(res["errors"])["message"] ==
                "This user can't reset their password"
     end
+
+    test "test send_reset_password/3 when demo mode is enabled", %{conn: conn} do
+      Config.put([:instance, :demo], true)
+      Mobilizon.Config.clear_config_cache()
+
+      %User{email: email} = insert(:user)
+
+      res =
+        conn
+        |> AbsintheHelpers.graphql_query(
+          query: @send_reset_password_mutation,
+          variables: %{email: email}
+        )
+
+      assert hd(res["errors"])["message"] ==
+               "You can't reset your password in demo mode"
+
+      Config.put([:instance, :demo], false)
+      Mobilizon.Config.clear_config_cache()
+    end
   end
 
   describe "Resolver: Reset user's password" do
@@ -1010,6 +1030,14 @@ defmodule Mobilizon.GraphQL.Resolvers.UserTest do
     @old_password "p4ssw0rd"
     @new_password "upd4t3d"
 
+    @change_password_mutation """
+    mutation ChangePassword($oldPassword: String!, $newPassword: String!) {
+      changePassword(oldPassword: $oldPassword, newPassword: $newPassword) {
+        id
+      }
+    }
+    """
+
     test "change_password/3 with valid password", %{conn: conn} do
       {:ok, %User{} = user} = Users.register(%{email: @email, password: @old_password})
 
@@ -1043,21 +1071,16 @@ defmodule Mobilizon.GraphQL.Resolvers.UserTest do
       assert login = json_response(res, 200)["data"]["login"]
       assert Map.has_key?(login, "accessToken") && not is_nil(login["accessToken"])
 
-      mutation = """
-          mutation {
-            changePassword(old_password: "#{@old_password}", new_password: "#{@new_password}") {
-                id
-              }
-            }
-      """
-
       res =
         conn
         |> auth_conn(user)
-        |> post("/api", AbsintheHelpers.mutation_skeleton(mutation))
+        |> AbsintheHelpers.graphql_query(
+          query: @change_password_mutation,
+          variables: %{oldPassword: @old_password, newPassword: @new_password}
+        )
 
-      assert json_response(res, 200)["errors"] == nil
-      assert json_response(res, 200)["data"]["changePassword"]["id"] == to_string(user.id)
+      assert is_nil(res["errors"])
+      assert res["data"]["changePassword"]["id"] == to_string(user.id)
 
       mutation = """
           mutation {
@@ -1094,20 +1117,15 @@ defmodule Mobilizon.GraphQL.Resolvers.UserTest do
           "confirmation_token" => nil
         })
 
-      mutation = """
-          mutation {
-            changePassword(old_password: "invalid password", new_password: "#{@new_password}") {
-                id
-              }
-            }
-      """
-
       res =
         conn
         |> auth_conn(user)
-        |> post("/api", AbsintheHelpers.mutation_skeleton(mutation))
+        |> AbsintheHelpers.graphql_query(
+          query: @change_password_mutation,
+          variables: %{oldPassword: "invalid password", newPassword: @new_password}
+        )
 
-      assert hd(json_response(res, 200)["errors"])["message"] == "The current password is invalid"
+      assert hd(res["errors"])["message"] == "The current password is invalid"
     end
 
     test "change_password/3 with same password", %{conn: conn} do
@@ -1121,20 +1139,15 @@ defmodule Mobilizon.GraphQL.Resolvers.UserTest do
           "confirmation_token" => nil
         })
 
-      mutation = """
-          mutation {
-            changePassword(old_password: "#{@old_password}", new_password: "#{@old_password}") {
-                id
-              }
-            }
-      """
-
       res =
         conn
         |> auth_conn(user)
-        |> post("/api", AbsintheHelpers.mutation_skeleton(mutation))
+        |> AbsintheHelpers.graphql_query(
+          query: @change_password_mutation,
+          variables: %{oldPassword: @old_password, newPassword: @old_password}
+        )
 
-      assert hd(json_response(res, 200)["errors"])["message"] ==
+      assert hd(res["errors"])["message"] ==
                "The new password must be different"
     end
 
@@ -1149,20 +1162,15 @@ defmodule Mobilizon.GraphQL.Resolvers.UserTest do
           "confirmation_token" => nil
         })
 
-      mutation = """
-          mutation {
-            changePassword(old_password: "#{@old_password}", new_password: "new") {
-                id
-              }
-            }
-      """
-
       res =
         conn
         |> auth_conn(user)
-        |> post("/api", AbsintheHelpers.mutation_skeleton(mutation))
+        |> AbsintheHelpers.graphql_query(
+          query: @change_password_mutation,
+          variables: %{oldPassword: @old_password, newPassword: "new"}
+        )
 
-      assert hd(json_response(res, 200)["errors"])["message"] ==
+      assert hd(res["errors"])["message"] ==
                "The password you have chosen is too short. Please make sure your password contains at least 6 characters."
     end
 
@@ -1177,10 +1185,42 @@ defmodule Mobilizon.GraphQL.Resolvers.UserTest do
           "confirmation_token" => nil
         })
 
+      res =
+        conn
+        |> AbsintheHelpers.graphql_query(
+          query: @change_password_mutation,
+          variables: %{oldPassword: @old_password, newPassword: @new_password}
+        )
+
+      assert hd(res["errors"])["message"] ==
+               "You need to be logged-in to change your password"
+    end
+
+    test "change_password/3 with demo mode enabled", %{conn: conn} do
+      Mobilizon.Config.clear_config_cache()
+      Config.put([:instance, :demo], true)
+
+      {:ok, %User{} = user} = Users.register(%{email: @email, password: @old_password})
+
+      # Hammer time !
+      {:ok, %User{} = _user} =
+        Users.update_user(user, %{
+          "confirmed_at" => Timex.shift(user.confirmation_sent_at, hours: -3),
+          "confirmation_sent_at" => nil,
+          "confirmation_token" => nil
+        })
+
       mutation = """
           mutation {
-            changePassword(old_password: "#{@old_password}", new_password: "#{@new_password}") {
-                id
+            login(
+                  email: "#{@email}",
+                  password: "#{@old_password}",
+              ) {
+                accessToken,
+                refreshToken,
+                user {
+                  id
+                }
               }
             }
       """
@@ -1189,8 +1229,21 @@ defmodule Mobilizon.GraphQL.Resolvers.UserTest do
         conn
         |> post("/api", AbsintheHelpers.mutation_skeleton(mutation))
 
-      assert hd(json_response(res, 200)["errors"])["message"] ==
-               "You need to be logged-in to change your password"
+      assert login = json_response(res, 200)["data"]["login"]
+      assert Map.has_key?(login, "accessToken") && not is_nil(login["accessToken"])
+
+      res =
+        conn
+        |> auth_conn(user)
+        |> AbsintheHelpers.graphql_query(
+          query: @change_password_mutation,
+          variables: %{oldPassword: @old_password, newPassword: @new_password}
+        )
+
+      assert hd(res["errors"])["message"] == "You can't change your password in demo mode"
+
+      Config.put([:instance, :demo], false)
+      Mobilizon.Config.clear_config_cache()
     end
   end
 
@@ -1313,6 +1366,44 @@ defmodule Mobilizon.GraphQL.Resolvers.UserTest do
         )
 
       assert hd(res["errors"])["message"] == "The new email doesn't seem to be valid"
+    end
+
+    test "change_email/3 with demo mode enabled", %{conn: conn} do
+      Mobilizon.Config.clear_config_cache()
+      Config.put([:instance, :demo], true)
+
+      {:ok, %User{} = user} = Users.register(%{email: @old_email, password: @password})
+
+      # Hammer time !
+      {:ok, %User{} = _user} =
+        Users.update_user(user, %{
+          confirmed_at: Timex.shift(user.confirmation_sent_at, hours: -3),
+          confirmation_sent_at: nil,
+          confirmation_token: nil
+        })
+
+      res =
+        conn
+        |> AbsintheHelpers.graphql_query(
+          query: @login_mutation,
+          variables: %{email: @old_email, password: @password}
+        )
+
+      login = res["data"]["login"]
+      assert Map.has_key?(login, "accessToken") && not is_nil(login["accessToken"])
+
+      res =
+        conn
+        |> auth_conn(user)
+        |> AbsintheHelpers.graphql_query(
+          query: @change_email_mutation,
+          variables: %{email: @new_email, password: @password}
+        )
+
+      assert hd(res["errors"])["message"] == "You can't change your email in demo mode"
+
+      Config.put([:instance, :demo], false)
+      Mobilizon.Config.clear_config_cache()
     end
 
     test "change_password/3 without being authenticated", %{conn: conn} do
