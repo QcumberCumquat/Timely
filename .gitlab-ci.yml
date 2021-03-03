@@ -204,7 +204,7 @@ build-docker-tag:
   variables:
     DOCKER_IMAGE_NAME: framasoft/mobilizon:$CI_COMMIT_TAG
 
-package-app:
+package-app-amd64:
   stage: package
   variables: &release-variables
     MIX_ENV: "prod"
@@ -215,8 +215,38 @@ package-app:
     - mix phx.digest
     - mix release --path release/mobilizon
     - cd release/mobilizon && ln -s lib/mobilizon-*/priv priv
-  only:
-    - tags@framasoft/mobilizon
+  # only:
+  #   - tags@framasoft/mobilizon
+  artifacts:
+    expire_in: never
+    paths:
+      - release
+
+package-app-arm64:
+  stage: package
+  image: arm64v8/elixir:1.11
+  tags:
+    - arm64
+  variables: &release-variables
+    MIX_ENV: "prod"
+  script: *release-script
+  # only:
+  #   - tags@framasoft/mobilizon
+  artifacts:
+    expire_in: never
+    paths:
+      - release
+
+package-app-arm:
+  stage: package
+  image: arm32v7/elixir:1.11
+  tags:
+    - arm32
+  variables: &release-variables
+    MIX_ENV: "prod"
+  script: *release-script
+  # only:
+  #   - tags@framasoft/mobilizon
   artifacts:
     expire_in: never
     paths:
