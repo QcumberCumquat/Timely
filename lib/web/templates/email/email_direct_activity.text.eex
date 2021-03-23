@@ -1,0 +1,7 @@
+<%= @subject %>
+==
+<%= gettext("There has been an activity!") %>
+<%= for activity <- @activities do %>
+    * <%= activity.type %>
+<% end %>
+<%= gettext "Don't want to receive activity notifications? You may change frequency or disable them in your settings." %>
