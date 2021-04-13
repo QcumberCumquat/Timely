@@ -26,6 +26,8 @@ priv/data/*
 !priv/data/.gitkeep
 priv/errors/*
 !priv/errors/.gitkeep
+priv/cert/*
+!priv/cert/.gitkeep
 .vscode/
 cover/
 site/

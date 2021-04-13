@@ -128,4 +128,5 @@ export const SELECTED_PROVIDERS: { [key: string]: string } = {
   google: "Google",
   keycloak: "Keycloak",
   ldap: "LDAP",
+  saml: "SAML",
 };

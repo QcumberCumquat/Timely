@@ -131,6 +131,7 @@ defmodule Mobilizon.Mixfile do
       {:ueberauth_facebook, "~> 0.8"},
       {:ueberauth_discord, "~> 0.5"},
       {:ueberauth_google, "~> 0.9"},
+      {:ueberauth_saml, github: "wrren/ueberauth_saml"},
       {:ueberauth_keycloak_strategy,
        git: "https://github.com/tcitworld/ueberauth_keycloak.git", branch: "upgrade-deps"},
       {:ueberauth_gitlab_strategy,
