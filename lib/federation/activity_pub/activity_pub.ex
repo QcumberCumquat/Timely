@@ -45,6 +45,7 @@ defmodule Mobilizon.Federation.ActivityPub do
   alias Mobilizon.Federation.HTTPSignatures.Signature
   alias Mobilizon.Federation.WebFinger
 
+  alias Mobilizon.Service.HTTP.ActivityPub, as: APClient
   alias Mobilizon.Service.Notifications.Scheduler
   alias Mobilizon.Storage.Page
 
@@ -771,16 +772,17 @@ defmodule Mobilizon.Federation.ActivityPub do
         date: date
       })
 
-    Tesla.post(
-      inbox,
-      json,
-      headers: [
-        {"Content-Type", "application/activity+json"},
-        {"signature", signature},
-        {"digest", digest},
-        {"date", date}
-      ]
-    )
+    client =
+      APClient.client(
+        headers: [
+          {"Content-Type", "application/activity+json"},
+          {"signature", signature},
+          {"digest", digest},
+          {"date", date}
+        ]
+      )
+
+    APClient.post(client, inbox, json)
   end
 
   # Fetching a remote actor's information through its AP ID
@@ -790,13 +792,7 @@ defmodule Mobilizon.Federation.ActivityPub do
     Logger.debug(inspect(url))
 
     res =
-      with {:ok, %{status: 200, body: body}} <-
-             Tesla.get(url,
-               headers: [{"Accept", "application/activity+json"}],
-               follow_redirect: true
-             ),
-           :ok <- Logger.debug("response okay, now decoding json"),
-           {:ok, data} <- Jason.decode(body) do
+      with {:ok, %{status: 200, body: data}} <- Fetcher.fetch(url) do
         Logger.debug("Got activity+json response at actor's endpoint, now converting data")
         {:ok, Converter.Actor.as_to_model_data(data)}
       else
