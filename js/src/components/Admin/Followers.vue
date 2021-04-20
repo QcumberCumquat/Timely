@@ -143,14 +143,14 @@ export default class Followers extends Mixins(RelayMixin) {
 
   formatDistanceToNow = formatDistanceToNow;
 
-  async acceptRelays(): Promise<void> {
-    await this.checkedRows.forEach((row: IFollower) => {
+  acceptRelays(): void {
+    this.checkedRows.forEach((row: IFollower) => {
       this.acceptRelay(`${row.actor.preferredUsername}@${row.actor.domain}`);
     });
   }
 
-  async rejectRelays(): Promise<void> {
-    await this.checkedRows.forEach((row: IFollower) => {
+  rejectRelays(): void {
+    this.checkedRows.forEach((row: IFollower) => {
       this.rejectRelay(`${row.actor.preferredUsername}@${row.actor.domain}`);
     });
   }

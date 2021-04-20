@@ -6,7 +6,7 @@ defmodule Mobilizon.GraphQL.Resolvers.Admin do
   import Mobilizon.Users.Guards
 
   alias Mobilizon.{Actors, Admin, Config, Events}
-  alias Mobilizon.Actors.Actor
+  alias Mobilizon.Actors.{Actor, Follower}
   alias Mobilizon.Admin.{ActionLog, Setting}
   alias Mobilizon.Cldr.Language
   alias Mobilizon.Config
@@ -301,6 +301,35 @@ defmodule Mobilizon.GraphQL.Resolvers.Admin do
   end
 
   def list_relay_followings(_parent, _args, _resolution) do
+    {:error, :unauthenticated}
+  end
+
+  @doc """
+  Get a relay follow
+  """
+  def get_relay_follow(
+        _parent,
+        %{id: id},
+        %{context: %{current_user: %User{role: role}}}
+      )
+      when is_admin(role) do
+    %Actor{id: relay_actor_id} = Relay.get_actor()
+
+    case Actors.get_follower(id) do
+      %Follower{target_actor_id: target_actor_id, actor_id: actor_id} = follow
+      when relay_actor_id in [target_actor_id, actor_id] ->
+        {:ok, follow}
+
+      _ ->
+        {:error, :not_found}
+    end
+  end
+
+  def get_relay_follow(_parent, _args, %{context: %{current_user: %User{}}}) do
+    {:error, :unauthorized}
+  end
+
+  def get_relay_follow(_parent, _args, _resolution) do
     {:error, :unauthenticated}
   end
 

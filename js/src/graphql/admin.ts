@@ -37,6 +37,7 @@ export const DASHBOARD = gql`
 
 export const RELAY_FRAGMENT = gql`
   fragment relayFragment on Follower {
+    id
     actor {
       id
       preferredUsername
@@ -78,6 +79,15 @@ export const RELAY_FOLLOWINGS = gql`
         ...relayFragment
       }
       total
+    }
+  }
+  ${RELAY_FRAGMENT}
+`;
+
+export const RELAY_FOLLOW = gql`
+  query relayFollow($id: ID!) {
+    relayFollow(id: $id) {
+      ...relayFragment
     }
   }
   ${RELAY_FRAGMENT}

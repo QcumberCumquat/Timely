@@ -215,6 +215,11 @@ defmodule Mobilizon.GraphQL.Schema.AdminType do
       arg(:direction, :string, default_value: :desc, description: "The sorting direction")
       resolve(&Admin.list_relay_followings/3)
     end
+
+    field :relay_follow, type: :follower do
+      arg(:id, non_null(:id), description: "The follow ID")
+      resolve(&Admin.get_relay_follow/3)
+    end
   end
 
   object :admin_mutations do

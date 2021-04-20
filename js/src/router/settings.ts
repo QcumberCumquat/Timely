@@ -13,6 +13,7 @@ export enum SettingsRouteName {
   RELAYS = "Relays",
   RELAY_FOLLOWINGS = "Followings",
   RELAY_FOLLOWERS = "Followers",
+  RELAY_FOLLOW = "RELAY_FOLLOW",
   USERS = "USERS",
   PROFILES = "PROFILES",
   ADMIN_PROFILE = "ADMIN_PROFILE",
@@ -185,6 +186,16 @@ export const settingsRoutes: RouteConfig[] = [
           },
         ],
         props: true,
+      },
+      {
+        path: "admin/relays/follow/:id",
+        name: SettingsRouteName.RELAY_FOLLOW,
+        component: (): Promise<EsModuleComponent> =>
+          import(
+            /* webpackChunkName: "RelayFollow" */ "@/components/Admin/FollowDetails.vue"
+          ),
+        props: true,
+        meta: { requiredAuth: true },
       },
       {
         path: "/moderation",
