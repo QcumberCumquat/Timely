@@ -50,7 +50,7 @@ defmodule Mobilizon.Web.Email.Activity do
     |> Enum.into(%{})
   end
 
-  # We filter duplicates when message_params are being the same
+  # We filter duplicates when subject_params are being the same
   # so it will probably not catch much things
   @spec filter_duplicates(list()) :: list()
   defp filter_duplicates(activities) do
@@ -58,15 +58,15 @@ defmodule Mobilizon.Web.Email.Activity do
                                   author: %Actor{id: author_id},
                                   group: %Actor{id: group_id},
                                   type: type,
-                                  message: message,
-                                  message_params: message_params
+                                  subject: subject,
+                                  subject_params: subject_params
                                 } ->
       %{
         author_id: author_id,
         group_id: group_id,
         type: type,
-        message: message,
-        message_params: message_params
+        subject: subject,
+        subject_params: subject_params
       }
     end)
   end
