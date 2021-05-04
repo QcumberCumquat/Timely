@@ -1702,23 +1702,6 @@ msgid "Public feed for %{instance}"
 msgstr ""
 
 #, elixir-format
-#: lib/web/email/activity.ex:23
+#: lib/web/email/activity.ex:25
 msgid "Activity notification for %{instance}"
-msgstr ""
-
-#, elixir-format
-#: lib/web/templates/email/email_direct_activity.html.eex:84
-#: lib/web/templates/email/email_direct_activity.text.eex:7
-msgid "Don't want to receive activity notifications? You may change frequency or disable them in your settings."
-msgstr ""
-
-#, elixir-format
-#: lib/web/templates/email/email_direct_activity.html.eex:41
-#: lib/web/templates/email/email_direct_activity.text.eex:3
-msgid "There has been an activity!"
-msgstr ""
-
-#, elixir-format
-#: lib/web/templates/email/email_direct_activity.html.eex:39
-msgid "There has been some activity!"
 msgstr ""
