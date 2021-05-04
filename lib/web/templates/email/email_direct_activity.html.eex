@@ -51,9 +51,9 @@
                       <%= if hd(group_activities).group.avatar do %><div style="display: inline-block;width: 100%;max-width: 91px;vertical-align: top;text-align: left;font-family: Arial,sans-serif;font-size: 14px;">
                         <img src="<%= hd(group_activities).group.avatar.url %>" style="width: 80%;max-width: 100px;margin-bottom: 20px;" />
                       </div><% end %><div style="display: inline-block;width: 100%;max-width: 350px;vertical-align: top;padding-bottom: 20px;font-family: Arial,sans-serif;font-size: 16px;line-height: 22px;padding-top: 15px;">
-                        <p style="margin: 0;font-weight: bold;"><%= hd(group_activities).group.name || Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group) %></p>
+                        <p style="margin: 0;font-weight: bold;"><%= hd(group_activities).group.name || "@#{Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group)}" %></p>
                         <%= if hd(group_activities).group.name do %>
-                          <span style="color: #7a7a7a"><%= Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group) %></span>
+                          <span style="color: #7a7a7a">@<%= Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group) %></span>
                         <% end %>
                       </div>
                     </a>

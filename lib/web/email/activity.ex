@@ -44,7 +44,7 @@ defmodule Mobilizon.Web.Email.Activity do
       Map.update(acc, group_id, [activity], fn activities -> activities ++ [activity] end)
     end)
     |> Enum.map(fn {key, value} ->
-      {key, Enum.sort(value, &(&1.inserted_at <= &2.inserted_at))}
+      {key, Enum.sort(value, &(&1.inserted_at >= &2.inserted_at))}
     end)
     |> Enum.map(fn {key, value} -> {key, filter_duplicates(value)} end)
     |> Enum.into(%{})
