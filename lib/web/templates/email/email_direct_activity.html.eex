@@ -55,7 +55,7 @@
                               <%= if hd(group_activities).group.avatar do %>
                                 <td width="100">
                                   <a href="<%= page_url(Mobilizon.Web.Endpoint, :actor, Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group)) |> URI.decode() %>" target="_blank" style="text-decoration: none;">
-                                    <img src="<%= hd(group_activities).group.avatar.url %>" style="width: 80px;max-height: 100px;" style="margin:0; padding:0; border:none; display:block;" border="0" alt="" />
+                                    <img width="80" src="<%= hd(group_activities).group.avatar.url %>" style="width: 80px;max-height: 100px;" style="margin:0; padding:0; border:none; display:block;" border="0" alt="" />
                                   </a>
                                 </td>
                               <% end %>
