@@ -27,13 +27,13 @@ defmodule Mobilizon.Web.Email.Activity do
         instance: Config.instance_name()
       )
 
-    activities = chunk_activities(activities)
+    chunked_activities = chunk_activities(activities)
 
     Email.base_email(to: email, subject: subject)
     |> assign(:locale, locale)
     |> assign(:subject, subject)
-    |> assign(:activities, activities)
-    |> assign(:total_number_activities, map_size(activities))
+    |> assign(:activities, chunked_activities)
+    |> assign(:total_number_activities, length(activities))
     |> render(:email_direct_activity)
   end
 
@@ -44,7 +44,7 @@ defmodule Mobilizon.Web.Email.Activity do
       Map.update(acc, group_id, [activity], fn activities -> activities ++ [activity] end)
     end)
     |> Enum.map(fn {key, value} ->
-      {key, Enum.sort(value, &(&1.inserted_at >= &2.inserted_at))}
+      {key, Enum.sort(value, &(&1.inserted_at <= &2.inserted_at))}
     end)
     |> Enum.map(fn {key, value} -> {key, filter_duplicates(value)} end)
     |> Enum.into(%{})
