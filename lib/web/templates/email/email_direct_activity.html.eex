@@ -43,21 +43,48 @@
         <td bgcolor="#ffffff" align="left">
           <table width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
-              <td align="center" style="border-radius: 3px; text-align: left; padding: 10px 30px 0px 30px; color: #474467; font-family: 'Roboto', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400;line-height: 25px;" >
+              <td align="center" style="border-radius: 3px; text-align: left; padding: 10px 30px 0px 30px; color: #474467; font-family: 'Roboto', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400;line-height: 25px;" >
                 <ul style="margin: 0 auto; padding-left: 15px;">
                   <%= for {_, group_activities} <- @activities do %>
                   <li style="list-style: none;border-bottom: solid 2px #d7d6de;padding: 10px 0;">
-                    <a href="<%= page_url(Mobilizon.Web.Endpoint, :actor, Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group)) |> URI.decode() %>" target="_blank" style="color: initial;">
-                      <%= if hd(group_activities).group.avatar do %><div style="display: inline-block;width: 100%;max-width: 91px;vertical-align: top;text-align: left;font-family: Arial,sans-serif;font-size: 14px;">
-                        <img src="<%= hd(group_activities).group.avatar.url %>" style="width: 80%;max-width: 100px;margin-bottom: 20px;" />
-                      </div><% end %><div style="display: inline-block;width: 100%;max-width: 350px;vertical-align: top;padding-bottom: 20px;font-family: Arial,sans-serif;font-size: 16px;line-height: 22px;padding-top: 15px;">
-                        <p style="margin: 0;font-weight: bold;"><%= hd(group_activities).group.name || "@#{Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group)}" %></p>
-                        <%= if hd(group_activities).group.name do %>
-                          <span style="color: #7a7a7a">@<%= Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group) %></span>
-                        <% end %>
-                      </div>
-                    </a>
-                    <ul style="padding-left: 25px;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                      <tr>
+                        <td align="left">
+                          <table width="180" align="left">
+                            <tr>
+                              <%= if hd(group_activities).group.avatar do %>
+                                <td width="100">
+                                  <a href="<%= page_url(Mobilizon.Web.Endpoint, :actor, Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group)) |> URI.decode() %>" target="_blank" style="text-decoration: none;">
+                                    <img src="<%= hd(group_activities).group.avatar.url %>" style="width: 80px;max-height: 100px;" style="margin:0; padding:0; border:none; display:block;" border="0" alt="" />
+                                  </a>
+                                </td>
+                              <% end %>
+                              <td width="400">
+                                <table width="" cellpadding="0" cellspacing="0" border="0" style="max-width: 400px;width: 100%;" align="left">
+                                  <tr>
+                                    <td align="left">
+                                      <a href="<%= page_url(Mobilizon.Web.Endpoint, :actor, Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group)) |> URI.decode() %>" target="_blank" style="text-decoration: none;text-overflow: ellipsis;overflow: hidden;white-space: nowrap;display: block; color: #474467;font-family: 'Roboto', Helvetica, Arial, sans-serif;font-size: 18px;font-weight: bold;line-height: 25px;">
+                                        <%= hd(group_activities).group.name || "@#{Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group)}" %>
+                                      </a>
+                                    </td>
+                                  </tr>
+                                  <%= if hd(group_activities).group.name do %>
+                                    <tr>
+                                      <td align="left">
+                                        <a href="<%= page_url(Mobilizon.Web.Endpoint, :actor, Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group)) |> URI.decode() %>" target="_blank" style="text-decoration: none;text-overflow: ellipsis;overflow: hidden;white-space: nowrap;display: block;color: #7a7a7a;font-family: 'Roboto', Helvetica, Arial, sans-serif;font-size: 16px;font-weight: 400;line-height: 25px;">
+                                          @<%= Mobilizon.Actors.Actor.preferred_username_and_domain(hd(group_activities).group) %>
+                                        </a>
+                                      </td>
+                                    </tr>
+                                  <% end %>
+                                </table>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                    <ul style="padding-left: 25px;margin-top: 10px;">
                       <%= for activity <- Enum.take(group_activities, 5) do %>
                       <li style="margin-bottom: 7px;">
                         <p style="margin: 0;">
