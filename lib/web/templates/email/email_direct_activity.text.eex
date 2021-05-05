@@ -1,7 +1,7 @@
 <%= @subject %>
 
 ==
-<%= dngettext("activity", "There has been an activity!", "There has been some activity!", map_size(@activities)) %>
+<%= dngettext("activity", "There has been an activity!", "There has been some activity!", @total_number_activities) %>
 
 <%= for {_, group_activities} <- @activities do %>
 

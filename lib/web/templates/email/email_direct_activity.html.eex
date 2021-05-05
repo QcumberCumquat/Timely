@@ -35,7 +35,7 @@
       <tr>
         <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 0px 30px; color: #474467; font-family: 'Roboto', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;" >
           <p style="margin: 0;">
-            <%= dngettext("activity", "There has been an activity!", "There has been some activity!", map_size(@activities)) %>
+            <%= dngettext("activity", "There has been an activity!", "There has been some activity!", @total_number_activities) %>
           </p>
         </td>
       </tr>
