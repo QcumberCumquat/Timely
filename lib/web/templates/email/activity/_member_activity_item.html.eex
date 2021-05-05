@@ -32,7 +32,7 @@
         <%= 
             dgettext("activity", "%{member} joined the group.", 
                 %{
-                    member: "<b>#{@activity.subject_params["member_actor_name"]}</b>",
+                    member: "<b title=\"#{@activity.subject_params["member_actor_federated_username"]}\">#{@activity.subject_params["member_actor_name"]}</b>",
                 }
             ) |> raw %>
     <% :member_added -> %>
