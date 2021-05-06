@@ -213,6 +213,7 @@ import RouteName from "../../router/name";
 import { IFeedToken } from "@/types/feedtoken.model";
 import { CREATE_FEED_TOKEN, DELETE_FEED_TOKEN } from "@/graphql/feed_tokens";
 import { subscribeUserToPush } from "../../services/push-subscription";
+import { REGISTER_PUSH_MUTATION } from "@/graphql/webPush";
 
 @Component({
   apollo: {
@@ -318,8 +319,14 @@ export default class Notifications extends Vue {
 
   async subscribeToWebPush(): Promise<void> {
     if (this.canShowWebPush()) {
-      const a = await subscribeUserToPush();
-      console.log(a);
+      const subscription = await subscribeUserToPush();
+      const { data } = await this.$apollo.mutate({
+        mutation: REGISTER_PUSH_MUTATION,
+        variables: {
+          ...subscription,
+        },
+      });
+      console.log(data);
     } else {
       console.log("can't do webpush");
     }
