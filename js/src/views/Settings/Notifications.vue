@@ -21,7 +21,7 @@
       <b-button
         icon-left="rss"
         @click="subscribeToWebPush"
-        v-if="!canShowWebPush"
+        v-if="canShowWebPush()"
         >{{ $t("WebPush") }}</b-button
       >
       <span v-else>{{ $t("You can't use webpush in this browser.") }}</span>
@@ -317,14 +317,16 @@ export default class Notifications extends Vue {
   }
 
   async subscribeToWebPush(): Promise<void> {
-    if (window.isSecureContext && navigator.serviceWorker) {
+    if (this.canShowWebPush()) {
       const a = await subscribeUserToPush();
       console.log(a);
+    } else {
+      console.log("can't do webpush");
     }
   }
 
   canShowWebPush(): boolean {
-    return !!window.isSecureContext && !!navigator.serviceWorker;
+    return window.isSecureContext && !!navigator.serviceWorker;
   }
 
   private async deleteFeedToken(token: string): Promise<void> {
