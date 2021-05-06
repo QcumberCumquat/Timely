@@ -18,6 +18,16 @@
       <div class="setting-title">
         <h2>{{ $t("Participation notifications") }}</h2>
       </div>
+      <b-button
+        icon-left="rss"
+        @click="subscribeToWebPush"
+        v-if="!canShowWebPush"
+        >{{ $t("WebPush") }}</b-button
+      >
+      <span v-else>{{ $t("You can't use webpush in this browser.") }}</span>
+      <div class="setting-title">
+        <h2>{{ $t("Participation notifications") }}</h2>
+      </div>
       <div class="field">
         <strong>{{
           $t(
@@ -202,6 +212,7 @@ import { IUser } from "../../types/current-user.model";
 import RouteName from "../../router/name";
 import { IFeedToken } from "@/types/feedtoken.model";
 import { CREATE_FEED_TOKEN, DELETE_FEED_TOKEN } from "@/graphql/feed_tokens";
+import { subscribeUserToPush } from "../../services/push-subscription";
 
 @Component({
   apollo: {
@@ -303,6 +314,17 @@ export default class Notifications extends Vue {
   async generateFeedTokens(): Promise<void> {
     const newToken = await this.createNewFeedToken();
     this.feedTokens.push(newToken);
+  }
+
+  async subscribeToWebPush(): Promise<void> {
+    if (window.isSecureContext && navigator.serviceWorker) {
+      const a = await subscribeUserToPush();
+      console.log(a);
+    }
+  }
+
+  canShowWebPush(): boolean {
+    return !!window.isSecureContext && !!navigator.serviceWorker;
   }
 
   private async deleteFeedToken(token: string): Promise<void> {
