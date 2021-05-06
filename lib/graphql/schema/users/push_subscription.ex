@@ -20,13 +20,13 @@ defmodule Mobilizon.GraphQL.Schema.Users.PushSubscription do
   end
 
   object :push_mutations do
-    field :register_push_mutation, :string do
+    field :register_push, :string do
       arg(:endpoint, non_null(:string))
       arg(:keys, non_null(:push_subscription_keys))
       resolve(&PushSubscription.register_push_subscription/3)
     end
 
-    field :unregister_push_mutation, :string do
+    field :unregister_push, :string do
       arg(:id, non_null(:id))
       resolve(&PushSubscription.unregister_push_subscription/3)
     end
