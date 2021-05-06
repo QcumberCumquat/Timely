@@ -13,11 +13,21 @@ defmodule Mobilizon.GraphQL.Schema.Users.PushSubscription do
     field(:auth, non_null(:string))
   end
 
-  object :push_queries do
-    field :list_push_subscriptions, :paginated_push_subscription_list do
-      resolve(&PushSubscription.list_user_push_subscriptions/3)
-    end
-  end
+  # object :push_subscription do
+  #   field(:id, :id)
+  # end
+
+  # @desc "A paginated list of subscriptions"
+  # object :paginated_push_subscription_list do
+  #   field(:elements, list_of(:push_subscription), description: "A list of push subscriptions")
+  #   field(:total, :integer, description: "The total number of push subscriptions in the list")
+  # end
+
+  # object :push_queries do
+  #   field :list_push_subscriptions, :paginated_push_subscription_list do
+  #     resolve(&PushSubscription.list_user_push_subscriptions/3)
+  #   end
+  # end
 
   object :push_mutations do
     field :register_push, :string do
