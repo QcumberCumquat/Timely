@@ -44,6 +44,7 @@ import { Component } from "vue-property-decorator";
 import RouteName from "../../router/name";
 import PopoverActorCard from "../Account/PopoverActorCard.vue";
 import ActivityMixin from "../../mixins/activity";
+import { convertActivity } from "@/services/activity-converter";
 
 @Component({
   components: {
@@ -56,36 +57,9 @@ export default class EventActivityItem extends mixins(ActivityMixin) {
   RouteName = RouteName;
 
   get translation(): string | undefined {
-    switch (this.activity.subject) {
-      case ActivityEventSubject.EVENT_CREATED:
-        if (this.isAuthorCurrentActor) {
-          return "You created the event {event}.";
-        }
-        return "The event {event} was created by {profile}.";
-      case ActivityEventSubject.EVENT_UPDATED:
-        if (this.isAuthorCurrentActor) {
-          return "You updated the event {event}.";
-        }
-        return "The event {event} was updated by {profile}.";
-      case ActivityEventSubject.EVENT_DELETED:
-        if (this.isAuthorCurrentActor) {
-          return "You deleted the event {event}.";
-        }
-        return "The event {event} was deleted by {profile}.";
-      case ActivityEventCommentSubject.COMMENT_POSTED:
-        if (this.subjectParams.comment_reply_to) {
-          if (this.isAuthorCurrentActor) {
-            return "You replied to a comment on the event {event}.";
-          }
-          return "{profile} replied to a comment on the event {event}.";
-        }
-        if (this.isAuthorCurrentActor) {
-          return "You posted a comment on the event {event}.";
-        }
-        return "{profile} posted a comment on the event {event}.";
-      default:
-        return undefined;
-    }
+    return convertActivity(this.activity, {
+      isAuthorCurrentActor: this.isAuthorCurrentActor,
+    });
   }
 
   get iconColor(): string | undefined {

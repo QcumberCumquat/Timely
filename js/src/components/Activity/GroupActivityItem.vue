@@ -77,6 +77,7 @@ import RouteName from "../../router/name";
 import PopoverActorCard from "../Account/PopoverActorCard.vue";
 import ActivityMixin from "../../mixins/activity";
 import { mixins } from "vue-class-component";
+import { convertActivity } from "@/services/activity-converter";
 
 @Component({
   components: {
@@ -89,20 +90,9 @@ export default class GroupActivityItem extends mixins(ActivityMixin) {
   ActivityGroupSubject = ActivityGroupSubject;
 
   get translation(): string | undefined {
-    switch (this.activity.subject) {
-      case ActivityGroupSubject.GROUP_CREATED:
-        if (this.isAuthorCurrentActor) {
-          return "You created the group {group}.";
-        }
-        return "{profile} created the group {group}.";
-      case ActivityGroupSubject.GROUP_UPDATED:
-        if (this.isAuthorCurrentActor) {
-          return "You updated the group {group}.";
-        }
-        return "{profile} updated the group {group}.";
-      default:
-        return undefined;
-    }
+    return convertActivity(this.activity, {
+      isAuthorCurrentActor: this.isAuthorCurrentActor,
+    });
   }
 
   get iconColor(): string | undefined {

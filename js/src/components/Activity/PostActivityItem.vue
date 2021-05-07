@@ -41,6 +41,7 @@ import RouteName from "../../router/name";
 import PopoverActorCard from "../Account/PopoverActorCard.vue";
 import ActivityMixin from "../../mixins/activity";
 import { mixins } from "vue-class-component";
+import { convertActivity } from "@/services/activity-converter";
 
 @Component({
   components: {
@@ -53,25 +54,9 @@ export default class PostActivityItem extends mixins(ActivityMixin) {
   ActivityPostSubject = ActivityPostSubject;
 
   get translation(): string | undefined {
-    switch (this.activity.subject) {
-      case ActivityPostSubject.POST_CREATED:
-        if (this.isAuthorCurrentActor) {
-          return "You created the post {post}.";
-        }
-        return "The post {post} was created by {profile}.";
-      case ActivityPostSubject.POST_UPDATED:
-        if (this.isAuthorCurrentActor) {
-          return "You updated the post {post}.";
-        }
-        return "The post {post} was updated by {profile}.";
-      case ActivityPostSubject.POST_DELETED:
-        if (this.isAuthorCurrentActor) {
-          return "You deleted the post {post}.";
-        }
-        return "The post {post} was deleted by {profile}.";
-      default:
-        return undefined;
-    }
+    return convertActivity(this.activity, {
+      isAuthorCurrentActor: this.isAuthorCurrentActor,
+    });
   }
 
   get iconColor(): string | undefined {

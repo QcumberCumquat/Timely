@@ -52,6 +52,7 @@ import PopoverActorCard from "../Account/PopoverActorCard.vue";
 import ActivityMixin from "../../mixins/activity";
 import { mixins } from "vue-class-component";
 import { Location } from "vue-router";
+import { convertActivity } from "@/services/activity-converter";
 
 @Component({
   components: {
@@ -63,74 +64,10 @@ export default class ResourceActivityItem extends mixins(ActivityMixin) {
   RouteName = RouteName;
 
   get translation(): string | undefined {
-    switch (this.activity.subject) {
-      case ActivityResourceSubject.RESOURCE_CREATED:
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        if (this.activity?.object?.type === "folder") {
-          if (this.isAuthorCurrentActor) {
-            return "You created the folder {resource}.";
-          }
-          return "{profile} created the folder {resource}.";
-        }
-        if (this.isAuthorCurrentActor) {
-          return "You created the resource {resource}.";
-        }
-        return "{profile} created the resource {resource}.";
-      case ActivityResourceSubject.RESOURCE_MOVED:
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        if (this.activity?.object?.type === "folder") {
-          if (this.parentDirectory === null) {
-            if (this.isAuthorCurrentActor) {
-              return "You moved the folder {resource} to the root folder.";
-            }
-            return "{profile} moved the folder {resource} to the root folder.";
-          }
-          if (this.isAuthorCurrentActor) {
-            return "You moved the folder {resource} into {new_path}.";
-          }
-          return "{profile} moved the folder {resource} into {new_path}.";
-        }
-        if (this.parentDirectory === null) {
-          if (this.isAuthorCurrentActor) {
-            return "You moved the resource {resource} to the root folder.";
-          }
-          return "{profile} moved the resource {resource} to the root folder.";
-        }
-        if (this.isAuthorCurrentActor) {
-          return "You moved the resource {resource} into {new_path}.";
-        }
-        return "{profile} moved the resource {resource} into {new_path}.";
-      case ActivityResourceSubject.RESOURCE_UPDATED:
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        if (this.activity?.object?.type === "folder") {
-          if (this.isAuthorCurrentActor) {
-            return "You renamed the folder from {old_resource_title} to {resource}.";
-          }
-          return "{profile} renamed the folder from {old_resource_title} to {resource}.";
-        }
-        if (this.isAuthorCurrentActor) {
-          return "You renamed the resource from {old_resource_title} to {resource}.";
-        }
-        return "{profile} renamed the resource from {old_resource_title} to {resource}.";
-      case ActivityResourceSubject.RESOURCE_DELETED:
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        if (this.activity?.object?.type === "folder") {
-          if (this.isAuthorCurrentActor) {
-            return "You deleted the folder {resource}.";
-          }
-          return "{profile} deleted the folder {resource}.";
-        }
-        if (this.isAuthorCurrentActor) {
-          return "You deleted the resource {resource}.";
-        }
-        return "{profile} deleted the resource {resource}.";
-      default:
-        return undefined;
-    }
+    return convertActivity(this.activity, {
+      isAuthorCurrentActor: this.isAuthorCurrentActor,
+      parentDirectory: this.parentDirectory,
+    });
   }
 
   get iconColor(): string | undefined {

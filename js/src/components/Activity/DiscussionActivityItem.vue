@@ -55,6 +55,7 @@ import RouteName from "../../router/name";
 import PopoverActorCard from "../Account/PopoverActorCard.vue";
 import ActivityMixin from "../../mixins/activity";
 import { mixins } from "vue-class-component";
+import { convertActivity } from "@/services/activity-converter";
 
 @Component({
   components: {
@@ -67,35 +68,9 @@ export default class DiscussionActivityItem extends mixins(ActivityMixin) {
   ActivityDiscussionSubject = ActivityDiscussionSubject;
 
   get translation(): string | undefined {
-    switch (this.activity.subject) {
-      case ActivityDiscussionSubject.DISCUSSION_CREATED:
-        if (this.isAuthorCurrentActor) {
-          return "You created the discussion {discussion}.";
-        }
-        return "{profile} created the discussion {discussion}.";
-      case ActivityDiscussionSubject.DISCUSSION_REPLIED:
-        if (this.isAuthorCurrentActor) {
-          return "You replied to the discussion {discussion}.";
-        }
-        return "{profile} replied to the discussion {discussion}.";
-      case ActivityDiscussionSubject.DISCUSSION_RENAMED:
-        if (this.isAuthorCurrentActor) {
-          return "You renamed the discussion from {old_discussion} to {discussion}.";
-        }
-        return "{profile} renamed the discussion from {old_discussion} to {discussion}.";
-      case ActivityDiscussionSubject.DISCUSSION_ARCHIVED:
-        if (this.isAuthorCurrentActor) {
-          return "You archived the discussion {discussion}.";
-        }
-        return "{profile} archived the discussion {discussion}.";
-      case ActivityDiscussionSubject.DISCUSSION_DELETED:
-        if (this.isAuthorCurrentActor) {
-          return "You deleted the discussion {discussion}.";
-        }
-        return "{profile} deleted the discussion {discussion}.";
-      default:
-        return undefined;
-    }
+    return convertActivity(this.activity, {
+      isAuthorCurrentActor: this.isAuthorCurrentActor,
+    });
   }
 
   get iconColor(): string | undefined {

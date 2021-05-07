@@ -23,6 +23,7 @@ export type ActivitySubject =
   | ActivityGroupSubject
   | ActivityEventCommentSubject;
 
+export type IActivityObject = IEvent | IPost | IGroup | IMember | IResource;
 export interface IActivity {
   id: string;
   type: ActivityType;
@@ -30,6 +31,12 @@ export interface IActivity {
   subjectParams: { key: string; value: string }[];
   author: IActor;
   group: IGroup;
-  object: IEvent | IPost | IGroup | IMember | IResource;
+  object: IActivityObject;
   insertedAt: string;
+}
+
+export interface IPatchedActivity<T>
+  extends Omit<IActivity, "subjectParams" | "object"> {
+  subjectParams: Record<string, string>;
+  object: T;
 }
