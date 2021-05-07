@@ -3,6 +3,7 @@ defmodule Mobilizon.Users.PushSubscription do
   alias Mobilizon.Users.User
   import Ecto.Changeset
 
+  @primary_key {:id, :binary_id, autogenerate: true}
   schema "user_push_subscriptions" do
     field(:digest, :string)
     belongs_to(:user, User)
@@ -26,6 +27,7 @@ defmodule Mobilizon.Users.PushSubscription do
     |> cast_embed(:data, with: &cast_data/2)
     |> put_change(:digest, compute_digest(attrs.data))
     |> validate_required([:digest, :user_id, :data])
+    |> unique_constraint([:digest, :user_id], name: :user_push_subscriptions_user_id_digest_index)
   end
 
   defp cast_data(schema, attrs) do
@@ -42,6 +44,8 @@ defmodule Mobilizon.Users.PushSubscription do
   end
 
   defp compute_digest(data) do
+    data = Jason.encode!(data)
+
     :sha256
     |> :crypto.hash(data)
     |> Base.encode16()

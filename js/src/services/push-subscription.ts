@@ -18,11 +18,9 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 export async function subscribeUserToPush(): Promise<PushSubscription | null> {
-  const registration = await navigator.serviceWorker.register(
-    "/service-worker.js"
-  );
-
   const client = apolloProvider.defaultClient as ApolloClient<NormalizedCacheObject>;
+
+  const registration = await navigator.serviceWorker.ready;
   const { data } = await client.mutate<{ config: IConfig }>({
     mutation: WEB_PUSH,
   });
@@ -44,4 +42,9 @@ export async function subscribeUserToPush(): Promise<PushSubscription | null> {
     return pushSubscription;
   }
   return null;
+}
+
+export async function isSubscribed(): Promise<boolean> {
+  const registration = await navigator.serviceWorker.ready;
+  return (await registration.pushManager.getSubscription()) !== null;
 }

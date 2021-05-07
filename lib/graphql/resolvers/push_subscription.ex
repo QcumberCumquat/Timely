@@ -25,7 +25,7 @@ defmodule Mobilizon.GraphQL.Resolvers.PushSubscription do
   def register_push_subscription(_parent, args, %{
         context: %{current_user: %User{id: user_id}}
       }) do
-    case Users.create_push_subscription(Map.put(args, :user_id, user_id)) do
+    case Users.create_push_subscription(%{data: args, user_id: user_id}) do
       {:ok, %PushSubscription{}} ->
         {:ok, "OK"}
 

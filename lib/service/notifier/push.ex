@@ -19,12 +19,12 @@ defmodule Mobilizon.Service.Notifier.Push do
   @impl Notifier
   def send(%User{id: user_id} = _user, %Activity{} = activity, _opts) do
     %Page{elements: subscriptions} = Users.list_user_push_subscriptions(user_id, 1, 100)
-    Enum.each(subscriptions, &send_subscription(activity, &1))
+    Enum.map(subscriptions, &send_subscription(activity, &1.data))
   end
 
   @impl Notifier
   def send(%User{} = user, activities, opts) when is_list(activities) do
-    Enum.each(activities, &Push.send(user, &1, opts))
+    Enum.map(activities, &Push.send(user, &1, opts))
   end
 
   defp payload(%Activity{subject: subject}) do

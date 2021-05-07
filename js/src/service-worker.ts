@@ -75,3 +75,34 @@ registerRoute(
     ],
   })
 );
+
+self.addEventListener("push", async (event: any) => {
+  console.log("received push", event);
+  const options = {
+    body: "Ceci est une notification envoyée par Mobilizon !",
+    icon: "images/notification-flat.png",
+    vibrate: [100, 50, 100],
+    data: {
+      dateOfArrival: Date.now(),
+      primaryKey: 1,
+    },
+    actions: [
+      {
+        action: "explore",
+        title: "Go to the site",
+        icon: "images/checkmark.png",
+      },
+      {
+        action: "close",
+        title: "Close the notification",
+        icon: "images/xmark.png",
+      },
+    ],
+  };
+
+  event.waitUntil(
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    self.registration.showNotification("Push Notification", options)
+  );
+});

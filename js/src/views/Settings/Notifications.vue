@@ -18,6 +18,7 @@
       <div class="setting-title">
         <h2>{{ $t("Participation notifications") }}</h2>
       </div>
+      <!-- <span v-if="isSubscribed()">{{ $t("You are already subscribed") }}</span> -->
       <b-button
         icon-left="rss"
         @click="subscribeToWebPush"
@@ -212,7 +213,10 @@ import { IUser } from "../../types/current-user.model";
 import RouteName from "../../router/name";
 import { IFeedToken } from "@/types/feedtoken.model";
 import { CREATE_FEED_TOKEN, DELETE_FEED_TOKEN } from "@/graphql/feed_tokens";
-import { subscribeUserToPush } from "../../services/push-subscription";
+import {
+  isSubscribed,
+  subscribeUserToPush,
+} from "../../services/push-subscription";
 import { REGISTER_PUSH_MUTATION } from "@/graphql/webPush";
 
 @Component({
@@ -320,10 +324,11 @@ export default class Notifications extends Vue {
   async subscribeToWebPush(): Promise<void> {
     if (this.canShowWebPush()) {
       const subscription = await subscribeUserToPush();
+      console.log("subscription", subscription?.toJSON());
       const { data } = await this.$apollo.mutate({
         mutation: REGISTER_PUSH_MUTATION,
         variables: {
-          ...subscription,
+          ...subscription?.toJSON(),
         },
       });
       console.log(data);
@@ -334,6 +339,10 @@ export default class Notifications extends Vue {
 
   canShowWebPush(): boolean {
     return window.isSecureContext && !!navigator.serviceWorker;
+  }
+
+  async isSubscribed(): Promise<boolean> {
+    return await isSubscribed();
   }
 
   private async deleteFeedToken(token: string): Promise<void> {
