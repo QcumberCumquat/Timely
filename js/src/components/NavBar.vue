@@ -71,6 +71,7 @@
       </b-navbar-item>
 
       <b-navbar-dropdown
+        tabindex="0"
         v-if="currentActor.id && currentUser.isLoggedIn"
         right
         collapsible
@@ -103,7 +104,7 @@
         <!-- No identities dropdown if no identities -->
         <span v-if="identities.length <= 1" />
         <b-navbar-item
-          tag="span"
+          tag="button"
           v-for="identity in identities"
           v-else
           :active="identity.id === currentActor.id"
@@ -145,8 +146,8 @@
           >{{ $t("Administration") }}</b-navbar-item
         >
 
-        <b-navbar-item tag="span">
-          <span @click="logout">{{ $t("Log out") }}</span>
+        <b-navbar-item tag="button" @click="logout">
+          {{ $t("Log out") }}
         </b-navbar-item>
       </b-navbar-dropdown>
 
@@ -317,28 +318,51 @@ nav {
       font-weight: bold;
     }
 
+    &:focus-visible,
+    &:not(.has-dropdown.is-active):focus-within {
+      outline: 2px solid $violet-3;
+    }
+
     svg {
       height: 1.75rem;
     }
   }
 
-  .navbar-dropdown .navbar-item {
-    cursor: pointer;
-
-    span {
-      display: flex;
+  ::v-deep .navbar-item.is-active .navbar-dropdown {
+    display: flex;
+    flex-direction: column;
+    .navbar-item {
+      flex: 1;
     }
+  }
 
-    &.is-active {
-      background: $secondary;
-    }
+  .navbar-dropdown {
+    .navbar-item {
+      cursor: pointer;
+      border: none;
+      background: none;
+      font: inherit;
 
-    span.icon.is-medium {
-      display: flex;
-    }
+      span {
+        display: flex;
+      }
 
-    img {
-      max-height: 2.5em;
+      &.is-active {
+        background: $secondary;
+      }
+
+      span.icon.is-medium {
+        display: flex;
+      }
+
+      img {
+        max-height: 2.5em;
+      }
+
+      &:focus-visible,
+      &:focus-within {
+        outline: 3px solid $violet-3;
+      }
     }
   }
 

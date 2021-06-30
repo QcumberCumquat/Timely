@@ -160,6 +160,10 @@ a.card {
   background: $secondary;
   color: #3c376e;
 
+  &:focus {
+    outline: 3px solid $violet-3;
+  }
+
   &:hover {
     // box-shadow: 0 0 5px 0 rgba(0, 0, 0, 1);
     transform: scale(1.01, 1.01);

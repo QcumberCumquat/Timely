@@ -351,6 +351,7 @@
                   <actor-card :actor="event.organizerActor" />
                 </popover-actor-card>
                 <router-link
+                  class="attributed-to-link"
                   v-if="event.attributedTo"
                   :to="{
                     name: RouteName.GROUP,
@@ -1435,6 +1436,12 @@ div.sidebar {
 
     span.online-address {
       display: flex;
+    }
+
+    a.attributed-to-link {
+      &:focus {
+        outline: 3px solid $violet-3;
+      }
     }
   }
 
