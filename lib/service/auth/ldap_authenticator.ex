@@ -180,7 +180,7 @@ defmodule Mobilizon.Service.Auth.LDAPAuthenticator do
   @spec search_filter(String.t(), String.t()) :: any()
   defp search_filter(email, group) when is_binary(group) do
     :eldap.and([
-      :eldap.equalityMatch('mail', to_charlist(email)),
+      search_filter(email, false),
       :eldap.equalityMatch('memberOf', to_charlist(group))
     ])
   end
