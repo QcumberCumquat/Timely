@@ -62,6 +62,11 @@ defmodule Mobilizon.Config do
     Mobilizon.Admin.get_admin_setting_value("instance", "contact")
   end
 
+  @spec instance_homepage_sorting :: String.t()
+  def instance_homepage_sorting do
+    Mobilizon.Admin.get_admin_setting_value("instance", "instance_homepage_sorting", "DEFAULT")
+  end
+
   @spec instance_terms(String.t()) :: String.t()
   def instance_terms(locale \\ "en") do
     Mobilizon.Admin.get_admin_setting_value("instance", "instance_terms", generate_terms(locale))
@@ -410,6 +415,7 @@ defmodule Mobilizon.Config do
       instance_terms: instance_terms(),
       instance_terms_type: instance_terms_type(),
       instance_terms_url: instance_terms_url(),
+      instance_homepage_sorting: instance_homepage_sorting(),
       instance_privacy_policy: instance_privacy(),
       instance_privacy_policy_type: instance_privacy_type(),
       instance_privacy_policy_url: instance_privacy_url(),

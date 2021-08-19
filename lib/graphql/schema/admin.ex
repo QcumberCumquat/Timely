@@ -114,6 +114,7 @@ defmodule Mobilizon.GraphQL.Schema.AdminType do
     field(:instance_long_description, :string, description: "The instance's long description")
     field(:instance_slogan, :string, description: "The instance's slogan")
     field(:contact, :string, description: "The instance's contact details")
+    field(:instance_homepage_sorting, :instance_homepage_sorting, description: "The instance's homepage sorting")
     field(:instance_terms, :string, description: "The instance's terms body text")
     field(:instance_terms_type, :instance_terms_type, description: "The instance's terms type")
     field(:instance_terms_url, :string, description: "The instance's terms URL")
@@ -137,6 +138,12 @@ defmodule Mobilizon.GraphQL.Schema.AdminType do
     value(:url, as: "URL", description: "An URL. Users will be redirected to this URL.")
     value(:default, as: "DEFAULT", description: "Terms will be set to Mobilizon's default terms")
     value(:custom, as: "CUSTOM", description: "Custom terms text")
+  end
+
+  @desc "The acceptable values for the instance's homepage type"
+  enum :instance_homepage_sorting do
+    value(:default, as: "DEFAULT", description: "Sort by recently created")
+    value(:upcoming, as: "UPCOMING", description: "Sort by upcoming")
   end
 
   @desc """
@@ -389,6 +396,7 @@ defmodule Mobilizon.GraphQL.Schema.AdminType do
       arg(:instance_terms, :string, description: "The instance's terms body text")
       arg(:instance_terms_type, :instance_terms_type, description: "The instance's terms type")
       arg(:instance_terms_url, :string, description: "The instance's terms URL")
+      arg(:instance_homepage_sorting, :instance_homepage_sorting, description: "The instance's homepage sorting")
 
       arg(:instance_privacy_policy, :string,
         description: "The instance's privacy policy body text"

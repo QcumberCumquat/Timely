@@ -337,6 +337,7 @@ defmodule Mobilizon.GraphQL.Resolvers.AdminTest do
     instanceDescription
     instanceLongDescription
     contact
+    InstanceHomepageSorting
     instanceTerms
     instanceTermsType
     instanceTermsUrl
@@ -419,6 +420,7 @@ defmodule Mobilizon.GraphQL.Resolvers.AdminTest do
       $instanceDescription: String
       $instanceLongDescription: String
       $contact: String
+      $InstanceHomepageSorting: InstanceHomepageSorting
       $instanceTerms: String
       $instanceTermsType: InstanceTermsType
       $instanceTermsUrl: String
@@ -433,6 +435,7 @@ defmodule Mobilizon.GraphQL.Resolvers.AdminTest do
         instanceDescription: $instanceDescription
         instanceLongDescription: $instanceLongDescription
         contact: $contact
+        InstanceHomepageSorting: $InstanceHomepageSorting
         instanceTerms: $instanceTerms
         instanceTermsType: $instanceTermsType
         instanceTermsUrl: $instanceTermsUrl

@@ -64,6 +64,24 @@
             <p class="content" v-else>{{ $t("Registration is closed.") }}</p>
           </b-switch>
         </b-field>
+        <b-field :label="$t('Home Page Sorting')">
+          <b-field>
+            <b-radio
+              v-model="adminSettings.InstanceHomepageSorting"
+              name="InstanceHomepageSorting"
+              :native-value="InstanceHomepageSorting.DEFAULT"
+              >{{ $t("Recently Created") }}</b-radio
+            >
+          </b-field>
+          <b-field>
+            <b-radio
+              v-model="adminSettings.InstanceHomepageSorting"
+              name="InstanceHomepageSorting"
+              :native-value="InstanceHomepageSorting.UPCOMING"
+              >{{ $t("Upcoming") }}</b-radio
+            >
+          </b-field>
+        </b-field>
         <div class="field">
           <label class="label has-help" for="instance-languages">{{
             $t("Instance languages")
@@ -375,7 +393,11 @@ import {
   SAVE_ADMIN_SETTINGS,
   LANGUAGES,
 } from "@/graphql/admin";
-import { InstancePrivacyType, InstanceTermsType } from "@/types/enums";
+import {
+  InstanceHomepageSorting,
+  InstancePrivacyType,
+  InstanceTermsType,
+} from "@/types/enums";
 import { IAdminSettings, ILanguage } from "../../types/admin.model";
 import RouteName from "../../router/name";
 
@@ -418,6 +440,8 @@ export default class Settings extends Vue {
   languages!: ILanguage[];
 
   filteredLanguages: string[] = [];
+
+  InstanceHomepageSorting = InstanceHomepageSorting;
 
   InstanceTermsType = InstanceTermsType;
 

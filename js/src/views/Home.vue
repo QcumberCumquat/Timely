@@ -289,7 +289,12 @@
       />
       <section class="events-recent">
         <h2 class="title">
-          {{ $t("Last published events") }}
+          {{
+            adminSettings.instanceHomepageSorting ===
+            InstanceHomepageSorting.DEFAULT
+              ? $t("Last published events")
+              : $t("Upcoming Events")
+          }}
         </h2>
         <p>
           <i18n tag="span" path="On {instance} and other federated instances">
@@ -321,7 +326,12 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import { EventSortField, ParticipantRole, SortDirection } from "@/types/enums";
+import {
+  EventSortField,
+  InstanceHomepageSorting,
+  ParticipantRole,
+  SortDirection,
+} from "@/types/enums";
 import { Paginate } from "@/types/paginate";
 import { supportsWebPFormat } from "@/utils/support";
 import { IParticipant, Participant } from "../types/participant.model";
@@ -337,6 +347,7 @@ import {
 } from "../types/current-user.model";
 import { CURRENT_USER_CLIENT } from "../graphql/user";
 import { CLOSE_CONTENT, HOME_USER_QUERIES } from "../graphql/home";
+import { ADMIN_SETTINGS } from "../graphql/admin";
 import RouteName from "../router/name";
 import { IEvent } from "../types/event.model";
 import DateComponent from "../components/Event/DateCalendarIcon.vue";
@@ -347,11 +358,20 @@ import Subtitle from "../components/Utils/Subtitle.vue";
 
 @Component({
   apollo: {
+    adminSettings: ADMIN_SETTINGS,
     events: {
       query: FETCH_EVENTS,
-      variables: {
-        orderBy: EventSortField.INSERTED_AT,
-        direction: SortDirection.DESC,
+      variables() {
+        return this.adminSettings?.InstanceHomepageSorting ===
+          InstanceHomepageSorting.UPCOMING
+          ? {
+              orderBy: EventSortField.BEGINS_ON,
+              direction: SortDirection.ASC,
+            }
+          : {
+              orderBy: EventSortField.INSERTED_AT,
+              direction: SortDirection.DESC,
+            };
       },
     },
     currentActor: {

@@ -229,6 +229,9 @@ type Config {
     locale: String
   ): Terms
 
+  "The instance's homepage sorting"
+  instanceHomepageSorting: InstanceHomepageSorting
+
   "The instance's privacy policy"
   privacy(
     "The user's locale. The privacy policy will be translated in their language, if available."
@@ -267,6 +270,15 @@ type Tag {
 
   "Related tags to this tag"
   related: [Tag]
+}
+
+"The acceptable values for the instance's homepage type"
+enum InstanceHomepageSorting {
+  "Sort by recently created"
+  DEFAULT
+
+  "Sort by upcoming"
+  UPCOMING
 }
 
 "Instance map routing configuration"
@@ -1949,6 +1961,9 @@ type RootMutationType {
 
     "The instance's terms URL"
     instanceTermsUrl: String
+
+    "The instance's homepage sorting"
+    instanceHomepageSorting: InstanceHomepageSorting
 
     "The instance's privacy policy body text"
     instancePrivacyPolicy: String
@@ -3804,6 +3819,9 @@ type AdminSettings {
 
   "The instance's contact details"
   contact: String
+
+  "The instance's homepage sorting"
+  instanceHomepageSorting: InstanceHomepageSorting
 
   "The instance's terms body text"
   instanceTerms: String

@@ -1,4 +1,9 @@
 /* eslint-disable no-unused-vars */
+export enum InstanceHomepageSorting {
+  DEFAULT = "DEFAULT",
+  UPCOMING = "UPCOMING",
+}
+
 export enum InstanceTermsType {
   DEFAULT = "DEFAULT",
   URL = "URL",

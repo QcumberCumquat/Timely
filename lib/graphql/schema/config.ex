@@ -58,6 +58,8 @@ defmodule Mobilizon.GraphQL.Schema.ConfigType do
       resolve(&Config.terms/3)
     end
 
+    field(:instance_homepage_sorting, :instance_homepage_sorting, description: "The instance's homepage sorting")
+
     field(:privacy, :privacy, description: "The instance's privacy policy") do
       arg(:locale, :string,
         default_value: "en",

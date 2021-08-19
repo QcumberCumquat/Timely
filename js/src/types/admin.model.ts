@@ -1,6 +1,6 @@
 import type { IEvent } from "@/types/event.model";
 import type { IGroup } from "./actor";
-import { InstanceTermsType } from "./enums";
+import { InstanceTermsType, InstanceHomepageSorting } from "./enums";
 
 export interface IDashboard {
   lastPublicEventPublished: IEvent;
@@ -25,6 +25,7 @@ export interface IAdminSettings {
   instanceSlogan: string;
   instanceLongDescription: string;
   contact: string;
+  InstanceHomepageSorting: InstanceHomepageSorting;
   instanceTerms: string;
   instanceTermsType: InstanceTermsType;
   instanceTermsUrl: string | null;

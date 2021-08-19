@@ -1,4 +1,9 @@
-import { InstancePrivacyType, InstanceTermsType, RoutingType } from "./enums";
+import { 
+  InstancePrivacyType, 
+  InstanceTermsType, 
+  InstanceHomepageSorting, 
+  RoutingType 
+} from "./enums";
 import type { IProvider } from "./resource";
 
 export interface IOAuthProvider {
@@ -79,6 +84,7 @@ export interface IConfig {
     provider: string;
     autocomplete: boolean;
   };
+  instanceHomepageSorting: InstanceHomepageSorting;
   terms: {
     bodyHtml: string;
     type: InstanceTermsType;
