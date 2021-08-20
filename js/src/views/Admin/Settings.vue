@@ -64,24 +64,26 @@
             <p class="content" v-else>{{ $t("Registration is closed.") }}</p>
           </b-switch>
         </b-field>
-        <b-field :label="$t('Home Page Sorting')">
-          <b-field>
-            <b-radio
-              v-model="adminSettings.InstanceHomepageSorting"
-              name="InstanceHomepageSorting"
-              :native-value="InstanceHomepageSorting.DEFAULT"
-              >{{ $t("Recently Created") }}</b-radio
-            >
+        <div class="field">
+          <b-field :label="$t('Home Page Sorting')">
+            <b-field>
+              <b-radio
+                v-model="adminSettings.instanceHomepageSorting"
+                name="instanceHomepageSorting"
+                :native-value="InstanceHomepageSorting.DEFAULT"
+                >{{ $t("Recently Created") }}</b-radio
+              >
+            </b-field>
+            <b-field>
+              <b-radio
+                v-model="adminSettings.instanceHomepageSorting"
+                name="instanceHomepageSorting"
+                :native-value="InstanceHomepageSorting.UPCOMING"
+                >{{ $t("Upcoming") }}</b-radio
+              >
+            </b-field>
           </b-field>
-          <b-field>
-            <b-radio
-              v-model="adminSettings.InstanceHomepageSorting"
-              name="InstanceHomepageSorting"
-              :native-value="InstanceHomepageSorting.UPCOMING"
-              >{{ $t("Upcoming") }}</b-radio
-            >
-          </b-field>
-        </b-field>
+        </div>
         <div class="field">
           <label class="label has-help" for="instance-languages">{{
             $t("Instance languages")

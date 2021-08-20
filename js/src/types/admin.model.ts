@@ -25,7 +25,7 @@ export interface IAdminSettings {
   instanceSlogan: string;
   instanceLongDescription: string;
   contact: string;
-  InstanceHomepageSorting: InstanceHomepageSorting;
+  instanceHomepageSorting: InstanceHomepageSorting;
   instanceTerms: string;
   instanceTermsType: InstanceTermsType;
   instanceTermsUrl: string | null;

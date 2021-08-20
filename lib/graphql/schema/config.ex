@@ -48,6 +48,8 @@ defmodule Mobilizon.GraphQL.Schema.ConfigType do
     field(:version, :string, description: "The instance's version")
     field(:federating, :boolean, description: "Whether this instance is federation")
 
+    field(:instance_homepage_sorting, :instance_homepage_sorting, description: "The instance's homepage sorting")
+
     field(:terms, :terms, description: "The instance's terms") do
       arg(:locale, :string,
         default_value: "en",
@@ -57,8 +59,6 @@ defmodule Mobilizon.GraphQL.Schema.ConfigType do
 
       resolve(&Config.terms/3)
     end
-
-    field(:instance_homepage_sorting, :instance_homepage_sorting, description: "The instance's homepage sorting")
 
     field(:privacy, :privacy, description: "The instance's privacy policy") do
       arg(:locale, :string,

@@ -51,7 +51,15 @@
     >
       <section class="events-recent">
         <h2 class="title">
-          {{ $t("Last published events") }}
+          {{
+            $t(
+              config &&
+                config.instanceHomepageSorting ===
+                  InstanceHomepageSorting.UPCOMING
+                ? "Upcoming Events"
+                : "Last published events"
+            )
+          }}
         </h2>
         <p>
           <i18n tag="span" path="On {instance} and other federated instances">
@@ -290,10 +298,13 @@
       <section class="events-recent">
         <h2 class="title">
           {{
-            adminSettings.instanceHomepageSorting ===
-            InstanceHomepageSorting.DEFAULT
-              ? $t("Last published events")
-              : $t("Upcoming Events")
+            $t(
+              config &&
+                config.instanceHomepageSorting ===
+                  InstanceHomepageSorting.UPCOMING
+                ? "Upcoming Events"
+                : "Last published events"
+            )
           }}
         </h2>
         <p>
@@ -347,7 +358,6 @@ import {
 } from "../types/current-user.model";
 import { CURRENT_USER_CLIENT } from "../graphql/user";
 import { CLOSE_CONTENT, HOME_USER_QUERIES } from "../graphql/home";
-import { ADMIN_SETTINGS } from "../graphql/admin";
 import RouteName from "../router/name";
 import { IEvent } from "../types/event.model";
 import DateComponent from "../components/Event/DateCalendarIcon.vue";
@@ -358,11 +368,10 @@ import Subtitle from "../components/Utils/Subtitle.vue";
 
 @Component({
   apollo: {
-    adminSettings: ADMIN_SETTINGS,
     events: {
       query: FETCH_EVENTS,
       variables() {
-        return this.adminSettings?.InstanceHomepageSorting ===
+        return this.config?.instanceHomepageSorting ===
           InstanceHomepageSorting.UPCOMING
           ? {
               orderBy: EventSortField.BEGINS_ON,
@@ -452,6 +461,8 @@ export default class Home extends Vue {
   currentActor!: IPerson;
 
   config!: IConfig;
+
+  InstanceHomepageSorting = InstanceHomepageSorting;
 
   RouteName = RouteName;
 

@@ -8,6 +8,7 @@ export const CONFIG = gql`
       slogan
       registrationsOpen
       registrationsAllowlist
+      instanceHomepageSorting
       demoMode
       countryCode
       languages

@@ -223,14 +223,14 @@ type Config {
   "Whether this instance is federation"
   federating: Boolean
 
+  "The instance's homepage sorting"
+  instanceHomepageSorting: InstanceHomepageSorting
+
   "The instance's terms"
   terms(
     "The user's locale. The terms will be translated in their language, if available."
     locale: String
   ): Terms
-
-  "The instance's homepage sorting"
-  instanceHomepageSorting: InstanceHomepageSorting
 
   "The instance's privacy policy"
   privacy(
@@ -1953,6 +1953,9 @@ type RootMutationType {
     "The instance's contact details"
     contact: String
 
+    "The instance's homepage sorting"
+    instanceHomepageSorting: InstanceHomepageSorting
+
     "The instance's terms body text"
     instanceTerms: String
 
@@ -1961,9 +1964,6 @@ type RootMutationType {
 
     "The instance's terms URL"
     instanceTermsUrl: String
-
-    "The instance's homepage sorting"
-    instanceHomepageSorting: InstanceHomepageSorting
 
     "The instance's privacy policy body text"
     instancePrivacyPolicy: String
