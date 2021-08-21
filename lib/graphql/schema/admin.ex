@@ -114,7 +114,11 @@ defmodule Mobilizon.GraphQL.Schema.AdminType do
     field(:instance_long_description, :string, description: "The instance's long description")
     field(:instance_slogan, :string, description: "The instance's slogan")
     field(:contact, :string, description: "The instance's contact details")
-    field(:instance_homepage_sorting, :instance_homepage_sorting, description: "The instance's homepage sorting")
+
+    field(:instance_homepage_sorting, :instance_homepage_sorting,
+      description: "The instance's homepage sorting"
+    )
+
     field(:instance_terms, :string, description: "The instance's terms body text")
     field(:instance_terms_type, :instance_terms_type, description: "The instance's terms type")
     field(:instance_terms_url, :string, description: "The instance's terms URL")
@@ -393,7 +397,11 @@ defmodule Mobilizon.GraphQL.Schema.AdminType do
       arg(:instance_long_description, :string, description: "The instance's long description")
       arg(:instance_slogan, :string, description: "The instance's slogan")
       arg(:contact, :string, description: "The instance's contact details")
-      arg(:instance_homepage_sorting, :instance_homepage_sorting, description: "The instance's homepage sorting")
+
+      arg(:instance_homepage_sorting, :instance_homepage_sorting,
+        description: "The instance's homepage sorting"
+      )
+
       arg(:instance_terms, :string, description: "The instance's terms body text")
       arg(:instance_terms_type, :instance_terms_type, description: "The instance's terms type")
       arg(:instance_terms_url, :string, description: "The instance's terms URL")
