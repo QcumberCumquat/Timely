@@ -51,15 +51,7 @@
     >
       <section class="events-recent">
         <h2 class="title">
-          {{
-            $t(
-              config &&
-                config.instanceHomepageSorting ===
-                  InstanceHomepageSorting.UPCOMING
-                ? "Upcoming Events"
-                : "Last published events"
-            )
-          }}
+          {{ $t(this.sorting.title) }}
         </h2>
         <p>
           <i18n tag="span" path="On {instance} and other federated instances">
@@ -297,15 +289,7 @@
       />
       <section class="events-recent">
         <h2 class="title">
-          {{
-            $t(
-              config &&
-                config.instanceHomepageSorting ===
-                  InstanceHomepageSorting.UPCOMING
-                ? "Upcoming Events"
-                : "Last published events"
-            )
-          }}
+          {{ $t(this.sorting.title) }}
         </h2>
         <p>
           <i18n tag="span" path="On {instance} and other federated instances">
@@ -337,12 +321,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import {
-  EventSortField,
-  InstanceHomepageSorting,
-  ParticipantRole,
-  SortDirection,
-} from "@/types/enums";
+import { InstanceHomepageSorting, ParticipantRole } from "@/types/enums";
 import { Paginate } from "@/types/paginate";
 import { supportsWebPFormat } from "@/utils/support";
 import { IParticipant, Participant } from "../types/participant.model";
@@ -362,6 +341,11 @@ import RouteName from "../router/name";
 import { IEvent } from "../types/event.model";
 import DateComponent from "../components/Event/DateCalendarIcon.vue";
 import { CONFIG } from "../graphql/config";
+import {
+  ISorting,
+  SortingCreated,
+  SortingUpcoming,
+} from "../types/sorting.model";
 import { IConfig } from "../types/config.model";
 import { IFollowedGroupEvent } from "../types/followedGroupEvent.model";
 import Subtitle from "../components/Utils/Subtitle.vue";
@@ -371,16 +355,7 @@ import Subtitle from "../components/Utils/Subtitle.vue";
     events: {
       query: FETCH_EVENTS,
       variables() {
-        return this.config?.instanceHomepageSorting ===
-          InstanceHomepageSorting.UPCOMING
-          ? {
-              orderBy: EventSortField.BEGINS_ON,
-              direction: SortDirection.ASC,
-            }
-          : {
-              orderBy: EventSortField.INSERTED_AT,
-              direction: SortDirection.DESC,
-            };
+        return this.sorting;
       },
     },
     currentActor: {
@@ -547,6 +522,15 @@ export default class Home extends Vue {
     return Math.ceil(
       (new Date(date).getTime() - new Date().getTime()) / 1000 / 60 / 60 / 24
     );
+  }
+
+  get sorting(): ISorting {
+    switch (this.config?.instanceHomepageSorting) {
+      case InstanceHomepageSorting.UPCOMING:
+        return new SortingUpcoming();
+      default:
+        return new SortingCreated();
+    }
   }
 
   get thisWeekGoingToEvents(): IParticipant[] {
