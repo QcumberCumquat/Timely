@@ -341,11 +341,7 @@ import RouteName from "../router/name";
 import { IEvent } from "../types/event.model";
 import DateComponent from "../components/Event/DateCalendarIcon.vue";
 import { CONFIG } from "../graphql/config";
-import {
-  ISorting,
-  SortingCreated,
-  SortingUpcoming,
-} from "../types/sorting.model";
+import { SORTING_UPCOMING, SORTING_CREATED } from "../types/sorting.model";
 import { IConfig } from "../types/config.model";
 import { IFollowedGroupEvent } from "../types/followedGroupEvent.model";
 import Subtitle from "../components/Utils/Subtitle.vue";
@@ -524,12 +520,12 @@ export default class Home extends Vue {
     );
   }
 
-  get sorting(): ISorting {
+  get sorting() {
     switch (this.config?.instanceHomepageSorting) {
       case InstanceHomepageSorting.UPCOMING:
-        return new SortingUpcoming();
+        return SORTING_UPCOMING;
       default:
-        return new SortingCreated();
+        return SORTING_CREATED;
     }
   }
 
