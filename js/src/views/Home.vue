@@ -633,7 +633,7 @@ export default class Home extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~bulma/sass/utilities/mixins.sass";
+@import "node_modules/bulma/sass/utilities/mixins.sass";
 
 main > div > .container {
   background: $white;

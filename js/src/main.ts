@@ -1,3 +1,7 @@
+if (import.meta.env.MODE !== "development") {
+  // @ts-ignore
+  import("vite/modulepreload-polyfill");
+}
 import Vue from "vue";
 import Buefy from "buefy";
 import Component from "vue-class-component";

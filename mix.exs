@@ -208,6 +208,9 @@ defmodule Mobilizon.Mixfile do
       {:export, "~> 0.1.0"},
       {:tz_world, "~> 1.0"},
       {:tzdata, "~> 1.1"},
+      {:phoenix_live_dashboard, "~> 0.5"},
+      {:telemetry_metrics, "~> 0.6"},
+      {:telemetry_poller, "~> 1.0"},
       # Dev and test dependencies
       {:phoenix_live_reload, "~> 1.2", only: [:dev, :e2e]},
       {:ex_machina, "~> 2.3", only: [:dev, :test]},
@@ -223,7 +226,8 @@ defmodule Mobilizon.Mixfile do
       {:mox, "~> 1.0", only: :test},
       {:junit_formatter, "~> 3.1", only: [:test]},
       {:sobelow, "~> 0.8", only: [:dev, :test]},
-      {:doctor, "~> 0.18.0", only: :dev}
+      {:doctor, "~> 0.18.0", only: :dev},
+      {:esbuild, "~> 0.2", runtime: Mix.env() == :dev}
     ] ++ oauth_deps()
   end
 
@@ -255,7 +259,8 @@ defmodule Mobilizon.Mixfile do
         "ecto.migrate",
         "cmd cd js && yarn install && cd ../",
         "phx.server"
-      ]
+      ],
+      "assets.deploy": ["esbuild default --minify", "phx.digest"]
     ]
   end
 

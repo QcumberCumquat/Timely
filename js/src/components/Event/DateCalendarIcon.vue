@@ -1,16 +1,3 @@
-<docs>
-### Example
-```vue
-  <DateCalendarIcon date="2019-10-05T18:41:11.720Z" />
-```
-
-```vue
-  <DateCalendarIcon
-    :date="new Date()"
-  />
-```
-</docs>
-
 <template>
   <time
     class="datetime-container"

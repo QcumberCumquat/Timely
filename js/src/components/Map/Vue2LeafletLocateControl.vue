@@ -59,6 +59,6 @@ export default class Vue2LeafletLocateControl extends Vue {
 }
 </script>
 
-<style>
-@import "~leaflet.locatecontrol/dist/L.Control.Locate.css";
+<style lang="scss">
+@import "node_modules/leaflet.locatecontrol/src/L.Control.Locate.scss";
 </style>

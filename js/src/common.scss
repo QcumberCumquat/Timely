@@ -1,8 +1,8 @@
 @import "variables.scss";
 
-@import "~bulma";
-@import "~bulma-divider";
-@import "~buefy/src/scss/buefy";
+@import "node_modules/bulma/bulma.sass";
+@import "node_modules/bulma-divider/dist/css/bulma-divider.sass";
+@import "node_modules/buefy/src/scss/buefy";
 @import "styles/vue-announcer.scss";
 @import "styles/vue-skip-to.scss";
 

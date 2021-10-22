@@ -11,7 +11,9 @@ export function DateFnsPlugin(
   vue: typeof VueInstance,
   { locale }: { locale: string }
 ): void {
-  import(`date-fns/locale/${locale}/index.js`).then((localeEntity) => {
-    VueInstance.prototype.$dateFnsLocale = localeEntity;
-  });
+  import(`../../node_modules/date-fns/locale/${locale}/index.js`).then(
+    (localeEntity) => {
+      VueInstance.prototype.$dateFnsLocale = localeEntity;
+    }
+  );
 }

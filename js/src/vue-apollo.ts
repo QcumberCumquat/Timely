@@ -37,7 +37,7 @@ let pendingRequests: any[] = [];
 // Endpoints
 const httpServer = GRAPHQL_API_ENDPOINT || "http://localhost:4000";
 const httpEndpoint = GRAPHQL_API_FULL_PATH || `${httpServer}/api`;
-const webSocketPrefix = process.env.NODE_ENV === "production" ? "wss" : "ws";
+const webSocketPrefix = import.meta.env.MODE === "production" ? "wss" : "ws";
 const wsEndpoint = `${webSocketPrefix}${httpServer.substring(
   httpServer.indexOf(":")
 )}/graphql_socket`;

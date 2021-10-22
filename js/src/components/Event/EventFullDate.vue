@@ -1,22 +1,3 @@
-<docs>
-#### Give a translated and localized text that give the starting and ending datetime for an event.
-
-##### Start date with no ending
-```vue
-<EventFullDate beginsOn="2015-10-06T18:41:11.720Z" />
-```
-
-##### Start date with an ending the same day
-```vue
-<EventFullDate beginsOn="2015-10-06T18:41:11.720Z" endsOn="2015-10-06T20:41:11.720Z" />
-```
-
-##### Start date with an ending on a different day
-```vue
-<EventFullDate beginsOn="2015-10-06T18:41:11.720Z" endsOn="2032-10-06T18:41:11.720Z" />
-```
-</docs>
-
 <template>
   <p v-if="!endsOn">
     <span>{{

@@ -49,7 +49,7 @@ defmodule Mobilizon.Web.Endpoint do
     at: "/",
     from: {:mobilizon, "priv/static"},
     gzip: false,
-    only: ~w(index.html manifest.json service-worker.js css fonts img js favicon.ico robots.txt),
+    only: ~w(index.html manifest.json sw.js registerSW.js assets favicon.ico robots.txt),
     only_matching: ["precache-manifest"]
   )
 

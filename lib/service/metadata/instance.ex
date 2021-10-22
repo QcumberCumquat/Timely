@@ -36,7 +36,12 @@ defmodule Mobilizon.Service.Metadata.Instance do
     <script type="application/ld+json">#{Jason.encode!(json_ld)}</script>
     """
 
+    path = Path.join(Application.app_dir(:mobilizon, "priv/static"), "manifest.json")
+    manifest = path |> File.read!() |> Jason.decode!()
+
     [
+      Tag.tag(:link, rel: "stylesheet", href: "/" <> hd(manifest["src/main.ts"]["css"])),
+      Tag.tag(:script, type: "module", src: "/" <> manifest["src/main.ts"]["file"]),
       Tag.content_tag(:title, title),
       Tag.tag(:meta, name: "description", content: description),
       Tag.tag(:meta, property: "og:title", content: title),

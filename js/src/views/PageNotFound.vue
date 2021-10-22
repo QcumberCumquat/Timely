@@ -60,13 +60,9 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import BField from "buefy/src/components/field/Field.vue";
 import RouteName from "../router/name";
 
 @Component({
-  components: {
-    BField,
-  },
   metaInfo() {
     return {
       title: this.$t("Page not found") as string,

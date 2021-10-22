@@ -108,10 +108,9 @@ export async function loadLanguageAsync(lang: string): Promise<string> {
   }
   // If the language hasn't been loaded yet
   console.debug("loading language", lang);
+  const file = vueI18NfileForLanguage(lang);
   const newMessages = await import(
-    /* webpackChunkName: "lang-[request]" */ `@/i18n/${vueI18NfileForLanguage(
-      lang
-    )}.json`
+    /* webpackChunkName: "lang-[request]" */ `../i18n/${file}.json`
   );
   i18n.setLocaleMessage(lang, newMessages.default);
   loadedLanguages.push(lang);
