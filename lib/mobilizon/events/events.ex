@@ -513,6 +513,20 @@ defmodule Mobilizon.Events do
     |> Page.build_page(page, limit, :begins_on)
   end
 
+  def build_events_for_place(location) do
+    Event
+    |> events_for_begins_on(%{})
+    |> events_for_ends_on(%{})
+    |> events_for_location(%{
+      longitude: location.longitude,
+      latitude: location.latitude,
+      radius: 10_000
+    })
+    |> filter_draft()
+    |> filter_local_or_from_followed_instances_events()
+    |> filter_public_visibility()
+  end
+
   @doc """
   Gets a single tag.
   """
@@ -1292,8 +1306,15 @@ defmodule Mobilizon.Events do
 
   defp events_for_location(query, %{location: location, radius: radius})
        when is_valid_string(location) and not is_nil(radius) do
-    with {lon, lat} <- Geohax.decode(location),
-         point <- Geo.WKT.decode!("SRID=4326;POINT(#{lon} #{lat})") do
+    with {lon, lat} <- Geohax.decode(location) do
+      events_for_location(query, %{longitude: lon, latitude: lat, radius: radius})
+    else
+      _ -> query
+    end
+  end
+
+  defp events_for_location(query, %{longitude: longitude, latitude: latitude, radius: radius}) do
+    with point <- Geo.WKT.decode!("SRID=4326;POINT(#{longitude} #{latitude})") do
       query
       |> join(:inner, [q], a in Address, on: a.id == q.physical_address_id, as: :address)
       |> where(
