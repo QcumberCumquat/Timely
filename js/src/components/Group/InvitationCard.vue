@@ -14,7 +14,7 @@
           <figure class="image is-48x48" v-if="member.parent.avatar">
             <img class="is-rounded" :src="member.parent.avatar.url" alt="" />
           </figure>
-          <b-icon v-else size="is-large" icon="account-group" />
+          <mdicon v-else size="48" name="account-group" />
         </div>
         <div class="media-content">
           <div class="level">

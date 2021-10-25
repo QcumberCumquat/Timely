@@ -189,11 +189,11 @@
                 alt=""
               />
             </figure>
-            <b-icon
+            <mdicon
               class="media-left"
               v-else
               size="is-large"
-              icon="account-circle"
+              name="account-circle"
             />
             <div class="media-content">
               <div class="content">

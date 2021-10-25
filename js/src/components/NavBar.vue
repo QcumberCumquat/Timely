@@ -96,7 +96,7 @@
                   :src="currentActor.avatar.url"
                 />
               </figure>
-              <b-icon v-else icon="account-circle" />
+              <mdicon v-else name="account-circle" />
             </div>
             <div class="media-content is-hidden-desktop">
               <span>{{ displayName(currentActor) }}</span>
@@ -129,7 +129,7 @@
                   alt
                 />
               </figure>
-              <b-icon v-else size="is-medium" icon="account-circle" />
+              <mdicon v-else size="is-medium" name="account-circle" />
             </div>
 
             <div class="media-content">

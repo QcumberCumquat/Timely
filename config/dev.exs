@@ -15,7 +15,7 @@ config :mobilizon, Mobilizon.Web.Endpoint,
   check_origin: false,
   watchers: [
     node: [
-      "node_modules/.bin/vite",
+      "dev.js",
       cd: Path.expand("../js", __DIR__)
     ]
   ]
@@ -40,7 +40,7 @@ config :mobilizon, Mobilizon.Web.Endpoint,
 config :mobilizon, Mobilizon.Web.Endpoint,
   live_reload: [
     patterns: [
-      ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
+      ~r{priv/static/index.html$},
       ~r{priv/gettext/.*(po)$},
       ~r{lib/web/(live|views)/.*(ex)$},
       ~r{lib/web/templates/.*(eex)$}
@@ -92,3 +92,21 @@ config :mobilizon, :anonymous,
   reports: [
     allowed: true
   ]
+
+config :mobilizon, :http_security,
+  enabled: true,
+  sts: false,
+  sts_max_age: 31_536_000,
+  csp_policy: [
+    script_src: ["localhost:3000"],
+    style_src: [],
+    connect_src: [],
+    font_src: [],
+    img_src: ["*.tile.openstreetmap.org"],
+    manifest_src: [],
+    media_src: [],
+    object_src: [],
+    frame_src: [],
+    frame_ancestors: []
+  ],
+  referrer_policy: "same-origin"

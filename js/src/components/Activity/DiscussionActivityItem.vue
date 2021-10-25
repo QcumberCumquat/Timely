@@ -1,6 +1,6 @@
 <template>
   <div class="activity-item">
-    <b-icon :icon="'chat'" :type="iconColor" />
+    <mdicon :name="'chat'" :type="iconColor" />
     <div class="subject">
       <i18n :path="translation" tag="p">
         <router-link

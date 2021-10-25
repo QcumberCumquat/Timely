@@ -25,69 +25,69 @@
     <section class="timeline">
       <b-field>
         <b-radio-button v-model="activityType" :native-value="undefined">
-          <b-icon icon="timeline-text"></b-icon>
+          <mdicon name="timeline-text"></mdicon>
           {{ $t("All activities") }}</b-radio-button
         >
         <b-radio-button
           v-model="activityType"
           :native-value="ActivityType.MEMBER"
         >
-          <b-icon icon="account-multiple-plus"></b-icon>
+          <mdicon name="account-multiple-plus"></mdicon>
           {{ $t("Members") }}</b-radio-button
         >
         <b-radio-button
           v-model="activityType"
           :native-value="ActivityType.GROUP"
         >
-          <b-icon icon="cog"></b-icon>
+          <mdicon name="cog"></mdicon>
           {{ $t("Settings") }}</b-radio-button
         >
         <b-radio-button
           v-model="activityType"
           :native-value="ActivityType.EVENT"
         >
-          <b-icon icon="calendar"></b-icon>
+          <mdicon name="calendar"></mdicon>
           {{ $t("Events") }}</b-radio-button
         >
         <b-radio-button
           v-model="activityType"
           :native-value="ActivityType.POST"
         >
-          <b-icon icon="bullhorn"></b-icon>
+          <mdicon name="bullhorn"></mdicon>
           {{ $t("Posts") }}</b-radio-button
         >
         <b-radio-button
           v-model="activityType"
           :native-value="ActivityType.DISCUSSION"
         >
-          <b-icon icon="chat"></b-icon>
+          <mdicon name="chat"></mdicon>
           {{ $t("Discussions") }}</b-radio-button
         >
         <b-radio-button
           v-model="activityType"
           :native-value="ActivityType.RESOURCE"
         >
-          <b-icon icon="link"></b-icon>
+          <mdicon name="link"></mdicon>
           {{ $t("Resources") }}</b-radio-button
         >
       </b-field>
       <b-field>
         <b-radio-button v-model="activityAuthor" :native-value="undefined">
-          <b-icon icon="timeline-text"></b-icon>
+          <mdicon name="timeline-text"></mdicon>
           {{ $t("All activities") }}</b-radio-button
         >
         <b-radio-button
           v-model="activityAuthor"
           :native-value="ActivityAuthorFilter.SELF"
         >
-          <b-icon icon="account"></b-icon>
+          <mdicon name="account"></mdicon>
           {{ $t("From yourself") }}</b-radio-button
         >
         <b-radio-button
           v-model="activityAuthor"
           :native-value="ActivityAuthorFilter.BY"
         >
-          <b-icon icon="account-multiple"></b-icon>
+          <mdicon name="account-multiple"></mdicon>
           {{ $t("By others") }}</b-radio-button
         >
       </b-field>

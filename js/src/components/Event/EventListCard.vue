@@ -33,18 +33,18 @@
           </div>
           <div class="participation-actor">
             <span>
-              <b-icon
-                icon="earth"
+              <mdicon
+                name="earth"
                 v-if="participation.event.visibility === EventVisibility.PUBLIC"
               />
-              <b-icon
-                icon="link"
+              <mdicon
+                name="link"
                 v-else-if="
                   participation.event.visibility === EventVisibility.UNLISTED
                 "
               />
-              <b-icon
-                icon="lock"
+              <mdicon
+                name="lock"
                 v-else-if="
                   participation.event.visibility === EventVisibility.PRIVATE
                 "
@@ -157,7 +157,7 @@
                 })
               "
             >
-              <b-icon icon="pencil" />
+              <mdicon name="pencil" />
               {{ $t("Edit") }}
             </b-dropdown-item>
 
@@ -171,7 +171,7 @@
                 })
               "
             >
-              <b-icon icon="content-duplicate" />
+              <mdicon name="content-duplicate" />
               {{ $t("Duplicate") }}
             </b-dropdown-item>
 
@@ -185,7 +185,7 @@
               aria-role="listitem"
               @click="openDeleteEventModalWrapper"
             >
-              <b-icon icon="delete" />
+              <mdicon name="delete" />
               {{ $t("Delete") }}
             </b-dropdown-item>
 
@@ -204,7 +204,7 @@
                 })
               "
             >
-              <b-icon icon="account-multiple-plus" />
+              <mdicon name="account-multiple-plus" />
               {{ $t("Manage participations") }}
             </b-dropdown-item>
 
@@ -215,7 +215,7 @@
                   params: { uuid: participation.event.uuid },
                 }"
               >
-                <b-icon icon="view-compact" />
+                <mdicon name="view-compact" />
                 {{ $t("View event page") }}
               </router-link>
             </b-dropdown-item>

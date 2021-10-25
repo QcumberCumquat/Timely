@@ -3,7 +3,7 @@
     <event-metadata-block
       v-if="!event.options.isOnline"
       :title="$t('Location')"
-      :icon="physicalAddress ? physicalAddress.poiInfos.poiIcon.icon : 'earth'"
+      :name="physicalAddress ? physicalAddress.poiInfos.poiIcon.icon : 'earth'"
     >
       <div class="address-wrapper">
         <span v-if="!physicalAddress">{{ $t("No address defined") }}</span>
@@ -20,7 +20,7 @@
         </div>
       </div>
     </event-metadata-block>
-    <event-metadata-block :title="$t('Date and time')" icon="calendar">
+    <event-metadata-block :title="$t('Date and time')" name="calendar">
       <event-full-date
         :beginsOn="event.beginsOn"
         :show-start-time="event.options.showStartTime"
@@ -69,7 +69,7 @@
     </event-metadata-block>
     <event-metadata-block
       v-if="event.onlineAddress && urlToHostname(event.onlineAddress)"
-      icon="link"
+      name="link"
       :title="$t('Website')"
     >
       <a
@@ -87,7 +87,7 @@
     <event-metadata-block
       v-for="extra in extraMetadata"
       :title="extra.title || extra.label"
-      :icon="extra.icon"
+      :name="extra.icon"
       :key="extra.key"
     >
       <span

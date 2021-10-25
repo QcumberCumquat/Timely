@@ -8,7 +8,7 @@
           $t('You can add tags by hitting the Enter key or by adding a comma')
         "
       >
-        <b-icon size="is-small" icon="help-circle-outline"></b-icon>
+        <mdicon name="help-circle-outline" :size="24"></mdicon>
       </b-tooltip>
     </template>
     <b-taginput
@@ -17,7 +17,7 @@
       autocomplete
       :allow-new="true"
       :field="'title'"
-      icon="label"
+      name="label"
       maxlength="20"
       maxtags="10"
       :placeholder="$t('Eg: Stockholm, Dance, Chess…')"

@@ -18,7 +18,7 @@
               alt=""
             />
           </figure>
-          <b-icon v-else size="is-large" icon="account-circle" />
+          <mdicon v-else size="48" name="account-circle" />
         </div>
         <div class="media-content" v-if="currentIdentity.name">
           <p class="is-4">{{ currentIdentity.name }}</p>
@@ -43,7 +43,7 @@
       <figure class="image is-48x48" v-if="currentIdentity.avatar">
         <img class="is-rounded" :src="currentIdentity.avatar.url" alt="" />
       </figure>
-      <b-icon v-else size="is-large" icon="account-circle" />
+      <mdicon v-else size="48" name="account-circle" />
     </span>
     <b-modal v-model="isComponentModalActive" has-modal-card>
       <identity-picker v-model="currentIdentity" />

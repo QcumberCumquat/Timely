@@ -19,7 +19,7 @@
             v-if="props.option.avatar"
             alt=""
           />
-          <b-icon v-else icon="account-circle" />
+          <mdicon v-else name="account-circle" />
         </div>
         <div class="media-content">
           <span v-if="props.option.name">

@@ -284,7 +284,7 @@
             :to="{ name: RouteName.PREFERENCES }"
             :title="$t('Change')"
           >
-            <b-icon class="clickable" icon="pencil" size="is-small" />
+            <mdicon class="clickable" name="pencil" size="is-small" />
           </router-link>
           <b-loading :active.sync="$apollo.loading" />
         </p>
@@ -335,7 +335,7 @@
         <b-message v-else type="is-danger"
           >{{ $t("No events found") }}<br />
           <div v-if="goingToEvents.size > 0 || lastWeekEvents.length > 0">
-            <b-icon size="is-small" icon="information-outline" />
+            <mdicon size="is-small" name="information-outline" />
             <small>{{
               $t("The events you created are not shown here.")
             }}</small>

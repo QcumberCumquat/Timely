@@ -1,6 +1,6 @@
 <template>
   <div class="activity-item">
-    <b-icon :icon="'link'" :type="iconColor" />
+    <mdicon :name="'link'" :type="iconColor" />
     <div class="subject">
       <i18n :path="translation" tag="p">
         <router-link v-if="activity.object" slot="resource" :to="path">{{

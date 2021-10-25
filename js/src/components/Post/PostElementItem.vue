@@ -9,7 +9,7 @@
           <figure class="image is-96x96" v-if="post.picture">
             <img :src="post.picture.url" alt="" />
           </figure>
-          <b-icon v-else size="is-large" icon="post" />
+          <mdicon v-else size="48" name="post" />
         </div>
         <div class="media-content">
           <p class="post-minimalist-title">{{ post.title }}</p>
@@ -24,13 +24,13 @@
               "
               class="has-text-grey-dark"
             >
-              <b-icon icon="earth" size="is-small" />{{ $t("Public") }}</small
+              <mdicon name="earth" size="is-small" />{{ $t("Public") }}</small
             >
             <small
               v-else-if="post.visibility === PostVisibility.UNLISTED"
               class="has-text-grey-dark"
             >
-              <b-icon icon="link" size="is-small" />{{
+              <mdicon name="link" size="is-small" />{{
                 $t("Accessible through link")
               }}</small
             >
@@ -38,7 +38,7 @@
               v-else-if="post.visibility === PostVisibility.PRIVATE"
               class="has-text-grey-dark"
             >
-              <b-icon icon="lock" size="is-small" />{{
+              <mdicon name="lock" size="is-small" />{{
                 $t("Accessible only to members", {
                   group: post.attributedTo.name,
                 })

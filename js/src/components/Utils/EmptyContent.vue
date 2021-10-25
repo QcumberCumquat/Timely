@@ -1,13 +1,13 @@
 <template>
   <div class="empty-content" :class="{ inline }" role="note">
-    <b-icon :icon="icon" size="is-large" />
+    <mdicon :name="icon" size="48" />
     <h2 class="empty-content__title">
       <!-- @slot Mandatory title -->
       <slot />
     </h2>
     <p v-show="$slots.desc">
       <!-- @slot Optional description -->
-      <slot name="desc" />
+      <slot icon="desc" />
     </p>
   </div>
 </template>

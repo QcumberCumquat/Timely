@@ -33,7 +33,7 @@
       <b-field class="file is-primary">
         <b-upload @input="onFileChanged" :accept="accept" class="file-label">
           <span class="file-cta">
-            <b-icon class="file-icon" icon="upload" />
+            <mdicon class="file-icon" name="upload" />
             <span>{{ $t("Click to upload") }}</span>
           </span>
         </b-upload>

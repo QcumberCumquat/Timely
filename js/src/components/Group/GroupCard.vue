@@ -6,7 +6,7 @@
           <figure class="image is-48x48" v-if="group.avatar">
             <img class="is-rounded" :src="group.avatar.url" alt="" />
           </figure>
-          <b-icon v-else size="is-large" icon="account-group" />
+          <mdicon v-else size="48" name="account-group" />
         </div>
         <div class="media-content">
           <router-link

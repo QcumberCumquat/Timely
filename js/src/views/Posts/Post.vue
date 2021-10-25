@@ -21,7 +21,7 @@
                 <actor-inline :actor="post.attributedTo" />
               </router-link>
               <span class="published has-text-grey-dark" v-if="!post.draft">
-                <b-icon icon="clock" size="is-small" />
+                <mdicon name="clock" size="is-small" />
                 {{ post.publishAt | formatDateTimeString }}
               </span>
               <span
@@ -36,7 +36,7 @@
                 "
                 v-else
               >
-                <b-icon icon="clock" size="is-small" />
+                <mdicon name="clock" size="is-small" />
                 {{
                   $t("Edited {relative_time} ago", {
                     relative_time: formatDistanceToNowStrict(
@@ -52,7 +52,7 @@
                 v-if="post.visibility === PostVisibility.PRIVATE"
                 class="has-text-grey-dark"
               >
-                <b-icon icon="lock" size="is-small" />
+                <mdicon name="lock" size="is-small" />
                 {{
                   $t("Accessible only to members", {
                     group: post.attributedTo.name,

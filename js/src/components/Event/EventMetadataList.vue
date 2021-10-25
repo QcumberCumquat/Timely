@@ -39,8 +39,8 @@
                 height="24"
                 alt=""
               />
-              <b-icon v-else-if="props.option.icon" :icon="props.option.icon" />
-              <b-icon v-else icon="help-circle" />
+              <mdicon v-else-if="props.option.icon" :name="props.option.icon" />
+              <mdicon v-else name="help-circle" />
             </div>
             <div class="media-content">
               <b>{{ props.option.label }}</b>

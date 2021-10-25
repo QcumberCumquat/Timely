@@ -37,11 +37,11 @@
         class="dropdown-disabled"
       >
         <button class="button is-success is-large" type="button" slot="trigger">
-          <b-icon icon="timer-sand-empty" />
+          <mdicon name="timer-sand-empty" />
           <template>
             <span>{{ $t("I participate") }}</span>
           </template>
-          <b-icon icon="menu-down" />
+          <mdicon name="menu-down" />
         </button>
 
         <!--                <b-dropdown-item :value="false" aria-role="listitem">-->

@@ -226,8 +226,7 @@ defmodule Mobilizon.Mixfile do
       {:mox, "~> 1.0", only: :test},
       {:junit_formatter, "~> 3.1", only: [:test]},
       {:sobelow, "~> 0.8", only: [:dev, :test]},
-      {:doctor, "~> 0.18.0", only: :dev},
-      {:esbuild, "~> 0.2", runtime: Mix.env() == :dev}
+      {:doctor, "~> 0.18.0", only: :dev}
     ] ++ oauth_deps()
   end
 

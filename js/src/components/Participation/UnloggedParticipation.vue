@@ -40,7 +40,7 @@
                   )
                 "
               >
-                <b-icon size="is-small" icon="help-circle-outline" />
+                <mdicon size="is-small" name="help-circle-outline" />
               </b-tooltip>
             </p>
           </div>

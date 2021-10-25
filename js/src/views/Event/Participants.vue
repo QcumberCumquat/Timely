@@ -70,7 +70,7 @@
               @keyup.enter="exportParticipants(format)"
             >
               <button class="dropdown-button">
-                <b-icon :icon="formatToIcon(format)"></b-icon>
+                <mdicon :name="formatToIcon(format)"></mdicon>
                 {{ format }}
               </button>
             </b-dropdown-item>
@@ -87,7 +87,7 @@
       checkable
       :is-row-checkable="(row) => row.role !== ParticipantRole.CREATOR"
       checkbox-position="left"
-      :show-detail-icon="false"
+      :show-detail-name="false"
       :loading="this.$apollo.loading"
       paginated
       backend-pagination
@@ -116,17 +116,17 @@
           >
             <img class="is-rounded" :src="props.row.actor.avatar.url" alt="" />
           </figure>
-          <b-icon
+          <mdicon
             class="media-left"
             v-else-if="props.row.actor.preferredUsername === 'anonymous'"
-            size="is-large"
-            icon="incognito"
+            size="48"
+            name="incognito"
           />
-          <b-icon
+          <mdicon
             class="media-left"
             v-else
-            size="is-large"
-            icon="account-circle"
+            size="48"
+            name="account-circle"
           />
           <div class="media-content">
             <div class="content">

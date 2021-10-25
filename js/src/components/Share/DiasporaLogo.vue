@@ -1,9 +1,11 @@
 <template>
-  <span class="icon has-text-primary is-large">
+  <span class="mdi">
     <svg
       version="1.1"
       viewBox="0 0 65.131 65.131"
       xmlns="http://www.w3.org/2000/svg"
+      width="48"
+      height="48" fill="currentColor"
     >
       <title>Diaspora logo</title>
       <path

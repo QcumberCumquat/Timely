@@ -211,11 +211,11 @@
                     >
                       <img :src="comment.actor.avatar.url" alt="Image" />
                     </figure>
-                    <b-icon
+                    <mdicon
                       class="media-left"
                       v-else
-                      size="is-large"
-                      icon="account-circle"
+                      size="48"
+                      name="account-circle"
                     />
                   </div>
                   <div class="media-content">

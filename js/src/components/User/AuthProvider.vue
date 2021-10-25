@@ -4,7 +4,7 @@
     v-if="isProviderSelected && oauthProvider.label === null"
     :href="`/auth/${oauthProvider.id}`"
   >
-    <b-icon :icon="oauthProvider.id" />
+    <mdicon :name="oauthProvider.id" />
     <span>{{ SELECTED_PROVIDERS[oauthProvider.id] }}</span></a
   >
   <a
@@ -12,7 +12,7 @@
     :href="`/auth/${oauthProvider.id}`"
     v-else-if="isProviderSelected"
   >
-    <b-icon icon="lock" />
+    <mdicon name="lock" />
     <span>{{ oauthProvider.label }}</span>
   </a>
 </template>

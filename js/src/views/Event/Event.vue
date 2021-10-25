@@ -113,11 +113,11 @@
                 <template class="visibility" v-if="!event.draft">
                   <p v-if="event.visibility === EventVisibility.PUBLIC">
                     {{ $t("Public event") }}
-                    <b-icon icon="earth" />
+                    <mdicon name="earth" />
                   </p>
                   <p v-if="event.visibility === EventVisibility.UNLISTED">
                     {{ $t("Private event") }}
-                    <b-icon icon="link" />
+                    <mdicon name="link" />
                   </p>
                 </template>
                 <template v-if="!event.local && organizer.domain">
@@ -199,9 +199,9 @@
                       )
                     "
                   >
-                    <b-icon size="is-small" icon="help-circle-outline" />
+                    <mdicon size="is-small" name="help-circle-outline" />
                   </b-tooltip>
-                  <b-icon icon="ticket-confirmation-outline" />
+                  <mdicon name="ticket-confirmation-outline" />
                 </p>
                 <b-dropdown position="is-bottom-left" aria-role="list">
                   <b-button
@@ -223,7 +223,7 @@
                       }"
                     >
                       {{ $t("Edit") }}
-                      <b-icon icon="pencil" />
+                      <mdicon name="pencil" />
                     </router-link>
                   </b-dropdown-item>
                   <b-dropdown-item
@@ -238,7 +238,7 @@
                       }"
                     >
                       {{ $t("Duplicate") }}
-                      <b-icon icon="content-duplicate" />
+                      <mdicon name="content-duplicate" />
                     </router-link>
                   </b-dropdown-item>
                   <b-dropdown-item
@@ -248,7 +248,7 @@
                     @keyup.enter="openDeleteEventModalWrapper"
                   >
                     {{ $t("Delete") }}
-                    <b-icon icon="delete" />
+                    <mdicon name="delete" />
                   </b-dropdown-item>
 
                   <hr
@@ -265,7 +265,7 @@
                   >
                     <span>
                       {{ $t("Share this event") }}
-                      <b-icon icon="share" />
+                      <mdicon name="share" />
                     </span>
                   </b-dropdown-item>
                   <b-dropdown-item
@@ -276,7 +276,7 @@
                   >
                     <span>
                       {{ $t("Add to my calendar") }}
-                      <b-icon icon="calendar-plus" />
+                      <mdicon name="calendar-plus" />
                     </span>
                   </b-dropdown-item>
                   <b-dropdown-item
@@ -287,7 +287,7 @@
                   >
                     <span>
                       {{ $t("Report") }}
-                      <b-icon icon="flag" />
+                      <mdicon name="flag" />
                     </span>
                   </b-dropdown-item>
                 </b-dropdown>

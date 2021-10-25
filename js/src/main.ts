@@ -17,10 +17,14 @@ import filters from "./filters";
 import { i18n } from "./utils/i18n";
 import apolloProvider from "./vue-apollo";
 import "./registerServiceWorker";
+import SvgIcon from "./components/Utils/SVGIcon.vue";
+// @ts-ignore
+import mdiVue from "mdi-vue/v2";
+import icons from "./icons";
 
 Vue.config.productionTip = false;
 
-Vue.use(Buefy);
+Vue.use(Buefy, { defaultIconPack: null, defaultIconComponent: SvgIcon });
 Vue.use(NotifierPlugin);
 Vue.use(filters);
 Vue.use(VueMeta);
@@ -28,6 +32,9 @@ Vue.use(VueScrollTo);
 Vue.use(VTooltip);
 Vue.use(VueAnnouncer);
 Vue.use(VueSkipTo);
+Vue.use(mdiVue, {
+  icons,
+});
 
 // Register the router hooks with their names
 Component.registerHooks([

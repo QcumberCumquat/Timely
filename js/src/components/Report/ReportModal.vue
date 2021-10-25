@@ -10,7 +10,7 @@
     >
       <div class="media">
         <div class="media-left">
-          <b-icon icon="alert" type="is-warning" size="is-large" />
+          <mdicon name="alert" type="is-warning" size="48" />
         </div>
         <div class="media-content">
           <div class="box" v-if="comment">
@@ -19,11 +19,11 @@
                 <figure class="image is-48x48" v-if="comment.actor.avatar">
                   <img :src="comment.actor.avatar.url" alt="Image" />
                 </figure>
-                <b-icon
+                <mdicon
                   class="media-left"
                   v-else
-                  size="is-large"
-                  icon="account-circle"
+                  size="48"
+                  name="account-circle"
                 />
               </div>
               <div class="media-content">

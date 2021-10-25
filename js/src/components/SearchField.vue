@@ -4,7 +4,7 @@
     <b-input
       custom-class="searchField"
       id="navSearchField"
-      icon="magnify"
+      name="magnify"
       type="search"
       rounded
       :placeholder="defaultPlaceHolder"

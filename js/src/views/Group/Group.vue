@@ -55,7 +55,7 @@
             <figure class="image is-128x128" v-if="group.avatar">
               <img class="is-rounded" :src="group.avatar.url" alt="" />
             </figure>
-            <b-icon v-else size="is-large" icon="account-group" />
+            <mdicon v-else size="48" name="account-group" />
           </div>
           <div class="title-container">
             <h1 v-if="group.name">{{ group.name }}</h1>
@@ -89,7 +89,7 @@
                     v-if="member.actor.avatar"
                     alt
                   />
-                  <b-icon v-else size="is-medium" icon="account-circle" />
+                  <mdicon v-else size="is-medium" name="account-circle" />
                 </figure>
               </div>
               <p>
@@ -198,7 +198,7 @@
                   @click="triggerShare()"
                 >
                   <span>
-                    <b-icon icon="share" />
+                    <mdicon name="share" />
                     {{ $t("Share") }}
                   </span>
                 </b-dropdown-item>
@@ -212,7 +212,7 @@
                     :href="`@${preferredUsername}/feed/atom`"
                     :title="$t('Atom feed for events and posts')"
                   >
-                    <b-icon icon="rss" />
+                    <mdicon name="rss" />
                     {{ $t("RSS/Atom Feed") }}
                   </a>
                 </b-dropdown-item>
@@ -221,7 +221,7 @@
                     :href="`@${preferredUsername}/feed/ics`"
                     :title="$t('ICS feed for events')"
                   >
-                    <b-icon icon="calendar-sync" />
+                    <mdicon name="calendar-sync" />
                     {{ $t("ICS/WebCal Feed") }}
                   </a>
                 </b-dropdown-item>
@@ -232,7 +232,7 @@
                   @click="isReportModalActive = true"
                 >
                   <span>
-                    <b-icon icon="flag" />
+                    <mdicon name="flag" />
                     {{ $t("Report") }}
                   </span>
                 </b-dropdown-item>
@@ -242,7 +242,7 @@
                   @click="leaveGroup"
                 >
                   <span>
-                    <b-icon icon="exit-to-app" />
+                    <mdicon name="exit-to-app" />
                     {{ $t("Leave") }}
                   </span>
                 </b-dropdown-item>
@@ -417,7 +417,7 @@
     <div v-else-if="group" class="public-container">
       <aside class="group-metadata">
         <div class="sticky">
-          <event-metadata-block :title="$t('Members')" icon="account-group">
+          <event-metadata-block :title="$t('Members')" name="account-group">
             {{
               $tc("{count} members", group.members.total, {
                 count: group.members.total,
@@ -427,7 +427,7 @@
           <event-metadata-block
             v-if="physicalAddress"
             :title="$t('Location')"
-            :icon="
+            :name="
               physicalAddress ? physicalAddress.poiInfos.poiIcon.icon : 'earth'
             "
           >

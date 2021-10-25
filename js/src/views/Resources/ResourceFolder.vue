@@ -47,14 +47,14 @@
             <b-button class="button is-primary" slot="trigger">+</b-button>
 
             <b-dropdown-item aria-role="listitem" @click="createFolderModal">
-              <b-icon icon="folder" />
+              <mdicon name="folder" />
               {{ $t("New folder") }}
             </b-dropdown-item>
             <b-dropdown-item
               aria-role="listitem"
               @click="createLinkResourceModal = true"
             >
-              <b-icon icon="link" />
+              <mdicon name="link" />
               {{ $t("New link") }}
             </b-dropdown-item>
             <hr
@@ -68,7 +68,7 @@
               :key="resourceProvider.software"
               @click="createResourceFromProvider(resourceProvider)"
             >
-              <b-icon :icon="mapServiceTypeToIcon[resourceProvider.software]" />
+              <mdicon :name="mapServiceTypeToIcon[resourceProvider.software]" />
               {{ createSentenceForType(resourceProvider.software) }}
             </b-dropdown-item>
           </b-dropdown>

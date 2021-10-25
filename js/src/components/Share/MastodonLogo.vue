@@ -1,10 +1,11 @@
 <template>
-  <span class="icon has-text-primary is-large">
+  <span class="mdi">
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="61.076954mm"
-      height="65.47831mm"
+      width="48"
+      height="48"
       viewBox="0 0 216.4144 232.00976"
+      fill="currentColor"
     >
       <title>Mastodon logo</title>
       <path

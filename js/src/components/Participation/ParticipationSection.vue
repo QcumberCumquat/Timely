@@ -29,7 +29,7 @@
             class="is-clickable"
             @click="isAnonymousParticipationModalOpen = true"
           >
-            <b-icon size="is-small" icon="information-outline" />
+            <mdicon size="is-small" name="information-outline" />
           </span>
         </b-tooltip>
       </small>
@@ -49,7 +49,7 @@
           "
         >
           <router-link :to="{ name: RouteName.TERMS }">
-            <b-icon size="is-small" icon="help-circle-outline" />
+            <mdicon size="is-small" name="help-circle-outline" />
           </router-link>
         </b-tooltip>
       </small>
@@ -59,7 +59,7 @@
         <template>
           <span>{{ $t("Event already passed") }}</span>
         </template>
-        <b-icon icon="menu-down" />
+        <mdicon name="menu-down" />
       </button>
     </div>
     <b-modal

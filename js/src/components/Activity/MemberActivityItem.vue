@@ -1,6 +1,6 @@
 <template>
   <div class="activity-item">
-    <b-icon :icon="icon" :type="iconColor" />
+    <mdicon :name="icon" :type="iconColor" />
     <div class="subject">
       <i18n :path="translation" tag="p">
         <popover-actor-card

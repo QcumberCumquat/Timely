@@ -10,7 +10,7 @@
       }"
     >
       <div class="preview">
-        <b-icon icon="folder" size="is-large" />
+        <mdicon name="folder" size="48" />
       </div>
       <div class="body">
         <h3>{{ resource.title }}</h3>

@@ -8,7 +8,7 @@
             Object.keys(mapServiceTypeToIcon).includes(resource.type)
           "
         >
-          <b-icon :icon="mapServiceTypeToIcon[resource.type]" size="is-large" />
+          <mdicon :name="mapServiceTypeToIcon[resource.type]" size="48" />
         </div>
         <div
           class="preview-image"
@@ -16,7 +16,7 @@
           :style="`background-image: url(${resource.metadata.imageRemoteUrl})`"
         />
         <div class="preview-type" v-else>
-          <b-icon icon="link" size="is-large" />
+          <mdicon name="link" size="48" />
         </div>
       </div>
       <div class="body">

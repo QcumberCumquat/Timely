@@ -19,7 +19,7 @@
         >
           <img class="is-rounded" :src="comment.actor.avatar.url" alt="" />
         </figure>
-        <b-icon class="media-left" v-else icon="account-circle" />
+        <mdicon class="media-left" v-else name="account-circle" />
       </popover-actor-card>
       <div v-else class="media-left">
         <figure
@@ -28,7 +28,7 @@
         >
           <img class="is-rounded" :src="comment.actor.avatar.url" alt="" />
         </figure>
-        <b-icon v-else icon="account-circle" />
+        <mdicon v-else name="account-circle" />
       </div>
       <div class="media-content">
         <div class="content">
@@ -54,11 +54,11 @@
               v-if="comment.actor.id === currentActor.id"
               @click="deleteComment"
             >
-              <b-icon icon="delete" size="is-small" aria-hidden="true" />
+              <mdicon name="delete" size="is-small" aria-hidden="true" />
               <span class="visually-hidden">{{ $t("Delete") }}</span>
             </button>
             <button @click="reportModal()">
-              <b-icon icon="alert" size="is-small" />
+              <mdicon name="alert" size="is-small" />
               <span class="visually-hidden">{{ $t("Report") }}</span>
             </button>
           </span>
@@ -67,7 +67,7 @@
           <div v-else>{{ $t("[This comment has been deleted]") }}</div>
           <div class="load-replies" v-if="comment.totalReplies">
             <p v-if="!showReplies" @click="fetchReplies">
-              <b-icon icon="chevron-down" class="reply-btn" />
+              <mdicon name="chevron-down" class="reply-btn" />
               <span class="reply-btn">{{
                 $tc("View a reply", comment.totalReplies, {
                   totalReplies: comment.totalReplies,
@@ -78,7 +78,7 @@
               v-else-if="comment.totalReplies && showReplies"
               @click="showReplies = false"
             >
-              <b-icon icon="chevron-up" class="reply-btn" />
+              <mdicon name="chevron-up" class="reply-btn" />
               <span class="reply-btn">{{ $t("Hide replies") }}</span>
             </p>
           </div>
@@ -98,7 +98,7 @@
               @click="createReplyToComment()"
             >
               <span class="icon is-small">
-                <b-icon icon="reply" />
+                <mdicon name="reply" />
               </span>
               <span>{{ $t("Reply") }}</span>
             </span>
@@ -118,11 +118,11 @@
             <img :src="currentActor.avatar.url" alt="" />
           </p>
         </figure>
-        <b-icon
+        <mdicon
           class="media-left"
           v-else
-          size="is-large"
-          icon="account-circle"
+          size="48"
+          name="account-circle"
         />
         <div class="media-content">
           <div class="content">

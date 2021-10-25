@@ -44,7 +44,7 @@
               v-model="props.filters.preferredUsername"
               :aria-label="$t('Filter')"
               :placeholder="$t('Filter')"
-              icon="magnify"
+              name="magnify"
             />
           </template>
           <template v-slot:default="props">
@@ -82,7 +82,7 @@
               v-model="props.filters.domain"
               :aria-label="$t('Filter')"
               :placeholder="$t('Filter')"
-              icon="magnify"
+              name="magnify"
             />
           </template>
           <template v-slot:default="props">

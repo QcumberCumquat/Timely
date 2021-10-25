@@ -2,7 +2,7 @@
   <section>
     <div class="group-section-title" :class="{ privateSection }">
       <h2>
-        <b-icon :icon="icon" />
+        <mdicon :name="icon" />
         <span>{{ title }}</span>
       </h2>
       <router-link :to="route">{{ $t("View all") }}</router-link>

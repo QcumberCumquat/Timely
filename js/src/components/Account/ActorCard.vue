@@ -5,7 +5,7 @@
         <figure class="image is-32x32" v-if="actor.avatar">
           <img class="is-rounded" :src="actor.avatar.url" alt="" />
         </figure>
-        <b-icon v-else size="is-medium" icon="account-circle" />
+        <mdicon v-else size="is-medium" name="account-circle" />
       </div>
 
       <div class="media-content">

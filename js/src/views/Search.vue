@@ -11,7 +11,7 @@
         <form @submit.prevent="submit()">
           <b-field :label="$t('Key words')" label-for="search" expanded>
             <b-input
-              icon="magnify"
+              name="magnify"
               type="search"
               id="search"
               size="is-large"
@@ -102,7 +102,7 @@
       <b-loading :active.sync="$apollo.loading"></b-loading>
       <b-tab-item>
         <template slot="header">
-          <b-icon icon="calendar"></b-icon>
+          <mdicon name="calendar"></mdicon>
           <span>
             {{ $t("Events") }}
             <b-tag rounded>{{ searchEvents.total }}</b-tag>
@@ -137,7 +137,7 @@
       </b-tab-item>
       <b-tab-item v-if="!tag">
         <template slot="header">
-          <b-icon icon="account-multiple"></b-icon>
+          <mdicon name="account-multiple"></mdicon>
           <span>
             {{ $t("Groups") }} <b-tag rounded>{{ searchGroups.total }}</b-tag>
           </span>

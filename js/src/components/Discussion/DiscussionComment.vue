@@ -7,7 +7,7 @@
       >
         <img class="is-rounded" :src="comment.actor.avatar.url" alt="" />
       </figure>
-      <b-icon v-else size="is-large" icon="account-circle" />
+      <mdicon v-else size="48" name="account-circle" />
     </div>
     <div class="body">
       <div class="meta">
@@ -30,14 +30,14 @@
           "
         >
           <b-dropdown aria-role="list">
-            <b-icon slot="trigger" role="button" icon="dots-horizontal" />
+            <mdicon slot="trigger" role="button" name="dots-horizontal" />
 
             <b-dropdown-item
               v-if="comment.actor.id === currentActor.id"
               @click="toggleEditMode"
               aria-role="menuitem"
             >
-              <b-icon icon="pencil"></b-icon>
+              <mdicon name="pencil"></mdicon>
               {{ $t("Edit") }}
             </b-dropdown-item>
             <b-dropdown-item
@@ -45,11 +45,11 @@
               @click="$emit('delete-comment', comment)"
               aria-role="menuitem"
             >
-              <b-icon icon="delete"></b-icon>
+              <mdicon name="delete"></mdicon>
               {{ $t("Delete") }}
             </b-dropdown-item>
             <!-- <b-dropdown-item aria-role="listitem" @click="isReportModalActive = true">
-              <b-icon icon="flag" />
+              <mdicon name="flag" />
               {{ $t("Report") }}
             </b-dropdown-item> -->
           </b-dropdown>

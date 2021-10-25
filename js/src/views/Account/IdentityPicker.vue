@@ -21,11 +21,11 @@
               :src="identity.avatar.url"
               alt=""
             />
-            <b-icon
+            <mdicon
               class="media-left"
               v-else
-              size="is-large"
-              icon="account-circle"
+              size="48"
+              name="account-circle"
             />
             <div class="media-content">
               <h3>@{{ identity.preferredUsername }}</h3>

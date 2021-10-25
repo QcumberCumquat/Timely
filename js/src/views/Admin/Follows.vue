@@ -34,7 +34,7 @@
             :to="{ name: RouteName.RELAY_FOLLOWINGS }"
           >
             <a>
-              <b-icon icon="inbox-arrow-down"></b-icon>
+              <mdicon name="inbox-arrow-down"></mdicon>
               <span>
                 {{ $t("Followings") }}
                 <b-tag rounded>{{ relayFollowings.total }}</b-tag>
@@ -47,7 +47,7 @@
             :to="{ name: RouteName.RELAY_FOLLOWERS }"
           >
             <a>
-              <b-icon icon="inbox-arrow-up"></b-icon>
+              <mdicon name="inbox-arrow-up"></mdicon>
               <span>
                 {{ $t("Followers") }}
                 <b-tag rounded>{{ relayFollowers.total }}</b-tag>

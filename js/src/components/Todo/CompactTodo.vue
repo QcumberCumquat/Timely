@@ -8,11 +8,11 @@
       >
       <span class="details has-text-grey">
         <span v-if="todo.dueDate" class="due_date">
-          <b-icon icon="calendar" />
+          <mdicon name="calendar" />
           {{ todo.dueDate | formatDateString }}
         </span>
         <span v-if="todo.assignedTo" class="assigned_to">
-          <b-icon icon="account" />
+          <mdicon name="account" />
           {{ `@${todo.assignedTo.preferredUsername}` }}
           <span v-if="todo.assignedTo.domain">{{
             `@${todo.assignedTo.domain}`

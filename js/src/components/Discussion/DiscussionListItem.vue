@@ -19,7 +19,7 @@
           alt
         />
       </figure>
-      <b-icon v-else size="is-medium" icon="account-circle" />
+      <mdicon v-else size="is-medium" name="account-circle" />
     </div>
     <div class="title-info-wrapper">
       <div class="title-and-date">

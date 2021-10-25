@@ -243,26 +243,26 @@ export default class App extends Vue {
 <style lang="scss">
 @import "variables";
 
-/* Icons */
-@import "node_modules/@mdi/font/scss/variables";
-@import "node_modules/@mdi/font/scss/functions";
+// /* Icons */
+// @import "node_modules/@mdi/font/scss/variables";
+// @import "node_modules/@mdi/font/scss/functions";
 
-@font-face {
-  font-family: '#{$mdi-font-name}';
-  src: url('../node_modules/@mdi/font/materialdesignicons-webfont.eot');
-  src: url('../node_modules/@mdi/font/materialdesignicons-webfont.eot?#iefix') format('embedded-opentype'),
-    url('../node_modules/@mdi/font/materialdesignicons-webfont.woff2') format('woff2'),
-    url('../node_modules/@mdi/font/materialdesignicons-webfont.woff') format('woff'),
-    url('../node_modules/@mdi/font/materialdesignicons-webfont.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
+// @font-face {
+//   font-family: '#{$mdi-font-name}';
+//   src: url('../node_modules/@mdi/font/materialdesignicons-webfont.eot');
+//   src: url('../node_modules/@mdi/font/materialdesignicons-webfont.eot?#iefix') format('embedded-opentype'),
+//     url('../node_modules/@mdi/font/materialdesignicons-webfont.woff2') format('woff2'),
+//     url('../node_modules/@mdi/font/materialdesignicons-webfont.woff') format('woff'),
+//     url('../node_modules/@mdi/font/materialdesignicons-webfont.ttf') format('truetype');
+//   font-weight: normal;
+//   font-style: normal;
+// }
 
 
-@import "node_modules/@mdi/font/scss/core";
-@import "node_modules/@mdi/font/scss/icons";
-@import "node_modules/@mdi/font/scss/extras";
-@import "node_modules/@mdi/font/scss/animated";
+// @import "node_modules/@mdi/font/scss/core";
+// @import "node_modules/@mdi/font/scss/icons";
+// @import "node_modules/@mdi/font/scss/extras";
+// @import "node_modules/@mdi/font/scss/animated";
 
 
 

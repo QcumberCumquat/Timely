@@ -27,7 +27,7 @@
         :aria-previous-label="$t('Previous page')"
         :aria-page-label="$t('Page')"
         :aria-current-label="$t('Current page')"
-        :show-detail-icon="true"
+        :show-detail-name="true"
         :total="users.total"
         :per-page="USERS_PER_PAGE"
         :has-detailed-visible="(row) => row.actors.length > 0"
@@ -43,7 +43,7 @@
               v-model="props.filters.email"
               :aria-label="$t('Filter')"
               :placeholder="$t('Filter')"
-              icon="magnify"
+              name="magnify"
             />
           </template>
           <template v-slot:default="props">
@@ -93,7 +93,7 @@
                 <p class="image is-32x32" v-if="actor.avatar">
                   <img :src="actor.avatar.url" />
                 </p>
-                <b-icon v-else size="is-medium" icon="account-circle" />
+                <mdicon v-else size="is-medium" name="account-circle" />
               </figure>
               <div class="media-content">
                 <div class="content">

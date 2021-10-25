@@ -5,16 +5,16 @@
       <!-- Custom icons -->
       <span
         class="icon is-medium"
-        v-if="icon && icon.substring(0, 7) === 'mz:icon'"
+        v-if="name && name.substring(0, 7) === 'mz:icon'"
       >
         <img
-          :src="`/img/${icon.substring(8)}_monochrome.svg`"
+          :src="`/img/${name.substring(8)}_monochrome.svg`"
           width="32"
           height="32"
         />
       </span>
-      <b-icon v-else-if="icon" :icon="icon" size="is-medium" />
-      <p :class="{ 'padding-left': icon }">
+      <mdicon v-else-if="name" :name="name" size="36" />
+      <p :class="{ 'padding-left': name }">
         <slot></slot>
       </p>
     </div>
@@ -25,7 +25,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
 export default class EventMetadataBlock extends Vue {
-  @Prop({ required: false, type: String }) icon!: string;
+  @Prop({ required: false, type: String }) name!: string;
 
   @Prop({ required: true, type: String }) title!: string;
 }

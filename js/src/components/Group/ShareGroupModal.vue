@@ -49,7 +49,7 @@
             target="_blank"
             rel="nofollow noopener"
             title="Twitter"
-            ><b-icon icon="twitter" size="is-large" type="is-primary"
+            ><mdicon name="twitter" size="48" type="is-primary"
           /></a>
           <a
             :href="mastodonShareUrl"
@@ -65,21 +65,21 @@
             target="_blank"
             rel="nofollow noopener"
             title="Facebook"
-            ><b-icon icon="facebook" size="is-large" type="is-primary"
+            ><mdicon name="facebook" size="48" type="is-primary"
           /></a>
           <a
             :href="linkedInShareUrl"
             target="_blank"
             rel="nofollow noopener"
             title="LinkedIn"
-            ><b-icon icon="linkedin" size="is-large" type="is-primary"
+            ><mdicon name="linkedin" size="48" type="is-primary"
           /></a>
           <a
             :href="whatsAppShareUrl"
             target="_blank"
             rel="nofollow noopener"
             title="WhatsApp"
-            ><b-icon icon="whatsapp" size="is-large" type="is-primary"
+            ><mdicon name="whatsapp" size="48" type="is-primary"
           /></a>
           <a
             :href="telegramShareUrl"
@@ -104,7 +104,7 @@
             target="_blank"
             rel="nofollow noopener"
             title="Email"
-            ><b-icon icon="email" size="is-large" type="is-primary"
+            ><mdicon name="email" size="48" type="is-primary"
           /></a>
         </div>
       </div>

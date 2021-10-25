@@ -13,7 +13,7 @@
             <figure class="image is-48x48" v-if="member.parent.avatar">
               <img class="is-rounded" :src="member.parent.avatar.url" alt="" />
             </figure>
-            <b-icon v-else size="is-large" icon="account-group" />
+            <mdicon v-else size="48" name="account-group" />
           </div>
           <div class="media-content">
             <router-link
@@ -52,10 +52,10 @@
       </div>
       <div>
         <b-dropdown aria-role="list" position="is-bottom-left">
-          <b-icon icon="dots-horizontal" slot="trigger" />
+          <mdicon name="dots-horizontal" slot="trigger" />
 
           <b-dropdown-item aria-role="listitem" @click="$emit('leave')">
-            <b-icon icon="exit-to-app" />
+            <mdicon name="exit-to-app" />
             {{ $t("Leave") }}
           </b-dropdown-item>
         </b-dropdown>

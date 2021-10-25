@@ -42,7 +42,7 @@
           <b-field class="search">
             <b-input
               expanded
-              icon="magnify"
+              name="magnify"
               type="search"
               :placeholder="searchPlaceHolder"
               v-model="searchText"

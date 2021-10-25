@@ -116,15 +116,6 @@ config :mobilizon, Mobilizon.Web.Email.Mailer,
   # can be `true`
   no_mx_lookups: false
 
-config :esbuild,
-  version: "0.12.18",
-  default: [
-    args:
-      ~w(src/main.js --bundle --target=es2016 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
-    cd: Path.expand("../js", __DIR__),
-    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
-  ]
-
 # Configures Elixir's Logger
 config :logger, :console,
   backends: [:console],

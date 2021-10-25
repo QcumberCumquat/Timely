@@ -6,7 +6,7 @@
           <figure class="image is-48x48" v-if="report.reported.avatar">
             <img alt="" :src="report.reported.avatar.url" />
           </figure>
-          <b-icon v-else size="is-large" icon="account-circle" />
+          <mdicon v-else size="48" name="account-circle" />
         </div>
         <div class="media-content">
           <p class="title is-4">{{ report.reported.name }}</p>

@@ -60,7 +60,7 @@ defmodule Mobilizon.Web.Plugs.HTTPSecurityPlug do
 
   @spec csp_string(Keyword.t()) :: String.t()
   defp csp_string(options) do
-    scheme = Keyword.get(options, :scheme, Config.get([Pleroma.Web.Endpoint, :url])[:scheme])
+    scheme = Keyword.get(options, :scheme, Config.get([Mobilizon.Web.Endpoint, :url])[:scheme])
     static_url = Mobilizon.Web.Endpoint.static_url()
     websocket_url = Mobilizon.Web.Endpoint.websocket_url()
 

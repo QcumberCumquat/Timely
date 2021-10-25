@@ -12,8 +12,8 @@
           alt=""
         />
 
-        <b-icon v-else-if="metadataItem.icon" :icon="metadataItem.icon" />
-        <b-icon v-else icon="help-circle" />
+        <mdicon v-else-if="metadataItem.icon" :name="metadataItem.icon" />
+        <mdicon v-else name="help-circle" />
       </div>
       <div class="media-content">
         <b>{{ metadataItem.title || metadataItem.label }}</b>

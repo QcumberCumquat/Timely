@@ -33,16 +33,16 @@
         </div>
         <div class="columns">
           <span class="column is-narrow">
-            <b-icon
-              icon="earth"
+            <mdicon
+              name="earth"
               v-if="event.visibility === EventVisibility.PUBLIC"
             />
-            <b-icon
-              icon="link"
+            <mdicon
+              name="link"
               v-if="event.visibility === EventVisibility.UNLISTED"
             />
-            <b-icon
-              icon="lock"
+            <mdicon
+              name="lock"
               v-if="event.visibility === EventVisibility.PRIVATE"
             />
           </span>

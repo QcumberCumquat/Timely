@@ -12,7 +12,7 @@
         v-if="resource.parent"
       >
         <span class="panel-icon">
-          <b-icon icon="chevron-up" size="is-small" />
+          <mdicon name="chevron-up" size="is-small" />
         </span>
         {{ $t("Parent folder") }}
       </a>
@@ -22,7 +22,7 @@
         v-else-if="resource.path.length > 1"
       >
         <span class="panel-icon">
-          <b-icon icon="chevron-up" size="is-small" />
+          <mdicon name="chevron-up" size="is-small" />
         </span>
         {{ $t("Parent folder") }}
       </a>
@@ -38,12 +38,12 @@
           @click="goDown(element)"
         >
           <span class="panel-icon">
-            <b-icon
-              icon="folder"
+            <mdicon
+              name="folder"
               size="is-small"
               v-if="element.type === 'folder'"
             />
-            <b-icon icon="link" size="is-small" v-else />
+            <mdicon name="link" size="is-small" v-else />
           </span>
           {{ element.title }}
           <span v-if="element.id === initialResource.id">

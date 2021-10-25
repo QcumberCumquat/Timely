@@ -50,7 +50,7 @@
           {{ $t("No open reports yet") }}
         </empty-content>
         <empty-content
-          icon="chat-alert"
+          name="chat-alert"
           inline
           v-if="status === ReportStatusEnum.RESOLVED"
         >

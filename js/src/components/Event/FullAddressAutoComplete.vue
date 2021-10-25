@@ -29,7 +29,7 @@
           field="fullName"
           :loading="isFetching"
           @typing="fetchAsyncData"
-          icon="map-marker"
+          name="map-marker"
           expanded
           @select="updateSelected"
           v-bind="$attrs"
@@ -37,7 +37,7 @@
           :disabled="disabled"
         >
           <template #default="{ option }">
-            <b-icon :icon="option.poiInfos.poiIcon.icon" />
+            <mdicon :name="option.poiInfos.poiIcon.icon" />
             <b>{{ option.poiInfos.name }}</b
             ><br />
             <small>{{ option.poiInfos.alternativeName }}</small>
@@ -74,7 +74,7 @@
         <div class="card-content">
           <address-info
             :address="selected"
-            :show-icon="true"
+            :show-name="true"
             :show-timezone="true"
             :user-timezone="userTimezone"
           />

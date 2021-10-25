@@ -18,7 +18,7 @@
           type="button"
           :title="$t('Bold')"
         >
-          <b-icon icon="format-bold" />
+          <mdicon name="format-bold" />
         </button>
 
         <button
@@ -28,7 +28,7 @@
           type="button"
           :title="$t('Italic')"
         >
-          <b-icon icon="format-italic" />
+          <mdicon name="format-italic" />
         </button>
 
         <button
@@ -38,7 +38,7 @@
           type="button"
           :title="$t('Underline')"
         >
-          <b-icon icon="format-underline" />
+          <mdicon name="format-underline" />
         </button>
 
         <button
@@ -49,7 +49,7 @@
           type="button"
           :title="$t('Heading Level 1')"
         >
-          <b-icon icon="format-header-1" />
+          <mdicon name="format-header-1" />
         </button>
 
         <button
@@ -60,7 +60,7 @@
           type="button"
           :title="$t('Heading Level 2')"
         >
-          <b-icon icon="format-header-2" />
+          <mdicon name="format-header-2" />
         </button>
 
         <button
@@ -71,7 +71,7 @@
           type="button"
           :title="$t('Heading Level 3')"
         >
-          <b-icon icon="format-header-3" />
+          <mdicon name="format-header-3" />
         </button>
 
         <button
@@ -81,7 +81,7 @@
           type="button"
           :title="$t('Add link')"
         >
-          <b-icon icon="link" />
+          <mdicon name="link" />
         </button>
 
         <button
@@ -91,7 +91,7 @@
           type="button"
           :title="$t('Remove link')"
         >
-          <b-icon icon="link-off" />
+          <mdicon name="link-off" />
         </button>
 
         <button
@@ -101,7 +101,7 @@
           type="button"
           :title="$t('Add picture')"
         >
-          <b-icon icon="image" />
+          <mdicon name="image" />
         </button>
 
         <button
@@ -112,7 +112,7 @@
           type="button"
           :title="$t('Bullet list')"
         >
-          <b-icon icon="format-list-bulleted" />
+          <mdicon name="format-list-bulleted" />
         </button>
 
         <button
@@ -123,7 +123,7 @@
           type="button"
           :title="$t('Ordered list')"
         >
-          <b-icon icon="format-list-numbered" />
+          <mdicon name="format-list-numbered" />
         </button>
 
         <button
@@ -134,7 +134,7 @@
           type="button"
           :title="$t('Quote')"
         >
-          <b-icon icon="format-quote-close" />
+          <mdicon name="format-quote-close" />
         </button>
 
         <button
@@ -144,7 +144,7 @@
           type="button"
           :title="$t('Undo')"
         >
-          <b-icon icon="undo" />
+          <mdicon name="undo" />
         </button>
 
         <button
@@ -154,7 +154,7 @@
           type="button"
           :title="$t('Redo')"
         >
-          <b-icon icon="redo" />
+          <mdicon name="redo" />
         </button>
       </div>
 
@@ -171,7 +171,7 @@
           type="button"
           :title="$t('Bold')"
         >
-          <b-icon icon="format-bold" />
+          <mdicon name="format-bold" />
           <span class="visually-hidden">{{ $t("Bold") }}</span>
         </button>
 
@@ -182,7 +182,7 @@
           type="button"
           :title="$t('Italic')"
         >
-          <b-icon icon="format-italic" />
+          <mdicon name="format-italic" />
           <span class="visually-hidden">{{ $t("Italic") }}</span>
         </button>
       </bubble-menu>

@@ -84,7 +84,7 @@
             autocomplete
             :open-on-focus="true"
             field="name"
-            icon="label"
+            name="label"
             :placeholder="$t('Select languages')"
             @typing="getFilteredLanguages"
             id="instance-languages"

@@ -42,7 +42,7 @@
           <b-datetimepicker
             class="datepicker starts-on"
             :placeholder="$t('Type or select a date…')"
-            icon="calendar-today"
+            name="calendar-today"
             :locale="$i18n.locale"
             v-model="beginsOn"
             horizontal-time-picker
@@ -61,7 +61,7 @@
           <b-datetimepicker
             class="datepicker ends-on"
             :placeholder="$t('Type or select a date…')"
-            icon="calendar-today"
+            name="calendar-today"
             :locale="$i18n.locale"
             v-model="endsOn"
             horizontal-time-picker
@@ -102,7 +102,7 @@
 
         <b-field :label="$t('Website / URL')" label-for="website-url">
           <b-input
-            icon="link"
+            name="link"
             type="url"
             v-model="event.onlineAddress"
             placeholder="URL"
@@ -308,7 +308,7 @@
               type="is-warning"
               :native-value="EventStatus.TENTATIVE"
             >
-              <b-icon icon="calendar-question" />
+              <mdicon name="calendar-question" />
               {{ $t("Tentative: Will be confirmed later") }}
             </b-radio-button>
             <b-radio-button
@@ -317,7 +317,7 @@
               type="is-success"
               :native-value="EventStatus.CONFIRMED"
             >
-              <b-icon icon="calendar-check" />
+              <mdicon name="calendar-check" />
               {{ $t("Confirmed: Will happen") }}
             </b-radio-button>
             <b-radio-button
@@ -326,7 +326,7 @@
               type="is-danger"
               :native-value="EventStatus.CANCELLED"
             >
-              <b-icon icon="calendar-remove" />
+              <mdicon name="calendar-remove" />
               {{ $t("Cancelled: Won't happen") }}
             </b-radio-button>
           </b-field>

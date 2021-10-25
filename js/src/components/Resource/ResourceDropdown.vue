@@ -1,17 +1,17 @@
 <template>
   <b-dropdown aria-role="list" position="is-bottom-left">
-    <b-icon icon="dots-horizontal" slot="trigger" />
+    <mdicon name="dots-horizontal" slot="trigger" />
 
     <b-dropdown-item aria-role="listitem" @click="$emit('rename')">
-      <b-icon icon="pencil" />
+      <mdicon name="pencil" />
       {{ $t("Rename") }}
     </b-dropdown-item>
     <b-dropdown-item aria-role="listitem" @click="$emit('move')">
-      <b-icon icon="folder-move" />
+      <mdicon name="folder-move" />
       {{ $t("Move") }}
     </b-dropdown-item>
     <b-dropdown-item aria-role="listitem" @click="$emit('delete')">
-      <b-icon icon="delete" />
+      <mdicon name="delete" />
       {{ $t("Delete") }}
     </b-dropdown-item>
   </b-dropdown>

@@ -122,11 +122,10 @@
                 alt=""
               />
             </figure>
-            <b-icon
-              class="media-left"
+            <mdicon             class="media-left"
               v-else
-              size="is-large"
-              icon="account-circle"
+              size="48"
+              name="account-circle"
             />
             <div class="media-content">
               <div class="content">

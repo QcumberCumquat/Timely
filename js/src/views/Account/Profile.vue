@@ -25,7 +25,7 @@
         <b-dropdown hoverable has-link aria-role="list">
           <button class="button is-primary" slot="trigger">
             {{ $t("Public feeds") }}
-            <b-icon icon="menu-down"></b-icon>
+            <mdicon name="menu-down"></mdicon>
           </button>
 
           <b-dropdown-item aria-role="listitem">
@@ -48,7 +48,7 @@
         >
           <button class="button is-info" slot="trigger">
             {{ $t("Private feeds") }}
-            <b-icon icon="menu-down"></b-icon>
+            <mdicon name="menu-down"></mdicon>
           </button>
 
           <b-dropdown-item aria-role="listitem">

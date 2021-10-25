@@ -195,7 +195,7 @@
                         password-reveal
                         id="account-deletion-password"
                         :aria-label="$t('Password')"
-                        icon="lock"
+                        name="lock"
                         :placeholder="$t('Password')"
                       />
                       <template #message>

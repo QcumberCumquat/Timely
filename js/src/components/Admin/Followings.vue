@@ -29,7 +29,7 @@
       :checked-rows.sync="checkedRows"
       :is-row-checkable="(row) => row.id !== 3"
       detailed
-      :show-detail-icon="false"
+      :show-detail-name="false"
       paginated
       backend-pagination
       :current-page.sync="page"
@@ -58,11 +58,11 @@
         width="80"
         v-slot="props"
       >
-        <b-icon
-          icon="lan"
+        <mdicon
+          name="lan"
           v-if="RelayMixin.isInstance(props.row.targetActor)"
         />
-        <b-icon icon="account-circle" v-else />
+        <mdicon name="account-circle" v-else />
       </b-table-column>
 
       <b-table-column

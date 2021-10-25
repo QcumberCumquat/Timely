@@ -15,7 +15,7 @@
               :alt="selectedActor.avatar.alt || ''"
             />
           </figure>
-          <b-icon v-else size="is-large" icon="account-circle" />
+          <mdicon v-else size="48" name="account-circle" />
         </div>
         <div class="media-content" v-if="selectedActor.name">
           <p class="is-4">{{ selectedActor.name }}</p>
@@ -43,7 +43,7 @@
         :src="selectedActor.avatar.url"
         :alt="selectedActor.avatar.alt"
       />
-      <b-icon v-else size="is-large" icon="account-circle" />
+      <mdicon v-else size="48" name="account-circle" />
     </span>
     <b-modal :active.sync="isComponentModalActive" has-modal-card>
       <div class="modal-card">
@@ -81,7 +81,7 @@
                             :alt="actor.avatar.alt"
                           />
                         </figure>
-                        <b-icon v-else size="is-large" icon="account-circle" />
+                        <mdicon v-else size="48" name="account-circle" />
                       </div>
                       <div class="media-content" v-if="actor.name">
                         <p class="is-4">{{ actor.name }}</p>

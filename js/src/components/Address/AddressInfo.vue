@@ -1,8 +1,8 @@
 <template>
   <address>
-    <b-icon
+    <mdicon
       v-if="showIcon"
-      :icon="address.poiInfos.poiIcon.icon"
+      :name="address.poiInfos.poiIcon.icon"
       size="is-medium"
       class="icon"
     />
