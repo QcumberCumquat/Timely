@@ -48,19 +48,25 @@ LABEL org.opencontainers.image.title="mobilizon" \
     org.opencontainers.image.revision=$VCS_REF \
     org.opencontainers.image.created=$BUILD_DATE
 
-RUN apk add --no-cache openssl ca-certificates ncurses-libs file postgresql-client libgcc libstdc++ imagemagick python3 py3-pip py3-pillow py3-cffi py3-brotli gcc musl-dev python3-dev pango libxslt-dev
+RUN apk add --no-cache bash openssl ca-certificates ncurses-libs file postgresql-client libgcc libstdc++ imagemagick python3 py3-pip py3-pillow py3-cffi py3-brotli gcc musl-dev python3-dev pango libxslt-dev
 RUN pip install weasyprint pyexcel-ods3
 
-RUN mkdir -p /app/uploads && chown nobody:nobody /app/uploads
-RUN mkdir -p /etc/mobilizon && chown nobody:nobody /etc/mobilizon
+RUN adduser -h /home/user -s /bin/bash user && addgroup user user
+RUN mkdir -p /var/lib/mobilizon/uploads && chown user:user /var/lib/mobilizon/uploads
+RUN mkdir -p /etc/mobilizon && chown user:user /etc/mobilizon
 
-USER nobody
+USER user
 EXPOSE 4000
 
 ENV MOBILIZON_DOCKER=true
 
-COPY --from=builder --chown=nobody:nobody _build/prod/rel/mobilizon ./
+COPY --from=builder --chown=user:user _build/prod/rel/mobilizon ./
 RUN cp /releases/*/runtime.exs /etc/mobilizon/config.exs
 COPY docker/production/docker-entrypoint.sh ./
 
+VOLUME /var/lib/mobilizon/uploads
+VOLUME /etc/mobilizon/config.exs:ro
+VOLUME /var/lib/mobilizon/geo_db/GeoLite2-City.mmdb
+
 ENTRYPOINT ["./docker-entrypoint.sh"]
+CMD "/bin/mobilizon start"

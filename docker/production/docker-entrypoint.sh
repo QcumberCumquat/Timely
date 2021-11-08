@@ -1,8 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
-echo "-- Waiting for database..."
+USER_ID=${LOCAL_USER_ID:-9001}
+
+echo "[ENTRYPOINT] Starting with UID : $USER_ID"
+
+echo "[ENTRYPOINT] -- Waiting for database..."
 while ! pg_isready -U ${MOBILIZON_DATABASE_USERNAME} -d postgres://${MOBILIZON_DATABASE_HOST}:5432/${MOBILIZON_DATABASE_DBNAME} -t 1; do
    sleep 1s
 done
@@ -10,8 +14,8 @@ done
 PGPASSWORD=$MOBILIZON_DATABASE_PASSWORD psql -U $MOBILIZON_DATABASE_USERNAME -d $MOBILIZON_DATABASE_DBNAME -h $MOBILIZON_DATABASE_HOST -c 'CREATE EXTENSION IF NOT EXISTS pg_trgm;'
 PGPASSWORD=$MOBILIZON_DATABASE_PASSWORD psql -U $MOBILIZON_DATABASE_USERNAME -d $MOBILIZON_DATABASE_DBNAME -h $MOBILIZON_DATABASE_HOST -c 'CREATE EXTENSION IF NOT EXISTS unaccent;'
 
-echo "-- Running migrations..."
-/bin/mobilizon_ctl migrate
+echo "[ENTRYPOINT] -- Running migrations..."
+exec su user -c "/bin/mobilizon_ctl migrate"
 
-echo "-- Starting!"
-exec /bin/mobilizon start
+echo "[ENTRYPOINT] -- Starting!"
+exec su user -c "$@"
