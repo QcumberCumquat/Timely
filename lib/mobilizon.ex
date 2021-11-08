@@ -37,9 +37,6 @@ defmodule Mobilizon do
   @spec start(:normal | {:takeover, node} | {:failover, node}, term) ::
           {:ok, pid} | {:ok, pid, term} | {:error, term}
   def start(_type, _args) do
-    # We update TzWorld at runtime so that the data is not contained in releases
-    TzWorldUpdate.run(nil)
-
     children =
       [
         # supervisors
