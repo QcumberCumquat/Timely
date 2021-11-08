@@ -14,7 +14,6 @@ defmodule Mobilizon do
 
   import Cachex.Spec
 
-  alias Mix.Tasks.TzWorld.Update, as: TzWorldUpdate
   alias Mobilizon.{Config, Storage, Web}
   alias Mobilizon.Federation.ActivityPub
   alias Mobilizon.Service.{ErrorPage, ErrorReporting}
