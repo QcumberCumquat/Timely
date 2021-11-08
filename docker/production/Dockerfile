@@ -48,7 +48,7 @@ LABEL org.opencontainers.image.title="mobilizon" \
     org.opencontainers.image.revision=$VCS_REF \
     org.opencontainers.image.created=$BUILD_DATE
 
-RUN apk add --no-cache openssl ca-certificates ncurses-libs file postgresql-client libgcc libstdc++ imagemagick python3 py3-pip py3-pillow py3-cffi py3-brotli gcc musl-dev python3-dev pango
+RUN apk add --no-cache openssl ca-certificates ncurses-libs file postgresql-client libgcc libstdc++ imagemagick python3 py3-pip py3-pillow py3-cffi py3-brotli gcc musl-dev python3-dev pango libxslt-dev
 RUN pip install weasyprint pyexcel-ods3
 
 RUN mkdir -p /app/uploads && chown nobody:nobody /app/uploads
