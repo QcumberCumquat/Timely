@@ -1,0 +1,97 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/activitystreams",
+    "https://w3id.org/security/v1",
+    {
+      "sc": "http://schema.org#",
+      "ical": "http://www.w3.org/2002/12/cal/ical#",
+      "pt": "https://joinpeertube.org/ns#",
+      "toot": "http://joinmastodon.org/ns#",
+      "mz": "https://joinmobilizon.org/ns#",
+      "discoverable": "toot:discoverable",
+      "manuallyApprovesFollowers": "as:manuallyApprovesFollowers",
+      "Hashtag": "as:Hashtag",
+      "category": "sc:category",
+      "uuid": "sc:identifier",
+      "maximumAttendeeCapacity": "sc:maximumAttendeeCapacity",
+      "location": {
+        "@id": "sc:location",
+        "@type": "sc:Place"
+      },
+      "PostalAddress": "sc:PostalAddress",
+      "address": {
+        "@id": "sc:address",
+        "@type": "sc:PostalAddress"
+      },
+      "addressCountry": "sc:addressCountry",
+      "addressRegion": "sc:addressRegion",
+      "postalCode": "sc:postalCode",
+      "addressLocality": "sc:addressLocality",
+      "streetAddress": "sc:streetAddress",
+      "repliesModerationOptionType": {
+        "@id": "mz:repliesModerationOptionType",
+        "@type": "rdfs:Class"
+      },
+      "repliesModerationOption": {
+        "@id": "mz:repliesModerationOption",
+        "@type": "mz:repliesModerationOptionType"
+      },
+      "commentsEnabled": {
+        "@type": "sc:Boolean",
+        "@id": "pt:commentsEnabled"
+      },
+      "joinModeType": {
+        "@id": "mz:joinModeType",
+        "@type": "rdfs:Class"
+      },
+      "joinMode": {
+        "@id": "mz:joinMode",
+        "@type": "mz:joinModeType"
+      },
+      "anonymousParticipationEnabled": {
+        "@id": "mz:anonymousParticipationEnabled",
+        "@type": "sc:Boolean"
+      },
+      "participationMessage": {
+        "@id": "mz:participationMessage",
+        "@type": "sc:Text"
+      },
+      "PropertyValue": "sc:PropertyValue",
+      "value": "sc:value",
+      "propertyID": "sc:propertyID",
+      "inLanguage": "sc:inLanguage",
+      "timezone": {
+        "@id": "mz:timezone",
+        "@type": "sc:Text"
+      },
+      "discussions": {
+        "@id": "mz:discussions",
+        "@type": "@id"
+      },
+      "events": {
+        "@id": "mz:events",
+        "@type": "@id"
+      },
+      "members": {
+        "@id": "mz:members",
+        "@type": "@id"
+      },
+      "openness": {
+        "@id": "mz:openness",
+        "@type": "@id"
+      },
+      "posts": {
+        "@id": "mz:posts",
+        "@type": "@id"
+      },
+      "resources": {
+        "@id": "mz:resources",
+        "@type": "@id"
+      },
+      "todos": {
+        "@id": "mz:todos",
+        "@type": "@id"
+      }
+    }
+  ]
+}
