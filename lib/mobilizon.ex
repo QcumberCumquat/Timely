@@ -48,6 +48,7 @@ defmodule Mobilizon do
         Guardian.DB.Token.SweeperServer,
         ActivityPub.Federator,
         TzWorld.Backend.DetsWithIndexCache,
+        {PlugAttack.Storage.Ets, name: Mobilizon.Web.Plugs.PlugAttack.Storage, clean_period: 60_000},
         cachex_spec(:feed, 2500, 60, 60, &Feed.create_cache/1),
         cachex_spec(:ics, 2500, 60, 60, &ICalendar.create_cache/1),
         cachex_spec(

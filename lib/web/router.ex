@@ -3,20 +3,31 @@ defmodule Mobilizon.Web.Router do
   Router for mobilizon app
   """
   use Mobilizon.Web, :router
+  alias Cldr.Plug.AcceptLanguage
+
+  alias Mobilizon.Web.Plugs.{
+    HTTPSecurityPlug,
+    HTTPSignatures,
+    MappedSignatureToIdentity,
+    PlugAttack,
+    SetLocalePlug
+  }
+
   import Mobilizon.Web.RequestContext
 
   pipeline :graphql do
     #    plug(:accepts, ["json"])
     plug(:put_request_context)
     plug(Mobilizon.Web.Auth.Pipeline)
-    plug(Mobilizon.Web.Plugs.SetLocalePlug)
+    plug(SetLocalePlug)
+    plug(PlugAttack)
   end
 
   pipeline :graphiql do
     plug(Mobilizon.Web.Auth.Pipeline)
-    plug(Mobilizon.Web.Plugs.SetLocalePlug)
+    plug(SetLocalePlug)
 
-    plug(Mobilizon.Web.Plugs.HTTPSecurityPlug,
+    plug(HTTPSecurityPlug,
       script_src: ["cdn.jsdelivr.net 'sha256-zkCwvTwqwJMew/8TKv7bTLh94XRSNBvT/o/NZCuf5Kc='"],
       style_src: ["cdn.jsdelivr.net 'unsafe-inline'"],
       font_src: ["cdn.jsdelivr.net"]
@@ -25,40 +36,46 @@ defmodule Mobilizon.Web.Router do
 
   pipeline :host_meta do
     plug(:put_request_context)
+    plug(PlugAttack)
     plug(:accepts, ["xrd-xml"])
   end
 
   pipeline :well_known do
     plug(:put_request_context)
+    plug(PlugAttack)
     plug(:accepts, ["json", "jrd-json"])
   end
 
   pipeline :activity_pub_signature do
     plug(:put_request_context)
-    plug(Mobilizon.Web.Plugs.HTTPSignatures)
-    plug(Mobilizon.Web.Plugs.MappedSignatureToIdentity)
+    plug(HTTPSignatures)
+    plug(MappedSignatureToIdentity)
+    plug(PlugAttack)
   end
 
   pipeline :relay do
     plug(:put_request_context)
-    plug(Mobilizon.Web.Plugs.HTTPSignatures)
-    plug(Mobilizon.Web.Plugs.MappedSignatureToIdentity)
+    plug(HTTPSignatures)
+    plug(MappedSignatureToIdentity)
+    plug(PlugAttack)
     plug(:accepts, ["activity-json", "json"])
   end
 
   pipeline :activity_pub do
     plug(:put_request_context)
+    plug(PlugAttack)
     plug(:accepts, ["activity-json"])
   end
 
   pipeline :activity_pub_and_html do
     plug(:put_request_context)
+    plug(PlugAttack)
     plug(:accepts, ["html", "activity-json"])
     plug(:put_secure_browser_headers)
 
-    plug(Mobilizon.Web.Plugs.SetLocalePlug)
+    plug(SetLocalePlug)
 
-    plug(Cldr.Plug.AcceptLanguage,
+    plug(AcceptLanguage,
       cldr_backend: Mobilizon.Cldr,
       no_match_log_level: :debug
     )
@@ -67,16 +84,18 @@ defmodule Mobilizon.Web.Router do
   pipeline :atom_and_ical do
     plug(:put_request_context)
     plug(:put_secure_browser_headers)
+    plug(PlugAttack)
     plug(:accepts, ["atom", "ics", "html", "xml"])
   end
 
   pipeline :browser do
     plug(:put_request_context)
+    plug(PlugAttack)
     plug(Plug.Static, at: "/", from: "priv/static")
 
-    plug(Mobilizon.Web.Plugs.SetLocalePlug)
+    plug(SetLocalePlug)
 
-    plug(Cldr.Plug.AcceptLanguage,
+    plug(AcceptLanguage,
       cldr_backend: Mobilizon.Cldr,
       no_match_log_level: :debug
     )
