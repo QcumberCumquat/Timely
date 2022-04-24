@@ -248,6 +248,11 @@ config :mobilizon, :maps,
     type: :openstreetmap
   ]
 
+config :mobilizon, Mobilizon.Service.Search, extra_provider: Mobilizon.Service.Search.SearchIndex
+
+config :mobilizon, Mobilizon.Service.Search.SearchIndex,
+  endpoint: "https://search.joinmobilizon.org"
+
 config :mobilizon, :http_security,
   enabled: true,
   sts: false,

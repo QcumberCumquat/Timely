@@ -81,6 +81,8 @@ defmodule Mobilizon.GraphQL.Schema.SearchType do
         description: "Radius around the location to search in"
       )
 
+      arg(:external, :boolean, default_value: false, description: "Also return external results")
+
       arg(:page, :integer, default_value: 1, description: "Result page")
       arg(:limit, :integer, default_value: 10, description: "Results limit per page")
 
@@ -100,6 +102,7 @@ defmodule Mobilizon.GraphQL.Schema.SearchType do
         description: "Radius around the location to search in"
       )
 
+      arg(:external, :boolean, default_value: false, description: "Also return external results")
       arg(:page, :integer, default_value: 1, description: "Result page")
       arg(:limit, :integer, default_value: 10, description: "Results limit per page")
       arg(:begins_on, :datetime, description: "Filter events by their start date")

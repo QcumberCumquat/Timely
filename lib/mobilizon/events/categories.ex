@@ -9,6 +9,20 @@ defmodule Mobilizon.Events.Categories do
     build_in_categories() ++ extra_categories()
   end
 
+  @doc """
+  Get a category for an input string
+  """
+  @spec get_category(String.t() | nil) :: String.t()
+  def get_category(nil), do: "MEETING"
+
+  def get_category(category) when is_binary(category) do
+    if category in Enum.map(list(), &String.upcase(to_string(&1.id))) do
+      category
+    else
+      get_category(nil)
+    end
+  end
+
   defp build_in_categories do
     [
       %{
