@@ -260,7 +260,11 @@
       <!-- Events close to you -->
       <section
         class="events-close"
-        v-if="canShowCloseEvents && loggedUserSettings.location?.range"
+        v-if="
+          canShowCloseEvents &&
+          loggedUserSettings.location &&
+          loggedUserSettings.location.range
+        "
       >
         <h2 class="title">
           {{ $t("Events nearby") }}
@@ -269,10 +273,10 @@
           {{
             $tc(
               "Within {number} kilometers of {place}",
-              loggedUserSettings.location?.range,
+              loggedUserSettings.location.range,
               {
-                number: loggedUserSettings.location?.range,
-                place: loggedUserSettings.location?.name,
+                number: loggedUserSettings.location.range,
+                place: loggedUserSettings.location.name,
               }
             )
           }}
@@ -490,7 +494,7 @@ export default class Home extends Vue {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  isToday(date: Date): boolean {
+  isToday(date: Date | string): boolean {
     return new Date(date).toDateString() === new Date().toDateString();
   }
 
