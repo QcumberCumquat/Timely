@@ -161,9 +161,15 @@ defmodule Mobilizon.Web.ActivityPubController do
       )
 
       Logger.debug(inspect(conn.req_headers))
-    end
 
-    json(conn, "error")
+      conn
+      |> put_status(:forbidden)
+      |> json("ActivityPub signature could not be checked")
+    else
+      conn
+      |> put_status(:unauthorized)
+      |> json("ActivityPub signature could not be found")
+    end
   end
 
   def relay(conn, _params) do
